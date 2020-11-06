@@ -6,9 +6,9 @@
 % - `nReals`: Number of realizations.
 % - `c`: a for mu.
 % -------------------------------------------------------------------------
-function SpatialSims(nSub, simType, nReals, c)
+function [obsSuccess_trueBdry_80,obsSuccess_trueBdry_90,obsSuccess_trueBdry_95] = SpatialSims(nSub, simType, nReals, c)
 
-    tic
+    
     % If there is a previous simulation saved, stop as we don't want to
     % overwrite it.
     if exist([simType '.mat'], 'file')
@@ -97,7 +97,10 @@ function SpatialSims(nSub, simType, nReals, c)
 
     % Boundary edges of true A_c
     Ac_bdry_edges = getBdryparams(mu, c);
-    toc 
+    
+    % Number of true boundary voxels MARKER: Could be sped up
+    nVox_trueBdry = size(getBdryvalues(mu, Ac_bdry_edges),1);
+     
     disp('Marker 1')
 
     % =====================================================================
@@ -105,9 +108,9 @@ function SpatialSims(nSub, simType, nReals, c)
     % =====================================================================
     for t=1:nReals
         
-        tic
         % Print a dot
         fprintf('.');
+        disp(t)
         
         % Initialize the estBdry data
         observed_data = zeros([dim nSub]);
@@ -133,13 +136,10 @@ function SpatialSims(nSub, simType, nReals, c)
         muHat = mean(observed_data,3);
 
         % Take the standard deviation of the date
-        est_std = reshape(biasmystd(reshape(observed_data,...
+        sigma = reshape(biasmystd(reshape(observed_data,...
                                                 [nVox nSub]),...
                                          stdblk),... % MARKER: This reshaping looks dubious - Investigate
                                dim);
-
-        toc
-        disp('Marker 2')
                            
         % Work out the estimated \hat{A}_c
         AcHat = muHat >= c;
@@ -152,40 +152,68 @@ function SpatialSims(nSub, simType, nReals, c)
         
         % Standardise the residuals (MARKER: Would be good to go through
         % this operation)
-        resid = spdiags(1./reshape(est_std, [prod(dim) 1]), 0,prod(dim),prod(dim))*reshape(resid,[prod(dim) nSub]); 
-
+        resid = spdiags(1./reshape(sigma, [prod(dim) 1]), 0,prod(dim),prod(dim))*reshape(resid,[prod(dim) nSub]); 
+        
+        % Number of observed boundary voxels MARKER: Could be sped up
+        nVox_estBdry = size(getBdryvalues(mu, AcHat_bdry_edges),1);
+        
+        % Empty arrays to store residuals along boundary
+        resid_estBdry = zeros([nVox_estBdry nSub]);
+        resid_trueBdry = zeros([nVox_trueBdry nSub]);
+        
+        % Obtain boundary residuals
+        for i=1:nSub % MARKER - THERE IS DEFO A BETTER WAY OF DOING THIS
+            sub_resid = reshape(resid(:,i), [dim 1]);
+            resid_trueBdry(:,i) = getBdryvalues(sub_resid, Ac_bdry_edges);
+            resid_estBdry(:,i) = getBdryvalues(sub_resid, AcHat_bdry_edges);
+        end
+        
         % =================================================================
         % Loop through Bootstrap instances
         % =================================================================
-        % Implementing the Multiplier Boostrap to obtain confidence intervals
-        tic
+        % Implementing the Multiplier Boostrap to obtain confidence
+        % intervals
         for k=1:nBoot 
-
+            
             % Rademacher variables/signflips for this bootstrap
             signflips = randi(2,[nSub,1])*2-3;
 
-            % Obtain bootstrap residuals
-            resid_bootstrap = resid*spdiags(signflips, 0, nSub, nSub);
-            resid_bootstrap = reshape(resid_bootstrap, [dim nSub]);
+            % =============================================================
+            % Estimated boundary 
+            % =============================================================
+            % Obtain bootstrap residuals along estimated boundary
+            resid_bootstrap_estBdry = resid_estBdry*spdiags(signflips, 0, nSub, nSub);
+            resid_bootstrap_estBdry = reshape(resid_bootstrap_estBdry, [nVox_estBdry nSub]);
             
             % Obtain G bootstrap field
-            G_bootstrap_field = sum(resid_bootstrap, 3)/sqrt(nSub);
+            G_bootstrap_estBdry = sum(resid_bootstrap_estBdry, 2)/sqrt(nSub);
             
             % Re-standardizing by bootstrap standard deviation
-            boot_std = std(resid_bootstrap, 0, 3);
-            G_bootstrap_field = G_bootstrap_field./boot_std; % MARKER: This isn't standard practice but Alex said they found it worked well for small sample. Left in for now.
-
-            % Calculating the maximum over the weighted interpolated true boundary edges
-            trueBdry_values = getBdryvalues(G_bootstrap_field, Ac_bdry_edges);
-            supG_trueBdry(k) = max(abs(trueBdry_values)); 
-
+            boot_std = std(resid_bootstrap_estBdry, 0, 2);
+            G_bootstrap_estBdry = G_bootstrap_estBdry./boot_std; % MARKER: This isn't standard prace but Alex said they found it worked well for small sample. Left in for now.
+            
             % Calculating the maximum over the weighted interpolated estimated boundary edges
-            estBdry_values = getBdryvalues(G_bootstrap_field, AcHat_bdry_edges);
-            supG_estBdry(k) = max(abs(estBdry_values));   
+            supG_estBdry(k) = max(abs(G_bootstrap_estBdry));   
+            
+            % =============================================================
+            % True boundary 
+            % =============================================================
+            % Obtain bootstrap residuals along true boundary
+            resid_bootstrap_trueBdry = resid_trueBdry*spdiags(signflips, 0, nSub, nSub);
+            resid_bootstrap_trueBdry = reshape(resid_bootstrap_trueBdry, [nVox_trueBdry nSub]);
+            
+            % Obtain G bootstrap field
+            G_bootstrap_trueBdry = sum(resid_bootstrap_trueBdry, 2)/sqrt(nSub);
+            
+            % Re-standardizing by bootstrap standard deviation
+            boot_std = std(resid_bootstrap_trueBdry, 0, 2);
+            G_bootstrap_trueBdry = G_bootstrap_trueBdry./boot_std; % MARKER: This isn't standard prace but Alex said they found it worked well for small sample. Left in for now.
+            
+            % Calculating the maximum over the weighted interpolated true
+            % boundary edges
+            supG_trueBdry(k) = max(abs(G_bootstrap_trueBdry));   
 
         end
-        toc 
-        disp('Marker 3')
         
         % =================================================================
         % Set computations using Ac boundary: 
@@ -193,7 +221,7 @@ function SpatialSims(nSub, simType, nReals, c)
         % Here Achatminus\Ac and Ac\Achatplus are computed
         % =================================================================
         
-        tic
+        
         % Get the a values along the true boundary for each percentile 
         % MARKER: Unnecessary repetition
         a_trueBdry_80 = prctile(supG_trueBdry, 80);
@@ -223,8 +251,6 @@ function SpatialSims(nSub, simType, nReals, c)
         % Get \hat{A}_c^{+}\A_c and A_c\(\hat{A}_c^{-})
         AcHatplus_setminus_Ac_trueBdry_95 = AcHatplus_trueBdry_95.*(1 - Ac);
         Ac_setminus_AcHatminus_trueBdry_95 = Ac.*(1 - AcHatminus_trueBdry_95);
-        toc
-        disp('Marker 4')
 
         % =================================================================
         % Set computations using \hat{Ac} boundary: 
@@ -239,7 +265,7 @@ function SpatialSims(nSub, simType, nReals, c)
         a_estBdry_95 = prctile(supG_estBdry, 95);
 
         % Get \hat{A}_c^+ and \hat{A}_c^- for p=0.8 
-        AcHatminus_estBdry_80 = muHat >= c - a_estdry_80*tau*sigma;
+        AcHatminus_estBdry_80 = muHat >= c - a_estBdry_80*tau*sigma;
         AcHatplus_estBdry_80 = muHat >= c + a_estBdry_80*tau*sigma;
         
         % Get \hat{A}_c^{+}\A_c and A_c\(\hat{A}_c^{-}) (Note: We still use
@@ -422,10 +448,9 @@ function SpatialSims(nSub, simType, nReals, c)
 %             subset_success_vector_estBdry_95_alternate(t) = 0; 
 %             fprintf('estBdry nominal 95 alternate true boundary failure! \n');
 %         end 
+        
 
     end
-
-    
 
 end
 
