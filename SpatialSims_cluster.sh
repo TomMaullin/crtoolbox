@@ -1,6 +1,6 @@
 nReals=50
 nBatches=100
-nSubs=(40, 60, 80, 100, 120, 140)
+nSubs=(40 60 80 100 120 140)
 
 for nSub in ${nSubs[@]}; do
 
