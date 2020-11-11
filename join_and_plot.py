@@ -53,23 +53,29 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, p in enumerate(pVals):
 
 		# Plot coverage for estimated along true boundary
-	    plt.plot(covTable_true[:,i],nSubs,marker='x',label="True boundary")
+	    plt.plot(nSubs,covTable_true[:,i],marker='x',label="True boundary")
 
 	    # Plot coverage for estimated along estimated boundary
-	    plt.plot(covTable_est[:,i],nSubs,marker='x',label="Estimated boundary")
+	    plt.plot(nSubs,covTable_est[:,i],marker='x',label="Estimated boundary")
+
+	    # Line at p
+	    plt.hlines(p, np.min(nSubs), np.max(nSubs),linestyles='dashed',label="Expected")
 
 	    # Title
-	    plt.title("Coverage (" + str(p) + " coverage, "  + str(nBoot) + " bootstraps, " + str(nReals) + " realizations)")
+	    plt.title("Coverage (" + str(np.int(100*p)) + "% probability, "  + str(nBoot) + " bootstraps, " + str(nReals) + " realizations)")
 
 	    # Axes
 	    plt.xlabel("Number of subjects")
 	    plt.ylabel("Observed coverage")
 
 	    # Legend
-	    plt.legend(loc="upper left")
+	    plt.legend()
 
 	    # Save plots
-	    plt.savefig(os.path.join(OutDir, 'coverage'+str(100*p)+'.png'))
+	    plt.savefig(os.path.join(OutDir, 'coverage'+str(np.int(100*p))+'.png'))
+
+	    # Clear figure
+	    plt.clf()
 
 	# -----------------------------------------------------------------
 	# For sample size, make quantile plots
@@ -78,7 +84,7 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, nSub in enumerate(nSubs):
 
 		# Plot quantiles for estimated along true boundary
-	    plt.plot(pVals,covTable_est[i,:],marker='x',label="True boundary")
+	    plt.plot(pVals,covTable_true[i,:],marker='x',label="True boundary")
 
 	    # Plot quantiles for estimated along estimated boundary
 	    plt.plot(pVals,covTable_est[i,:],marker='x',label="Estimated boundary")
@@ -96,5 +102,8 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	    # Save plots
 	    plt.savefig(os.path.join(OutDir, 'qq'+str(nSub)+'.png'))
 
+	    # Clear figure
+	    plt.clf()
+
 # Run for example output.
-join_and_plot('/home/tommaullin/Documents/ConfRes/1Sample', np.array([40, 60, 80, 100, 120, 140]), 5000, 5000, np.linspace(0,1,21))
+join_and_plot('/home/tommaullin/Documents/ConfRes/1Sample', np.array([40, 60, 80, 100, 120, 140]), 5000, 5000, np.linspace(40,500,24))
