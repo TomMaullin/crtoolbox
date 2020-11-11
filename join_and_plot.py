@@ -106,4 +106,4 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	    plt.clf()
 
 # Run for example output.
-join_and_plot('/home/tommaullin/Documents/ConfRes/1Sample', np.array([40, 60, 80, 100, 120, 140]), 5000, 5000, np.linspace(40,500,24))
+join_and_plot('/home/tommaullin/Documents/ConfRes/1Sample', np.int32(np.linspace(40,500,24)), 5000, 5000, np.linspace(0,1,21))
