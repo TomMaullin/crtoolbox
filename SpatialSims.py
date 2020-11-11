@@ -382,4 +382,4 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
 # Run example
-SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 30, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 30, 2, np.linspace(0,1,21))
