@@ -263,4 +263,4 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     append_to_file('estViolations'+str(nSub)+'.csv', estBdry_violated)
 
 # Run example
-SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 20, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 20, 2, np.linspace(0,1,21))
