@@ -38,9 +38,18 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     fwhm = [0,3,3]
 
     # Initialise array for recording the whether set violations occured, for a derived
-    # from bootstrapping the true boundary and estimated boundary, respectively.
-    trueBdry_violated = np.zeros((nReals,nPvals))
-    estBdry_violated = np.zeros((nReals,nPvals))
+    # from bootstrapping the true boundary and estimated boundary, respectively. The
+    # result in these arrays are based on voxelwise assessment of set condition 
+    # violations.
+    trueBdry_success = np.zeros((nReals,nPvals))
+    estBdry_success = np.zeros((nReals,nPvals))
+
+    # Initialise array for recording the whether set violations occured, for a derived
+    # from bootstrapping the true boundary and estimated boundary, respectively. The
+    # result in these arrays are based on interpolation based assessment of set
+    # condition violations.
+    trueBdry_success_intrp = np.zeros((nReals,nPvals))
+    estBdry_success_intrp = np.zeros((nReals,nPvals))
 
     # Loop through realizations
     for r in np.arange(nReals):
@@ -143,6 +152,16 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         AcHat = muHat > c
 
         # -------------------------------------------------------------------
+        # Muhat (interpolated) along the true Ac boundary
+        # -------------------------------------------------------------------
+
+        # Residuals along Ac boundary
+        muHat_AcBdry = get_bdry_values(muHat, Ac_bdry_locs)
+
+        # Interpolate along Ac boundary
+        muHat_AcBdry = get_bdry_vals_interpolated(muHat_AcBdry, Ac_bdry_weights)
+
+        # -------------------------------------------------------------------
         # Bootstrap # MARKER: CAN DEFO DELETE THIS LOOP
         # -------------------------------------------------------------------
 
@@ -241,7 +260,9 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         Ac_sub_AcHatm_estBdry = Ac[...] & ~AcHat_pm_estBdry[:,0,...]
 
         # -------------------------------------------------------------------
-        # Check whether there were any boundary violations
+        # Check whether there were any boundary violations using voxelwise
+        # set logic (checking if voxels existed in one set but not another, 
+        # etc)
         # -------------------------------------------------------------------
 
         print('here')
@@ -249,18 +270,116 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         print(Ac_sub_AcHatm_trueBdry.shape)
 
         # Record if we saw a violation in the true boundary based sets
-        trueBdry_violated[r,:] = 1-(np.any(AcHatp_sub_Ac_trueBdry,axis=(1,2)) | np.any(Ac_sub_AcHatm_trueBdry,axis=(1,2))) # MARKER: AXES WONT WORK FOR 3D ATM
+        trueBdry_success[r,:] = 1-(np.any(AcHatp_sub_Ac_trueBdry,axis=(1,2)) | np.any(Ac_sub_AcHatm_trueBdry,axis=(1,2))) # MARKER: AXES WONT WORK FOR 3D ATM
 
         # Record if we saw a violation in the estimated boundary based sets
-        estBdry_violated[r,:] = 1-(np.any(AcHatp_sub_Ac_estBdry,axis=(1,2)) | np.any(Ac_sub_AcHatm_estBdry,axis=(1,2)))# MARKER: AXES WONT WORK FOR 3D ATM
+        estBdry_success[r,:] = 1-(np.any(AcHatp_sub_Ac_estBdry,axis=(1,2)) | np.any(Ac_sub_AcHatm_estBdry,axis=(1,2)))# MARKER: AXES WONT WORK FOR 3D ATM
+
+        # -------------------------------------------------------------------
+        # Work out the threshold values of the muhat image given by:
+        #               thr(s) = c +/- a\tau\sigma(s)
+        # -------------------------------------------------------------------
+
+        # Obtain threshold maps for muhat to get lower and upper sets (for 
+        # true boundary). This variable will have dimensions corresponding
+        # to [number of p values, -a or a, dimensions of mu].
+        muHat_threshs_trueBdry = c + a_trueBdry*tau*sigma
+
+        # Obtain threshold maps for muhat to get lower and upper sets (for 
+        # estimated boundary). This variable will have dimensions
+        # corresponding to [number of p values, -a or a, dimensions of mu].
+        muHat_threshs_estBdry = c + a_estBdry*tau*sigma
+
+        # -------------------------------------------------------------------
+        # Work out the thresholds along the true boundary, using `a` derived
+        # from the maxima along the true boundary,
+        # -------------------------------------------------------------------
+        # Thresholds for muhat along Ac boundary
+        muHat_AcBdry_threshs_trueBdry = get_bdry_values(muHat_threshs_trueBdry, Ac_bdry_locs)
+
+        # Delete whole map as we no longer need it
+        del muHat_threshs_trueBdry
+
+        # Interpolate along Ac boundary
+        muHat_AcBdry_threshs_trueBdry = get_bdry_vals_interpolated(muHat_AcBdry_threshs_trueBdry, Ac_bdry_weights)
+
+        # -------------------------------------------------------------------
+        # Work out the thresholds along the true boundary, using `a` derived
+        # from the maxima along the estimated boundary,
+        # -------------------------------------------------------------------
+        # Thresholds for muhat along Ac boundary
+        muHat_AcBdry_threshs_estBdry = get_bdry_values(muHat_threshs_estBdry, Ac_bdry_locs)
+
+        # Delete whole map as we no longer need it
+        del muHat_threshs_estBdry
+
+        # Interpolate along Ac boundary
+        muHat_AcBdry_threshs_estBdry = get_bdry_vals_interpolated(muHat_AcBdry_threshs_estBdry, Ac_bdry_weights)
+
+        print(muHat_AcBdry_threshs_estBdry.shape, muHat_AcBdry_threshs_trueBdry.shape)
+
+        # -------------------------------------------------------------------
+        # Check whether there were any boundary violations using interpolated
+        # boundary values (checking if voxels had values corresponding to no
+        # violations, etc)
+        # -------------------------------------------------------------------
+
+        print('marker')
+        print(muHat_AcBdry_threshs_trueBdry)
+
+        print(muHat_AcBdry_threshs_trueBdry.shape)
+
+        # Perform lower check on muHat using thresholds based on the
+        # estimated boundary
+        bdry_lowerCheck_estBdry = muHat_AcBdry >= muHat_AcBdry_threshs_estBdry[:,0,...]
+
+        # Perform upper check on muHat using thresholds based on the
+        # estimated boundary
+        bdry_upperCheck_estBdry = muHat_AcBdry <= muHat_AcBdry_threshs_estBdry[:,1,...]
+
+        # Perform lower check on muHat using thresholds based on the
+        # true boundary
+        bdry_lowerCheck_trueBdry = muHat_AcBdry >= muHat_AcBdry_threshs_trueBdry[:,0,...]
+
+        # Perform upper check on muHat using thresholds based on the
+        # true boundary
+        bdry_upperCheck_trueBdry = muHat_AcBdry <= muHat_AcBdry_threshs_trueBdry[:,1,...]
+
+        print('check shape')
+        print(bdry_lowerCheck_trueBdry.shape)
+
+        # -------------------------------------------------------------------
+        # Work out whether simulation observed successful sets.
+        # -------------------------------------------------------------------
+        # Record if we saw a violation in the true boundary based sets
+        trueBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_trueBdry,axis=(1)) & np.all(bdry_upperCheck_trueBdry,axis=(1))# MARKER: AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the estimated boundary based sets
+        estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)) # MARKER: AXES WONT WORK FOR 3D ATM
+
+    # For the interpolated boundary success checks, we still need to do the 
+    # voxelwise checks as well. This will take care of that.
+    print('successes')
+    print(trueBdry_success_intrp.shape, trueBdry_success.shape)
+    print(trueBdry_success_intrp, trueBdry_success)
+    trueBdry_success_intrp = trueBdry_success_intrp*trueBdry_success
+    estBdry_success_intrp = estBdry_success_intrp*estBdry_success
 
     # Coverage probabilities
-    coverage_trueBdry = np.mean(trueBdry_violated,axis=0)
-    coverage_estBdry = np.mean(estBdry_violated,axis=0)
+    coverage_trueBdry = np.mean(trueBdry_success,axis=0)
+    coverage_estBdry = np.mean(estBdry_success,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
+    coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
+
+    print(coverage_estBdry_intrp, coverage_estBdry)
 
     # Save the violations to a file
-    append_to_file('trueViolations'+str(nSub)+'.csv', trueBdry_violated) 
-    append_to_file('estViolations'+str(nSub)+'.csv', estBdry_violated)
+    append_to_file('trueSuccess'+str(nSub)+'.csv', trueBdry_success) 
+    append_to_file('estSuccess'+str(nSub)+'.csv', estBdry_success)
+    append_to_file('trueSuccess'+str(nSub)+'_intrp.csv', trueBdry_success_intrp) 
+    append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
 # Run example
-#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 20, 2, np.linspace(0,1,21))
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 30, 2, np.linspace(0,1,21))

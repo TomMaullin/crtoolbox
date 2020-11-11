@@ -31,12 +31,12 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 		# Read in observed values for the estimated boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations
-		obs_est = pd.read_csv(os.path.join(OutDir,'estViolations'+str(nSub)+'.csv'), header=None, index_col=None)
+		obs_est = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'.csv'), header=None, index_col=None)
 
 		# Read in observed values for the true boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations
-		obs_true = pd.read_csv(os.path.join(OutDir,'trueViolations'+str(nSub)+'.csv'), header=None, index_col=None)
+		obs_true = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'.csv'), header=None, index_col=None)
 
 		# Get the coverage probabilities from the observed results for the
 		# estimated boundary
