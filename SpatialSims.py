@@ -258,28 +258,9 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     coverage_trueBdry = np.mean(trueBdry_violated,axis=0)
     coverage_estBdry = np.mean(estBdry_violated,axis=0)
 
-    # # Plot coverage for estimated along true boundary
-    # plt.plot(p,coverage_trueBdry,marker='x',label="True boundary")
-
-    # # Plot coverage for estimated along estimated boundary
-    # plt.plot(p,coverage_estBdry,marker='x',label="Estimated boundary")
-
-    # # Title
-    # plt.title("Coverage (" + str(nSub) + " subjects, "  + str(nBoot) + " bootstraps, " + str(nReals) + " realizations)")
-
-    # # Axes
-    # plt.xlabel("Expected coverage")
-    # plt.ylabel("Observed coverage")
-
-    # # Show legend
-    # plt.legend(loc="upper left")
-
-    # # Show plots
-    # plt.show()
-
     # Save the violations to a file
     append_to_file('trueViolations'+str(nSub)+'.csv', trueBdry_violated) 
     append_to_file('estViolations'+str(nSub)+'.csv', estBdry_violated)
 
 # Run example
-SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 20, 2, np.linspace(0,1,20))
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 20, 2, np.linspace(0,1,21))
