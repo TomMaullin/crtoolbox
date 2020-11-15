@@ -76,10 +76,10 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, p in enumerate(pVals):
 
 		# Plot coverage for estimated along true boundary
-	    plt.plot(nSubs,covTable_true[:,i],color="red",label="True boundary")
+	    #plt.plot(nSubs,covTable_true[:,i],color="red",label="True boundary")
 
 	    # Plot coverage for estimated along estimated boundary
-	    plt.plot(nSubs,covTable_est[:,i],color="blue",label="Estimated boundary")
+	    #plt.plot(nSubs,covTable_est[:,i],color="blue",label="Estimated boundary")
 
 		# Plot coverage for estimated along true boundary (Interpolated)
 	    plt.plot(nSubs,covTable_true_intrp[:,i],linestyle='dashed',color="red",label="True boundary (Interpolated)")
@@ -113,10 +113,10 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, nSub in enumerate(nSubs):
 
 		# Plot quantiles for estimated along true boundary
-	    plt.plot(pVals,covTable_true[i,:],color="red",label="True boundary")
+	    #plt.plot(pVals,covTable_true[i,:],color="red",label="True boundary")
 
 	    # Plot quantiles for estimated along estimated boundary
-	    plt.plot(pVals,covTable_est[i,:],color="blue",label="Estimated boundary")
+	    #plt.plot(pVals,covTable_est[i,:],color="blue",label="Estimated boundary")
 
 		# Plot quantiles for estimated along true boundary (Interpolated)
 	    plt.plot(pVals,covTable_true_intrp[i,:],linestyle='dashed',color="red",label="True boundary (Interpolated)")

@@ -84,7 +84,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         muHat = np.mean(data, axis=0).reshape(mu.shape)
 
         # Obtain sigma
-        sigma = np.std(data, axis=0).reshape(mu.shape)
+        sigma = np.std(data, axis=0, ddof=1).reshape(mu.shape)
 
         # -------------------------------------------------------------------
         # Boundary locations for Ac
