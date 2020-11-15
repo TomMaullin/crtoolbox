@@ -204,7 +204,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             boot_g_Ac_bdry = np.sum(boot_resid_Ac_bdry, axis=0)/np.sqrt(nSub)
 
             # Obtain bootstrap standard deviations along Ac
-            sigma_boot_Ac = np.std(boot_resid_Ac_bdry, axis=0)
+            sigma_boot_Ac = np.std(boot_resid_Ac_bdry, axis=0, ddof=1)
 
             # Divide by the boostrap standard deviation on Ac
             boot_g_Ac_bdry = boot_g_Ac_bdry/sigma_boot_Ac
@@ -214,7 +214,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             boot_g_AcHat_bdry = np.sum(boot_resid_AcHat_bdry, axis=0)/np.sqrt(nSub)
 
             # Obtain bootstrap standard deviations along AcHat
-            sigma_boot_AcHat = np.std(boot_resid_AcHat_bdry, axis=0)
+            sigma_boot_AcHat = np.std(boot_resid_AcHat_bdry, axis=0, ddof=1)
 
             # Divide by the boostrap standard deviation on AcHat
             boot_g_AcHat_bdry = boot_g_AcHat_bdry/sigma_boot_AcHat
