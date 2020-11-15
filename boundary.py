@@ -346,7 +346,7 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
 
 def testfn():
 
-    data, mu = get_data('rampHoriz2D', np.array([100,100,100]), np.array([0,5,5]))
+    data, mu = get_data({'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, np.array([100,100,100]), np.array([0,5,5]))
 
     muhat = np.mean(data,axis=0).reshape(mu.shape)
 
@@ -396,10 +396,27 @@ def testfn():
     # bdrys2 = get_bdry_maps(data, 2)
 
     # print(bdrys2)
+    plt.figure(0)
+    plt.imshow(mu[0,:,:])
+    plt.colorbar()
+    
+    plt.figure(1)
+    plt.imshow(muhat[0,:,:])
+    plt.colorbar()
+    
+    plt.figure(2)
+    plt.imshow(data[0,:,:])
+    plt.colorbar()
+    
+    plt.figure(3)
+    plt.imshow(mu[0,:,:]>2)
+    
+    plt.figure(4)
+    plt.imshow(muhat[0,:,:]>2)
+    
+    plt.figure(5)
+    plt.imshow((bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0)
+    plt.figure(6)
+    plt.imshow((bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0)
 
-
-    # plt.imshow(bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])
-    # plt.figure(3)
-    # plt.imshow(bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])
-
-    # plt.show()
+    plt.show()

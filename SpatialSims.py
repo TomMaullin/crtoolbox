@@ -12,12 +12,26 @@ from fileio import *
 #
 # - `OutDir`: Output directory.
 # - `nSub`: Number of subjects.
-# - `simType`: String representing simulation type. e.g. `ramp` for ramp.
+# - `muSpec`: Dictionary specifying mu to simulate. Always must include a 
+#             `type` parameter specifying `ramp2D` or `circle2D`.
+#             ----------------------------------------------------------------
+#             For a ramp the following must also be given:
+#                - a: lower value of ramp
+#                - b: upper value of ramp
+#                - orient: string representing `vertical` or `horizontal`
+#             ----------------------------------------------------------------
+#             For a circle the following must also be given:
+#                - center: center coordinates for circle (treating origin
+#                          as center of grid)
+#                - r: radius of circle
+#                - fwhm: fwhm used to smooth the circle 
+#                - mag: Magnitude of signal
+#             ----------------------------------------------------------------
 # - `nReals`: Number of realizations.
 # - `c`: threshold of interest for mu.
 #
 # ===========================================================================
-def SpatialSims(OutDir, nSub, simType, nReals, c, p):
+def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
 
     # Define tau_n
     tau = 1/np.sqrt(nSub)
@@ -60,7 +74,7 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         # -------------------------------------------------------------------
 
         # Obtain data
-        data, mu = get_data(simType, data_dim, fwhm)
+        data, mu = get_data(muSpec, data_dim, fwhm)
 
         # -------------------------------------------------------------------
         # Mean and variance estimates
@@ -213,8 +227,6 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
 
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
-        print(max_g_Ac)
-        print(max_g_AcHat)
 
         # -------------------------------------------------------------------
         # Obtaining a from percentiles of the max distribution
@@ -264,10 +276,6 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         # set logic (checking if voxels existed in one set but not another, 
         # etc)
         # -------------------------------------------------------------------
-
-        print('here')
-        print(Ac_sub_AcHatm_estBdry.shape)
-        print(Ac_sub_AcHatm_trueBdry.shape)
 
         # Record if we saw a violation in the true boundary based sets
         trueBdry_success[r,:] = 1-(np.any(AcHatp_sub_Ac_trueBdry,axis=(1,2)) | np.any(Ac_sub_AcHatm_trueBdry,axis=(1,2))) # MARKER: AXES WONT WORK FOR 3D ATM
@@ -324,11 +332,6 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         # violations, etc)
         # -------------------------------------------------------------------
 
-        print('marker')
-        print(muHat_AcBdry_threshs_trueBdry)
-
-        print(muHat_AcBdry_threshs_trueBdry.shape)
-
         # Perform lower check on muHat using thresholds based on the
         # estimated boundary
         bdry_lowerCheck_estBdry = muHat_AcBdry >= muHat_AcBdry_threshs_estBdry[:,0,...]
@@ -345,9 +348,6 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
         # true boundary
         bdry_upperCheck_trueBdry = muHat_AcBdry <= muHat_AcBdry_threshs_trueBdry[:,1,...]
 
-        print('check shape')
-        print(bdry_lowerCheck_trueBdry.shape)
-
         # -------------------------------------------------------------------
         # Work out whether simulation observed successful sets.
         # -------------------------------------------------------------------
@@ -360,8 +360,6 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     # For the interpolated boundary success checks, we still need to do the 
     # voxelwise checks as well. This will take care of that.
     print('successes')
-    print(trueBdry_success_intrp.shape, trueBdry_success.shape)
-    print(trueBdry_success_intrp, trueBdry_success)
     trueBdry_success_intrp = trueBdry_success_intrp*trueBdry_success
     estBdry_success_intrp = estBdry_success_intrp*estBdry_success
 
@@ -382,4 +380,5 @@ def SpatialSims(OutDir, nSub, simType, nReals, c, p):
     append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
 # Run example
-#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, 'rampHoriz2D', 30, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 30, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 30, 2, np.linspace(0,1,21))

@@ -23,6 +23,11 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	covTable_est = np.zeros((nSampSizes,nPvals))
 	covTable_true = np.zeros((nSampSizes,nPvals))
 
+	# Coverage table (we have a coverage result for each sample size
+	# and p-value) based on interpolated results
+	covTable_est_intrp = np.zeros((nSampSizes,nPvals))
+	covTable_true_intrp = np.zeros((nSampSizes,nPvals))
+
 	# -----------------------------------------------------------------
 	# For each sample size, read in the results
 	# -----------------------------------------------------------------
@@ -38,6 +43,16 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 		# across simulations
 		obs_true = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'.csv'), header=None, index_col=None)
 
+		# Read in observed values for the estimated boundary. This will be a 
+		# boolean array of ones and zeros representing observed violations
+		# across simulations (based on interpolation assessment)
+		obs_est_intrp = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'_intrp.csv'), header=None, index_col=None)
+
+		# Read in observed values for the true boundary. This will be a 
+		# boolean array of ones and zeros representing observed violations
+		# across simulations (based on interpolation assessment)
+		obs_true_intrp = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'_intrp.csv'), header=None, index_col=None)
+
 		# Get the coverage probabilities from the observed results for the
 		# estimated boundary
 		covTable_est[i,:] = np.mean(obs_est,axis=0)[:]
@@ -46,6 +61,14 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 		# true boundary
 		covTable_true[i,:] = np.mean(obs_true,axis=0)[:]
 
+		# Get the coverage probabilities from the observed results for the
+		# estimated boundary (for coverage assessed using interpolation)
+		covTable_est_intrp[i,:] = np.mean(obs_est_intrp,axis=0)[:]
+
+		# Get the coverage probabilities from the observed results for the
+		# true boundary (for coverage assessed using interpolation)
+		covTable_true_intrp[i,:] = np.mean(obs_true_intrp,axis=0)[:]
+
 	# -----------------------------------------------------------------
 	# For p-value, make a coverage plot
 	# -----------------------------------------------------------------
@@ -53,10 +76,16 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, p in enumerate(pVals):
 
 		# Plot coverage for estimated along true boundary
-	    plt.plot(nSubs,covTable_true[:,i],marker='x',label="True boundary")
+	    plt.plot(nSubs,covTable_true[:,i],color="red",label="True boundary")
 
 	    # Plot coverage for estimated along estimated boundary
-	    plt.plot(nSubs,covTable_est[:,i],marker='x',label="Estimated boundary")
+	    plt.plot(nSubs,covTable_est[:,i],color="blue",label="Estimated boundary")
+
+		# Plot coverage for estimated along true boundary (Interpolated)
+	    plt.plot(nSubs,covTable_true_intrp[:,i],linestyle='dashed',color="red",label="True boundary (Interpolated)")
+
+	    # Plot coverage for estimated along estimated boundary (Interpolated)
+	    plt.plot(nSubs,covTable_est_intrp[:,i],linestyle='dashed',color="blue",label="Estimated boundary (Interpolated)")
 
 	    # Line at p
 	    plt.hlines(p, np.min(nSubs), np.max(nSubs),linestyles='dashed',label="Expected")
@@ -84,10 +113,19 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	for i, nSub in enumerate(nSubs):
 
 		# Plot quantiles for estimated along true boundary
-	    plt.plot(pVals,covTable_true[i,:],marker='x',label="True boundary")
+	    plt.plot(pVals,covTable_true[i,:],color="red",label="True boundary")
 
 	    # Plot quantiles for estimated along estimated boundary
-	    plt.plot(pVals,covTable_est[i,:],marker='x',label="Estimated boundary")
+	    plt.plot(pVals,covTable_est[i,:],color="blue",label="Estimated boundary")
+
+		# Plot quantiles for estimated along true boundary (Interpolated)
+	    plt.plot(pVals,covTable_true_intrp[i,:],linestyle='dashed',color="red",label="True boundary (Interpolated)")
+
+	    # Plot quantiles for estimated along estimated boundary (Interpolated)
+	    plt.plot(pVals,covTable_est_intrp[i,:],linestyle='dashed',color="blue",label="Estimated boundary (Interpolated)")
+
+		# Plot quantiles for estimated along true boundary (Interpolated)
+	    plt.plot(pVals,pVals,color="grey",label="y=x")
 
 	    # Title
 	    plt.title("Q-Q (" + str(nSub) + " subjects, "  + str(nBoot) + " bootstraps, " + str(nReals) + " realizations)")
