@@ -17,7 +17,7 @@ def get_bdry_map(field, c, d):
     dim = field.shape
 
     # Get boolean for where field is greater than c
-    exc_set = field>2
+    exc_set = field>c
 
     # ----------------------------------------------------------------------
     # Work out shift down and shift up indices
@@ -299,6 +299,9 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
         # Loop through all directions getting locations
         for direction in directions:
 
+            print('direction check')
+            print(d, direction)
+
             # Get inner and outer boundary values in this dimension and
             # direction            
             outer_vals = bdry_vals[d][direction]['outer']
@@ -346,7 +349,7 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
 
 def testfn():
 
-    data, mu = get_data({'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, np.array([100,100,100]), np.array([0,5,5]))
+    data, mu = get_data({'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, np.array([100,100,100]), np.array([0,5,5]))
 
     muhat = np.mean(data,axis=0).reshape(mu.shape)
 
@@ -405,7 +408,7 @@ def testfn():
     plt.colorbar()
     
     plt.figure(2)
-    plt.imshow(data[0,:,:])
+    plt.imshow(data[8,:,:])
     plt.colorbar()
     
     plt.figure(3)
@@ -413,10 +416,17 @@ def testfn():
     
     plt.figure(4)
     plt.imshow(muhat[0,:,:]>2)
+
+    tmp = (bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0
     
     plt.figure(5)
-    plt.imshow((bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0)
+    plt.imshow(tmp)
+
+    tmp2=(bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0
     plt.figure(6)
-    plt.imshow((bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0)
+    plt.imshow(tmp2)
+
+    plt.figure(7)
+    plt.imshow(tmp+tmp2)
 
     plt.show()
