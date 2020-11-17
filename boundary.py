@@ -202,6 +202,9 @@ def get_bdry_values(field, bdry_locs):
     # Directions we can interpolate in
     directions = ['bottom', 'top']
 
+    # Boolean to tell if this is the first edge we are looking at.
+    first = True
+
     # Loop through dimensions of field and get the boundary boolean maps.
     for d in bdry_locs['dims']:
 
@@ -299,9 +302,6 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
         # Loop through all directions getting locations
         for direction in directions:
 
-            print('direction check')
-            print(d, direction)
-
             # Get inner and outer boundary values in this dimension and
             # direction            
             outer_vals = bdry_vals[d][direction]['outer']
@@ -346,6 +346,135 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
 
         # Return boundary values in concatenated form
         return(bdry_interp_concat)
+
+
+# =================================================================================================================================================START
+def get_bdry_values_concat(field, bdry_locs):
+
+    # Directions we can interpolate in
+    directions = ['bottom', 'top']
+
+    # Boolean to tell if this is the first edge we are looking at.
+    first = True
+
+    # Loop through dimensions of field and get the boundary boolean maps.
+    for d in bdry_locs['dims']:
+
+        # Loop through all directions getting locations
+        for direction in directions:
+
+            # Get inner and outer boundary values in this dimension and
+            # direction            
+            inner_vals = field[...,(*bdry_locs[d][direction]['inner'])]
+            outer_vals = field[...,(*bdry_locs[d][direction]['outer'])]
+
+            # Reshape for concatenation
+            inner_vals = inner_vals.reshape((*inner_vals.shape),1)
+            outer_vals = outer_vals.reshape((*outer_vals.shape),1)
+            
+            # If this is the first edge we've looked at initialise 
+            # concatenated interpolated boundary array
+            if first:
+
+                # Initialise array
+                bdry_vals_concat = np.concatenate((inner_vals,outer_vals),axis=-1)
+
+                # We're no longer looking at the first edge
+                first = False
+
+            else:
+
+                # Initialise array
+                current_bdry_vals = np.concatenate((inner_vals,outer_vals),axis=-1)
+
+                # Add the boundary values we just worked out
+                bdry_vals_concat =  np.concatenate((bdry_vals_concat,current_bdry_vals),axis=-2)
+
+    # Return boundary values
+    return(bdry_vals_concat)
+
+
+def get_bdry_weights_concat(bdry_vals_concat,c):
+
+
+    # Get inner and outer boundary values in this dimension and
+    # direction            
+    inner_vals = bdry_vals_concat[...,0]
+    outer_vals = bdry_vals_concat[...,1]
+
+    # Temporarily turn off divide by 0 warnings, we'll handle these below
+    # (This is over cautious... it only really is a problem for plateua 
+    # mu fields)
+    with np.errstate(divide='ignore'):
+        
+        # Work out weights
+        bdry_weights_inner_concat= (inner_vals-c)/(inner_vals-outer_vals)
+        bdry_weights_outer_concat= (c-outer_vals)/(inner_vals-outer_vals)
+
+        # Work out weights
+        bdry_weights_inner_concat = bdry_weights_inner_concat.reshape((*bdry_weights_inner_concat.shape),1)
+        bdry_weights_outer_concat = bdry_weights_outer_concat.reshape((*bdry_weights_outer_concat.shape),1)
+
+    # In case we had 2 values which were the same (can happen when looking down
+    # on ramp)
+    inf_locs = np.isinf(bdry_weights_inner_concat)
+
+    # Replace infs
+    bdry_weights_inner_concat[inf_locs]=1
+    bdry_weights_outer_concat[inf_locs]=0
+
+    # Concatenate them
+    bdry_weights_concat = np.concatenate((bdry_weights_inner_concat,bdry_weights_outer_concat),axis=-1) 
+
+    # Return boundary values
+    return(bdry_weights_concat)
+
+
+
+def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
+
+
+    # Get inner and outer boundary values in this dimension and
+    # direction            
+    outer_vals = bdry_vals_concat[...,0]
+    inner_vals = bdry_vals_concat[...,1]
+
+    # Work out weights
+    outer_weights = bdry_weights_concat[...,0]
+    inner_weights = bdry_weights_concat[...,1]
+
+    # Work out interpolated values
+    bdry_interp_concat = inner_weights*inner_vals + outer_weights*outer_vals
+
+    # Return boundary values in concatenated form
+    return(bdry_interp_concat)
+# =================================================================================================================================================END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def testfn():
 
