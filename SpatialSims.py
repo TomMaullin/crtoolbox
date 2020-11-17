@@ -76,9 +76,9 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Obtain data
         data, mu = get_data(muSpec, data_dim, fwhm)
 
-        plt.figure(0)
-        plt.imshow(mu[0,:,:])
-        plt.colorbar()
+        #plt.figure(0)
+        #plt.imshow(mu[0,:,:])
+        #plt.colorbar()
 
         # -------------------------------------------------------------------
         # Mean and variance estimates
@@ -88,7 +88,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         muHat = np.mean(data, axis=0).reshape(mu.shape)
 
         # Obtain sigma
-        sigma = np.std(data, axis=0, ddof=1).reshape(mu.shape)
+        sigma = np.std(data, axis=0).reshape(mu.shape)
 
         # -------------------------------------------------------------------
         # Boundary locations for Ac
@@ -143,7 +143,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # -------------------------------------------------------------------
 
         # Obtain residuals
-        resid = (muHat-data)/sigma
+        resid = (data-muHat)/sigma
 
         # Residuals along Ac boundary
         resid_Ac_bdry = get_bdry_values(resid, Ac_bdry_locs)
@@ -170,9 +170,9 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         AcHat = muHat > c
 
 
-        plt.figure(1)
-        plt.imshow(1*AcHat[0,:,:])
-        plt.colorbar()
+        #plt.figure(1)
+        #plt.imshow(1*AcHat[0,:,:])
+        #plt.colorbar()
 
         # -------------------------------------------------------------------
         # Muhat (interpolated) along the true Ac boundary
@@ -209,9 +209,9 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
                 print(boot_vars.shape)
                 print(resid[0,:,:].shape)
 
-                plt.figure(2)
-                plt.imshow((boot_vars.reshape((*boot_vars.shape),1)*resid[:,:,:])[0,:,:])
-                plt.colorbar()
+                #plt.figure(2)
+                #plt.imshow((boot_vars.reshape((*boot_vars.shape),1)*resid[:,:,:])[0,:,:])
+                #plt.colorbar()
 
             # Bootstrap residuals along AcHat
             boot_resid_AcHat_bdry = boot_vars*resid_AcHat_bdry
@@ -257,6 +257,8 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
         a_estBdry = np.concatenate((-a_estBdry,a_estBdry),axis=1)
 
+        print('tmp: ', a_estBdry.shape)
+
         # Get the statistic field which defined Achat^{+/-}
         stat = ((muHat-c)/(sigma*tau)).reshape(1,(*muHat.shape))
 
@@ -268,13 +270,17 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # has axes corresponding to [pvalue, plus/minus, field dimensions]
         AcHat_pm_estBdry = stat >= a_estBdry
 
-        plt.figure(3)
-        plt.imshow(1*AcHat_pm_estBdry[17,0,:,:])
-        plt.colorbar()
+        # plt.figure(3)
+        # plt.imshow(1*AcHat_pm_estBdry[0,0,:,:])
+        # plt.colorbar()
 
-        plt.figure(4)
-        plt.imshow(1*AcHat_pm_estBdry[17,1,:,:])
-        plt.colorbar()
+        # plt.figure(4)
+        # plt.imshow(1*AcHat_pm_estBdry[0,1,:,:])
+        # plt.colorbar()
+
+        # plt.figure(9)
+        # plt.imshow(1*AcHat_pm_estBdry[0,1,:,:]-1*AcHat_pm_estBdry[0,0,:,:])
+        # plt.colorbar()
 
         # -------------------------------------------------------------------
         # Some set logic to work out violations
@@ -283,6 +289,8 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Obtain AcHat^+\AcHat based on the true boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
         AcHatp_sub_Ac_trueBdry = AcHat_pm_trueBdry[:,1,...] & ~Ac[...]
+
+        print('hereeee: ', Ac.dtype)
 
         # Obtain AcHat^+\AcHat based on the estimated boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
@@ -296,13 +304,15 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # has axes corresponding to [pvalue, field dimensions]
         Ac_sub_AcHatm_estBdry = Ac[...] & ~AcHat_pm_estBdry[:,0,...]
 
-        plt.figure(5)
-        plt.imshow(1*AcHatp_sub_Ac_estBdry[17,:,:])
-        plt.colorbar()
+        print(AcHat_pm_estBdry.dtype)
 
-        plt.figure(6)
-        plt.imshow(1*Ac_sub_AcHatm_estBdry[17,:,:])
-        plt.colorbar()
+        # plt.figure(5)
+        # plt.imshow(1*AcHatp_sub_Ac_estBdry[0,:,:])
+        # plt.colorbar()
+
+        # plt.figure(6)
+        # plt.imshow(1*Ac_sub_AcHatm_estBdry[0,:,:])
+        # plt.colorbar()
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using voxelwise
         # set logic (checking if voxels existed in one set but not another, 
@@ -335,13 +345,13 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # corresponding to [number of p values, -a or a, dimensions of mu].
         muHat_threshs_estBdry = c + a_estBdry*tau*sigma
 
-        plt.figure(7)
-        plt.imshow(muHat_threshs_estBdry[17,0,:,:])
-        plt.colorbar()
+        # plt.figure(7)
+        # plt.imshow(muHat_threshs_estBdry[0,0,:,:])
+        # plt.colorbar()
 
-        plt.figure(8)
-        plt.imshow(muHat_threshs_estBdry[17,1,:,:])
-        plt.colorbar()
+        # plt.figure(8)
+        # plt.imshow(muHat_threshs_estBdry[0,1,:,:])
+        # plt.colorbar()
         # -------------------------------------------------------------------
         # Work out the thresholds along the true boundary, using `a` derived
         # from the maxima along the true boundary,
@@ -396,7 +406,13 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # true boundary
         bdry_upperCheck_trueBdry = muHat_AcBdry <= muHat_AcBdry_threshs_trueBdry[:,1,:]
 
+        print('heretmp: ', bdry_upperCheck_trueBdry.shape)
+
         print(bdry_upperCheck_trueBdry.shape)
+
+        print(muHat_AcBdry)
+        print(muHat_AcBdry_threshs_estBdry[0,0,:]-muHat_AcBdry)
+        print(muHat_AcBdry_threshs_estBdry[0,1,:]-muHat_AcBdry)
 
         # -------------------------------------------------------------------
         # Work out whether simulation observed successful sets.
@@ -407,10 +423,19 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Record if we saw a violation in the estimated boundary based sets
         estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)) # MARKER: AXES WONT WORK FOR 3D ATM
 
+        print('check')
+        print(np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)))
+        print((np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1))).shape)
+
+    print('successes')
+    print(estBdry_success_intrp)
+    print(estBdry_success)
     # For the interpolated boundary success checks, we still need to do the 
     # voxelwise checks as well. This will take care of that.
     trueBdry_success_intrp = trueBdry_success_intrp*trueBdry_success
     estBdry_success_intrp = estBdry_success_intrp*estBdry_success
+
+    print(estBdry_success_intrp)
 
     # Coverage probabilities
     coverage_trueBdry = np.mean(trueBdry_success,axis=0)
@@ -420,8 +445,8 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    print('MARKER: ', coverage_estBdry_intrp.shape)
-    print('MARKER: ', coverage_estBdry_intrp[17])
+    print('MARKER: ', coverage_estBdry_intrp)
+    #print('MARKER: ', coverage_estBdry_intrp[0])
     #plt.show()
     # Save the violations to a file
     append_to_file('trueSuccess'+str(nSub)+'.csv', trueBdry_success) 
@@ -431,4 +456,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
 
 # Run example
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 50, 2, np.linspace(0,1,21))
-#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 30, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 1, 2, np.linspace(0,1,21))
+
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
