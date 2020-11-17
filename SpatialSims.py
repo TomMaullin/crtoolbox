@@ -237,10 +237,10 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             boot_g_AcHat_bdry = boot_g_AcHat_bdry/sigma_boot_AcHat
 
             # Get maximum along Ac boudary
-            max_g_Ac[b] = np.max(boot_g_Ac_bdry) 
+            max_g_Ac[b] = np.max(np.abs(boot_g_Ac_bdry)) 
 
             # Get maximum along AcHat boudary
-            max_g_AcHat[b] = np.max(boot_g_AcHat_bdry) 
+            max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry)) 
 
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
@@ -458,4 +458,4 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 50, 2, np.linspace(0,1,21))
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 1, 2, np.linspace(0,1,21))
 
-#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
