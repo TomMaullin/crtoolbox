@@ -335,13 +335,18 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             # tmpt1 = time.time()
             # Sum across subjects to get the bootstrapped a values along
             # the boundary of Ac
+            boot_g_Ac_bdry_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
+            boot_g_Ac_bdry_concat[...,0] = np.sum(boot_resid_Ac_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g_Ac_bdry_concat[...,1] = np.sum(boot_resid_Ac_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
             boot_g_Ac_bdry_concat = np.sum(boot_resid_Ac_bdry_concat, axis=0)/np.sqrt(nSub)
             # tmpt2 = time.time()
             # print('test4: ', tmpt2-tmpt1)
 
             # tmpt1 = time.time()
             # Obtain bootstrap standard deviations along Ac
-            sigma_boot_Ac_concat = np.std(boot_resid_Ac_bdry_concat, axis=0, ddof=1)
+            sigma_boot_Ac_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
+            sigma_boot_Ac_concat[...,0] = np.std(boot_resid_Ac_bdry_concat[...,0], axis=0, ddof=1)
+            sigma_boot_Ac_concat[...,1] = np.std(boot_resid_Ac_bdry_concat[...,1], axis=0, ddof=1)
             # tmpt2 = time.time()
             # print('test5: ', tmpt2-tmpt1)
 
@@ -354,15 +359,29 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             # tmpt1 = time.time()
             # Sum across subjects to get the bootstrapped g values along
             # the boundary of AcHat
-            boot_g_AcHat_bdry_concat = np.sum(boot_resid_AcHat_bdry_concat, axis=0)/np.sqrt(nSub)
+            boot_g_AcHat_bdry_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
+            boot_g_AcHat_bdry_concat[...,0] = np.sum(boot_resid_AcHat_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g_AcHat_bdry_concat[...,1] = np.sum(boot_resid_AcHat_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
             # tmpt2 = time.time()
             # print('test7: ', tmpt2-tmpt1)
 
             # tmpt1 = time.time()
-            # Obtain bootstrap standard deviations along AcHat
-            sigma_boot_AcHat_concat = np.std(boot_resid_AcHat_bdry_concat, axis=0, ddof=1)
+            # # Obtain bootstrap standard deviations along AcHat
+            # sigma_boot_AcHat_concat = np.std(boot_resid_AcHat_bdry_concat[...,:], axis=0, ddof=1)
             # tmpt2 = time.time()
             # print('new time: ', tmpt2-tmpt1)
+
+            # tmpt1 = time.time()
+            # Obtain bootstrap standard deviations along AcHat
+            sigma_boot_AcHat_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
+            sigma_boot_AcHat_concat[...,0] = np.std(boot_resid_AcHat_bdry_concat[...,0], axis=0, ddof=1)
+            sigma_boot_AcHat_concat[...,1] = np.std(boot_resid_AcHat_bdry_concat[...,1], axis=0, ddof=1)
+            # tmpt2 = time.time()
+            # print('test8: ', tmpt2-tmpt1)
+
+            # print(sigma_boot_AcHat_concat.shape)
+            # print(sigma_boot_AcHat_concat2.shape)
+            # print(np.allclose(sigma_boot_AcHat_concat2,sigma_boot_AcHat_concat))
             # print(boot_resid_AcHat_bdry_concat.dtype)
             # print(boot_resid_AcHat_bdry_concat.shape)
             # print(sigma_boot_AcHat_concat.shape)
@@ -582,7 +601,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
     append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
 # Run example
-#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 20, 2, np.linspace(0,1,21))
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 20, 2, np.linspace(0,1,21))
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 1, 2, np.linspace(0,1,21))
 
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
