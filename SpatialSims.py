@@ -601,7 +601,7 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
     append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
 # Run example
-SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 20, 2, np.linspace(0,1,21))
+#SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 20, 2, np.linspace(0,1,21))
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 1, 2, np.linspace(0,1,21))
 
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
