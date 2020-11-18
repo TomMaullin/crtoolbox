@@ -348,7 +348,7 @@ def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
         return(bdry_interp_concat)
 
 
-# =================================================================================================================================================START
+
 def get_bdry_values_concat(field, bdry_locs):
 
     # Directions we can interpolate in
@@ -448,7 +448,6 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
 
     # Return boundary values in concatenated form
     return(bdry_interp_concat)
-# =================================================================================================================================================END
 
 
 

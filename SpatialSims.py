@@ -29,9 +29,24 @@ from fileio import *
 #             ----------------------------------------------------------------
 # - `nReals`: Number of realizations.
 # - `c`: threshold of interest for mu.
+# - `p`: numpy array of p-values.
+# - `interpBootMode`: This controls which version of the bootstrap we 
+#                     perform. The options are:
+#                     --------------------------------------------------------
+#                       - 1: Interpolate the residuals and then perform the 
+#                            bootstrap using the interpolated residuals.
+#                     --------------------------------------------------------
+#                       - 2: (Default) Obtain the residuals along the inner
+#                            and outer boundary of the excursion set. The 
+#                            bootstrap is performed concurrently using both 
+#                            the inner and outer voxels, following which 
+#                            interpolation is performed. 
+#                     --------------------------------------------------------
 #
 # ===========================================================================
-def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
+def SpatialSims(OutDir, nSub, muSpec, nReals, c, p, interpBootMode=2):
+
+    t1overall = time.time()
 
     # Define tau_n
     tau = 1/np.sqrt(nSub)
@@ -75,10 +90,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
 
         # Obtain data
         data, mu = get_data(muSpec, data_dim, fwhm)
-
-        #plt.figure(0)
-        #plt.imshow(mu[0,:,:])
-        #plt.colorbar()
 
         # -------------------------------------------------------------------
         # Mean and variance estimates
@@ -129,48 +140,47 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # -------------------------------------------------------------------
         # Interpolation weights for AcHat boundary
         # -------------------------------------------------------------------
-        # Obtain the values along the boundary for AcHat
-        AcHat_bdry_vals = get_bdry_values(muHat, AcHat_bdry_locs)
 
-        # Obtain the weights along the boundary for Ac
-        AcHat_bdry_weights = get_bdry_weights(AcHat_bdry_vals, c)
+        # If we are in mode 1, we work with the interpolated boundary in dict
+        # form.
+        if interpBootMode==1:
 
-        # Delete values as we no longer need them
-        del AcHat_bdry_vals
+            # Obtain the values along the boundary for AcHat
+            AcHat_bdry_vals = get_bdry_values(muHat, AcHat_bdry_locs)
 
+            # Obtain the weights along the boundary for Ac
+            AcHat_bdry_weights = get_bdry_weights(AcHat_bdry_vals, c)
 
-# =================================================================================================================================================START
+            # Delete values as we no longer need them
+            del AcHat_bdry_vals
 
-        # -------------------------------------------------------------------
-        # Interpolation weights for Ac boundary
-        # -------------------------------------------------------------------
-        # Obtain the values along the boundary for Ac
-        Ac_bdry_vals_concat = get_bdry_values_concat(mu, Ac_bdry_locs)
+        # If we are in mode 2, we work with the inner and outer boundaries in 
+        # np array form.
+        if interpBootMode==2:
 
-        # Obtain the weights along the boundary for Ac
-        Ac_bdry_weights_concat = get_bdry_weights_concat(Ac_bdry_vals_concat, c)
+            # ---------------------------------------------------------------
+            # Interpolation weights for Ac boundary
+            # ---------------------------------------------------------------
+            # Obtain the values along the boundary for Ac
+            Ac_bdry_vals_concat = get_bdry_values_concat(mu, Ac_bdry_locs)
 
-        # Delete values as we no longer need them
-        del Ac_bdry_vals_concat
+            # Obtain the weights along the boundary for Ac
+            Ac_bdry_weights_concat = get_bdry_weights_concat(Ac_bdry_vals_concat, c)
 
-        # -------------------------------------------------------------------
-        # Interpolation weights for AcHat boundary
-        # -------------------------------------------------------------------
-        # Obtain the values along the boundary for AcHat
-        AcHat_bdry_vals_concat = get_bdry_values_concat(muHat, AcHat_bdry_locs)
+            # Delete values as we no longer need them
+            del Ac_bdry_vals_concat
 
-        # Obtain the weights along the boundary for Ac
-        AcHat_bdry_weights_concat = get_bdry_weights_concat(AcHat_bdry_vals_concat, c)
+            # ---------------------------------------------------------------
+            # Interpolation weights for AcHat boundary
+            # ---------------------------------------------------------------
+            # Obtain the values along the boundary for AcHat
+            AcHat_bdry_vals_concat = get_bdry_values_concat(muHat, AcHat_bdry_locs)
 
-        # Delete values as we no longer need them
-        del AcHat_bdry_vals_concat
+            # Obtain the weights along the boundary for Ac
+            AcHat_bdry_weights_concat = get_bdry_weights_concat(AcHat_bdry_vals_concat, c)
 
-# =================================================================================================================================================END
-
-
-
-
-
+            # Delete values as we no longer need them
+            del AcHat_bdry_vals_concat
 
         # -------------------------------------------------------------------
         # Residuals
@@ -179,42 +189,34 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Obtain residuals
         resid = (data-muHat)/sigma
 
-        # Residuals along Ac boundary
-        resid_Ac_bdry = get_bdry_values(resid, Ac_bdry_locs)
+        # If we are in mode 1, we work with the interpolated boundary in dict
+        # form.
+        if interpBootMode==1:
 
-        # Interpolate along Ac boundary
-        resid_Ac_bdry = get_bdry_vals_interpolated(resid_Ac_bdry, Ac_bdry_weights)
+            # Residuals along Ac boundary
+            resid_Ac_bdry = get_bdry_values(resid, Ac_bdry_locs)
 
-        # Residuals along AcHat boundary
-        resid_AcHat_bdry = get_bdry_values(resid, AcHat_bdry_locs)
+            # Interpolate along Ac boundary
+            resid_Ac_bdry = get_bdry_vals_interpolated(resid_Ac_bdry, Ac_bdry_weights)
 
-        # Interpolate along AcHat boundary
-        resid_AcHat_bdry = get_bdry_vals_interpolated(resid_AcHat_bdry, AcHat_bdry_weights)
+            # Residuals along AcHat boundary
+            resid_AcHat_bdry = get_bdry_values(resid, AcHat_bdry_locs)
+
+            # Interpolate along AcHat boundary
+            resid_AcHat_bdry = get_bdry_vals_interpolated(resid_AcHat_bdry, AcHat_bdry_weights)
+
+        #If we are in mode 2, we work with the inner and outer boundaries in 
+        #np array form.
+        if interpBootMode==2:
+
+            # Residuals along Ac boundary
+            resid_Ac_bdry_concat = get_bdry_values_concat(resid, Ac_bdry_locs)
+
+            # Residuals along AcHat boundary
+            resid_AcHat_bdry_concat = get_bdry_values_concat(resid, AcHat_bdry_locs)
 
         # Delete residuals as they are no longer needed
-        #del resid # MARKER
-
-
-
-
-
-
-
-# =================================================================================================================================================START
-
-        # Residuals along Ac boundary
-        resid_Ac_bdry_concat = get_bdry_values_concat(resid, Ac_bdry_locs)
-
-        # Residuals along AcHat boundary
-        resid_AcHat_bdry_concat = get_bdry_values_concat(resid, AcHat_bdry_locs)
-
         del resid, data
-# =================================================================================================================================================END
-
-
-
-
-
 
         # -------------------------------------------------------------------
         # True and estimated excursion sets
@@ -224,11 +226,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
 
         # Obtain estimated Ac
         AcHat = muHat > c
-
-
-        #plt.figure(1)
-        #plt.imshow(1*AcHat[0,:,:])
-        #plt.colorbar()
 
         # -------------------------------------------------------------------
         # Muhat (interpolated) along the true Ac boundary
@@ -240,24 +237,18 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Interpolate along Ac boundary
         muHat_AcBdry = get_bdry_vals_interpolated(muHat_AcBdry, Ac_bdry_weights)
 
+        # If we are in mode 2, we work with the inner and outer boundaries in 
+        # np array form.
+        if interpBootMode==2:
 
+            # Residuals along Ac boundary
+            muHat_AcBdry_concat = get_bdry_values_concat(muHat, Ac_bdry_locs)
 
-
-# =================================================================================================================================================START
-
-        # Residuals along Ac boundary
-        muHat_AcBdry_concat = get_bdry_values_concat(muHat, Ac_bdry_locs)
-
-        # Interpolate along Ac boundary
-        muHat_AcBdry_concat = get_bdry_vals_interpolated_concat(muHat_AcBdry_concat, Ac_bdry_weights_concat)
-
-# =================================================================================================================================================END
-
-
-
+            # Interpolate along Ac boundary
+            muHat_AcBdry_concat = get_bdry_vals_interpolated_concat(muHat_AcBdry_concat, Ac_bdry_weights_concat)
 
         # -------------------------------------------------------------------
-        # Bootstrap # MARKER: CAN DEFO DELETE THIS LOOP
+        # Bootstrap 
         # -------------------------------------------------------------------
         # Initialize empty bootstrap stores
         max_g_Ac = np.zeros(nBoot)
@@ -271,153 +262,105 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
             # Obtain bootstrap variables
             boot_vars = 2*np.random.randint(0,2,boot_dim)-1
 
-            # # Bootstrap residuals along Ac
-            # boot_resid_Ac_bdry = boot_vars*resid_Ac_bdry
+            # If we are in mode 1, we perform the bootstrap on the
+            # interpolated residuals.
+            if interpBootMode==1:
 
-            # # Bootstrap residuals along AcHat
-            # boot_resid_AcHat_bdry = boot_vars*resid_AcHat_bdry
+                # Bootstrap residuals along Ac
+                boot_resid_Ac_bdry = boot_vars*resid_Ac_bdry
 
-            # # Sum across subjects to get the bootstrapped a values along
-            # # the boundary of Ac
-            # boot_g_Ac_bdry = np.sum(boot_resid_Ac_bdry, axis=0)/np.sqrt(nSub)
+                # Bootstrap residuals along AcHat
+                boot_resid_AcHat_bdry = boot_vars*resid_AcHat_bdry
 
-            # # Obtain bootstrap standard deviations along Ac
-            # sigma_boot_Ac = np.std(boot_resid_Ac_bdry, axis=0, ddof=1)
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of Ac
+                boot_g_Ac_bdry = np.sum(boot_resid_Ac_bdry, axis=0)/np.sqrt(nSub)
 
-            # # Divide by the boostrap standard deviation on Ac
-            # boot_g_Ac_bdry = boot_g_Ac_bdry/sigma_boot_Ac
+                # Obtain bootstrap standard deviations along Ac
+                sigma_boot_Ac = np.std(boot_resid_Ac_bdry, axis=0, ddof=1)
 
-            # # Sum across subjects to get the bootstrapped g values along
-            # # the boundary of AcHat
-            # boot_g_AcHat_bdry = np.sum(boot_resid_AcHat_bdry, axis=0)/np.sqrt(nSub)
+                # Divide by the boostrap standard deviation on Ac
+                boot_g_Ac_bdry = boot_g_Ac_bdry/sigma_boot_Ac
 
-            # # t1tmp=time.time()
-            # # Obtain bootstrap standard deviations along AcHat
-            # sigma_boot_AcHat = np.std(boot_resid_AcHat_bdry, axis=0, ddof=1)
-            # # t2tmp = time.time()
-            # # print('orig std: ', t2tmp-t1tmp)
-            # # print(boot_resid_AcHat_bdry.dtype)
-            # # print(boot_resid_AcHat_bdry.shape)
-            # # print(sigma_boot_AcHat.shape)
+                # Sum across subjects to get the bootstrapped g values along
+                # the boundary of AcHat
+                boot_g_AcHat_bdry = np.sum(boot_resid_AcHat_bdry, axis=0)/np.sqrt(nSub)
 
-            # # Divide by the boostrap standard deviation on AcHat
-            # boot_g_AcHat_bdry = boot_g_AcHat_bdry/sigma_boot_AcHat
+                # Obtain bootstrap standard deviations along AcHat
+                sigma_boot_AcHat = np.std(boot_resid_AcHat_bdry, axis=0, ddof=1)
 
-            # # Get maximum along Ac boudary
-            # max_g_Ac[b] = np.max(np.abs(boot_g_Ac_bdry)) 
+                # Divide by the boostrap standard deviation on AcHat
+                boot_g_AcHat_bdry = boot_g_AcHat_bdry/sigma_boot_AcHat
 
-            # # Get maximum along AcHat boudary
-            # max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry)) 
+                # Get maximum along Ac boudary
+                max_g_Ac[b] = np.max(np.abs(boot_g_Ac_bdry)) 
 
+                # Get maximum along AcHat boudary
+                max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry)) 
 
-# =================================================================================================================================================START
+            # If we are in mode 2, we perform the bootstrap on the
+            # inner and outer residuals and then interpolate.
+            if interpBootMode==2:
 
-            # tmpt1 = time.time()
-            # Reshape for broadcasting purposes (extra axis refers to the fact we have
-            # inner and outer boundary values in the last axes of resid_Ac_bdry_concat
-            # and resid_AcHat_bdry_concat)
-            boot_vars = boot_vars.reshape((*boot_vars.shape),1)
-            # tmpt2 = time.time()
-            # print('test1: ', tmpt2-tmpt1)
+                # Reshape for broadcasting purposes (extra axis refers to the fact we have
+                # inner and outer boundary values in the last axes of resid_Ac_bdry_concat
+                # and resid_AcHat_bdry_concat)
+                boot_vars = boot_vars.reshape((*boot_vars.shape),1)
 
-            # tmpt1 = time.time()
-            # Bootstrap residuals along Ac
-            boot_resid_Ac_bdry_concat = boot_vars*resid_Ac_bdry_concat
-            # tmpt2 = time.time()
-            # print('test2: ', tmpt2-tmpt1)
+                # Bootstrap residuals along Ac
+                boot_resid_Ac_bdry_concat = boot_vars*resid_Ac_bdry_concat
 
-            # tmpt1 = time.time()
-            # Bootstrap residuals along AcHat
-            boot_resid_AcHat_bdry_concat = boot_vars*resid_AcHat_bdry_concat
-            # tmpt2 = time.time()
-            # print('test3: ', tmpt2-tmpt1)
+                # Bootstrap residuals along AcHat
+                boot_resid_AcHat_bdry_concat = boot_vars*resid_AcHat_bdry_concat
 
-            # tmpt1 = time.time()
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of Ac
-            boot_g_Ac_bdry_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
-            boot_g_Ac_bdry_concat[...,0] = np.sum(boot_resid_Ac_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g_Ac_bdry_concat[...,1] = np.sum(boot_resid_Ac_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
-            # boot_g_Ac_bdry_concat = np.sum(boot_resid_Ac_bdry_concat, axis=0)/np.sqrt(nSub)
-            # tmpt2 = time.time()
-            # print('test4: ', tmpt2-tmpt1)
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of Ac. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g_Ac_bdry_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
+                boot_g_Ac_bdry_concat[...,0] = np.sum(boot_resid_Ac_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g_Ac_bdry_concat[...,1] = np.sum(boot_resid_Ac_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
 
-            # tmpt1 = time.time()
-            # Obtain bootstrap standard deviations along Ac
-            sigma_boot_Ac_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
-            sigma_boot_Ac_concat[...,0] = np.std(boot_resid_Ac_bdry_concat[...,0], axis=0, ddof=1)
-            sigma_boot_Ac_concat[...,1] = np.std(boot_resid_Ac_bdry_concat[...,1], axis=0, ddof=1)
-            # tmpt2 = time.time()
-            # print('test5: ', tmpt2-tmpt1)
+                # Obtain bootstrap standard deviations along Ac. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma_boot_Ac_concat = np.zeros(boot_resid_Ac_bdry_concat.shape[-2:])
+                sigma_boot_Ac_concat[...,0] = np.std(boot_resid_Ac_bdry_concat[...,0], axis=0, ddof=1)
+                sigma_boot_Ac_concat[...,1] = np.std(boot_resid_Ac_bdry_concat[...,1], axis=0, ddof=1)
 
-            # tmpt1 = time.time()
-            # Divide by the boostrap standard deviation on Ac
-            boot_g_Ac_bdry_concat = boot_g_Ac_bdry_concat/sigma_boot_Ac_concat
-            # tmpt2 = time.time()
-            # print('test6: ', tmpt2-tmpt1)
-            
-            # tmpt1 = time.time()
-            # Sum across subjects to get the bootstrapped g values along
-            # the boundary of AcHat
-            boot_g_AcHat_bdry_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
-            boot_g_AcHat_bdry_concat[...,0] = np.sum(boot_resid_AcHat_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g_AcHat_bdry_concat[...,1] = np.sum(boot_resid_AcHat_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
-            # boot_g_AcHat_bdry_concat = np.sum(boot_resid_AcHat_bdry_concat, axis=0)/np.sqrt(nSub)
-            # tmpt2 = time.time()
-            # print('test7: ', tmpt2-tmpt1)
+                # Divide by the boostrap standard deviation on Ac
+                boot_g_Ac_bdry_concat = boot_g_Ac_bdry_concat/sigma_boot_Ac_concat
 
-            # tmpt1 = time.time()
-            # # Obtain bootstrap standard deviations along AcHat
-            # sigma_boot_AcHat_concat = np.std(boot_resid_AcHat_bdry_concat[...,:], axis=0, ddof=1)
-            # tmpt2 = time.time()
-            # print('new time: ', tmpt2-tmpt1)
+                # Sum across subjects to get the bootstrapped g values along
+                # the boundary of AcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g_AcHat_bdry_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
+                boot_g_AcHat_bdry_concat[...,0] = np.sum(boot_resid_AcHat_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g_AcHat_bdry_concat[...,1] = np.sum(boot_resid_AcHat_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
 
-            # tmpt1 = time.time()
-            # Obtain bootstrap standard deviations along AcHat
-            sigma_boot_AcHat_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
-            sigma_boot_AcHat_concat[...,0] = np.std(boot_resid_AcHat_bdry_concat[...,0], axis=0, ddof=1)
-            sigma_boot_AcHat_concat[...,1] = np.std(boot_resid_AcHat_bdry_concat[...,1], axis=0, ddof=1)
-            # tmpt2 = time.time()
-            # print('test8: ', tmpt2-tmpt1)
+                # Obtain bootstrap standard deviations along AcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma_boot_AcHat_concat = np.zeros(boot_resid_AcHat_bdry_concat.shape[-2:])
+                sigma_boot_AcHat_concat[...,0] = np.std(boot_resid_AcHat_bdry_concat[...,0], axis=0, ddof=1)
+                sigma_boot_AcHat_concat[...,1] = np.std(boot_resid_AcHat_bdry_concat[...,1], axis=0, ddof=1)
 
-            # print(sigma_boot_AcHat_concat.shape)
-            # print(sigma_boot_AcHat_concat2.shape)
-            # print(np.allclose(sigma_boot_AcHat_concat2,sigma_boot_AcHat_concat))
-            # print(boot_resid_AcHat_bdry_concat.dtype)
-            # print(boot_resid_AcHat_bdry_concat.shape)
-            # print(sigma_boot_AcHat_concat.shape)
+                # Divide by the boostrap standard deviation on AcHat
+                boot_g_AcHat_bdry_concat = boot_g_AcHat_bdry_concat/sigma_boot_AcHat_concat
 
-            # tmpt1 = time.time()
-            # Divide by the boostrap standard deviation on AcHat
-            boot_g_AcHat_bdry_concat = boot_g_AcHat_bdry_concat/sigma_boot_AcHat_concat
-            # tmpt2 = time.time()
-            # print('test9: ', tmpt2-tmpt1)
+                # Interpolation for Ac boundary
+                boot_g_Ac_bdry_concat = get_bdry_vals_interpolated_concat(boot_g_Ac_bdry_concat,Ac_bdry_weights_concat)
 
-            # tmpt1 = time.time()
-            # Interpolation for Ac boundary
-            boot_g_Ac_bdry_concat = get_bdry_vals_interpolated_concat(boot_g_Ac_bdry_concat,Ac_bdry_weights_concat)
-            # tmpt2 = time.time()
-            # print('test10: ', tmpt2-tmpt1)
+                # Interpolation for AcHat boundary
+                boot_g_AcHat_bdry_concat = get_bdry_vals_interpolated_concat(boot_g_AcHat_bdry_concat,AcHat_bdry_weights_concat)
 
-            # tmpt1 = time.time()
-            # Interpolation for AcHat boundary
-            boot_g_AcHat_bdry_concat = get_bdry_vals_interpolated_concat(boot_g_AcHat_bdry_concat,AcHat_bdry_weights_concat)
-            # tmpt2 = time.time()
-            # print('test11: ', tmpt2-tmpt1)
+                # Get maximum along Ac boudary
+                max_g_Ac[b] = np.max(np.abs(boot_g_Ac_bdry_concat)) 
 
-            # tmpt1 = time.time()
-            # Get maximum along Ac boudary
-            max_g_Ac[b] = np.max(np.abs(boot_g_Ac_bdry_concat)) 
-            # tmpt2 = time.time()
-            # print('test12: ', tmpt2-tmpt1)
+                # Get maximum along AcHat boudary
+                max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry_concat)) 
 
-            # tmpt1 = time.time()
-            # Get maximum along AcHat boudary
-            max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry_concat)) 
-            # tmpt2 = time.time()
-            # print('test13: ', tmpt2-tmpt1)
-
-# =================================================================================================================================================END
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
 
@@ -444,18 +387,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # has axes corresponding to [pvalue, plus/minus, field dimensions]
         AcHat_pm_estBdry = stat >= a_estBdry
 
-        # plt.figure(3)
-        # plt.imshow(1*AcHat_pm_estBdry[0,0,:,:])
-        # plt.colorbar()
-
-        # plt.figure(4)
-        # plt.imshow(1*AcHat_pm_estBdry[0,1,:,:])
-        # plt.colorbar()
-
-        # plt.figure(9)
-        # plt.imshow(1*AcHat_pm_estBdry[0,1,:,:]-1*AcHat_pm_estBdry[0,0,:,:])
-        # plt.colorbar()
-
         # -------------------------------------------------------------------
         # Some set logic to work out violations
         # -------------------------------------------------------------------
@@ -476,13 +407,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # has axes corresponding to [pvalue, field dimensions]
         Ac_sub_AcHatm_estBdry = Ac[...] & ~AcHat_pm_estBdry[:,0,...]
 
-        # plt.figure(5)
-        # plt.imshow(1*AcHatp_sub_Ac_estBdry[0,:,:])
-        # plt.colorbar()
-
-        # plt.figure(6)
-        # plt.imshow(1*Ac_sub_AcHatm_estBdry[0,:,:])
-        # plt.colorbar()
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using voxelwise
         # set logic (checking if voxels existed in one set but not another, 
@@ -510,13 +434,6 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # corresponding to [number of p values, -a or a, dimensions of mu].
         muHat_threshs_estBdry = c + a_estBdry*tau*sigma
 
-        # plt.figure(7)
-        # plt.imshow(muHat_threshs_estBdry[0,0,:,:])
-        # plt.colorbar()
-
-        # plt.figure(8)
-        # plt.imshow(muHat_threshs_estBdry[0,1,:,:])
-        # plt.colorbar()
         # -------------------------------------------------------------------
         # Work out the thresholds along the true boundary, using `a` derived
         # from the maxima along the true boundary,
@@ -574,15 +491,10 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
         # Record if we saw a violation in the estimated boundary based sets
         estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)) # MARKER: AXES WONT WORK FOR 3D ATM
 
-    print('successes')
-    print(estBdry_success_intrp)
-    print(estBdry_success)
     # For the interpolated boundary success checks, we still need to do the 
     # voxelwise checks as well. This will take care of that.
     trueBdry_success_intrp = trueBdry_success_intrp*trueBdry_success
     estBdry_success_intrp = estBdry_success_intrp*estBdry_success
-
-    print(estBdry_success_intrp)
 
     # Coverage probabilities
     coverage_trueBdry = np.mean(trueBdry_success,axis=0)
@@ -592,17 +504,20 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    print('MARKER: ', coverage_estBdry_intrp)
-    #print('MARKER: ', coverage_estBdry_intrp[0])
-    #plt.show()
+    print('Coverage: ', coverage_estBdry_intrp)
+
     # Save the violations to a file
     append_to_file('trueSuccess'+str(nSub)+'.csv', trueBdry_success) 
     append_to_file('estSuccess'+str(nSub)+'.csv', estBdry_success)
     append_to_file('trueSuccess'+str(nSub)+'_intrp.csv', trueBdry_success_intrp) 
     append_to_file('estSuccess'+str(nSub)+'_intrp.csv', estBdry_success_intrp)
 
+    t2overall = time.time()
+
+    print('overall time: ', t2overall-t1overall)
+
 # Run example
-SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 200, 2, np.linspace(0,1,21))
+SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, 5, 2, np.linspace(0,1,21), interpBootMode=2)
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}, 1, 2, np.linspace(0,1,21))
 
 #SpatialSims('/home/tommaullin/Documents/ConfSets/',100, {'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, 200, 2, np.array([0.8,0.9,0.95]))
