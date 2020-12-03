@@ -144,6 +144,45 @@ def get_bdry_maps(field, c):
     # Return the bounaries
     return(bdry_maps)
 
+
+def get_bdry_map_combined(field, c):
+
+    # Shape of field
+    shape = np.array(field.shape)
+
+    # Dimension of field
+    dim = np.array(field.ndim)
+
+    # Record if this is the first boundary we've seen
+    first = True
+
+    # Loop through dimensions of field and get the boundary boolean maps.
+    for d in np.arange(dim):
+
+        # Dimensions of 1 are assumed to be uninteresting as they are usually 
+        # only included for broadcasting purposes.
+        if shape[d]>1:
+
+            # Get boundaries
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d)
+
+            # Record d^th boundary
+            if first:
+
+                # Add inner and outer bottom boundaries
+                bdry_map = bottom_inner + bottom_outer + top_inner + top_outer
+
+                # No longer looking at first boundary
+                first = False
+
+            else:
+
+                # Add inner and outer bottom boundaries
+                bdry_map = bdry_map + bottom_inner + bottom_outer + top_inner + top_outer
+
+    # Return the boundary
+    return(bdry_map>0)
+
 def get_bdry_locs(bdry_maps):
 
     # Make an empty dictionary to store boundaries

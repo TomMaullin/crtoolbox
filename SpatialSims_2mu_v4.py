@@ -3,6 +3,7 @@ import numpy as np
 from generateData import *
 from boundary import *
 from fileio import *
+from scipy.ndimage.measurements import label
 
 # ===========================================================================
 #
@@ -29,7 +30,9 @@ from fileio import *
 # Developers note: I needed to shorter notation but there wasn't a natural
 # 				   shortening for intersection and union so I have used F and
 # 				   G for shorthand for intersection and union, respectively,
-#				   wherever they occur.
+#				   wherever they occur. FiG is used to represent the 
+#                  intersection of dF and dG and FuG is used to represnt the
+#                  union of dF and dG.
 #
 # ===========================================================================
 def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
@@ -110,8 +113,6 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         # Delete maps as we no longer need them
         del Ac1_bdry_maps, Ac2_bdry_maps
 
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        
         # -------------------------------------------------------------------
         # Boundary locations for Fc (= Ac1 intersect Ac2)
         # -------------------------------------------------------------------
@@ -246,7 +247,101 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         resid2_FcHat_bdry_concat = get_bdry_values_concat(resid2, FcHat_bdry_locs)
 
         # Delete residuals as they are no longer needed
-        del resid1, resid2, data1, data2
+        del data1, data2
+
+        # -------------------------------------------------------------------
+        # Image of dFc intersect dGc
+        # -------------------------------------------------------------------
+
+        # Get image of dFc
+        dFc_image = get_bdry_map_combined(np.minimum(mu1,mu2), c)
+
+        # Get image of dGc
+        dGc_image = get_bdry_map_combined(np.maximum(mu1,mu2), c)
+
+        # Get intersection of images
+        FiGc_image = dFc_image*dGc_image
+
+        # plt.figure(0)
+        # plt.imshow(FiGc_image[0,:,:])
+        # plt.show()
+
+        # -------------------------------------------------------------------
+        # Connected components of dFc intersect dGc
+        # -------------------------------------------------------------------
+        # Connectivity criterion
+        cc = np.ones((3, 3), dtype=np.int)
+
+        # Get labels and number of connected components
+        FiGc_labeled,nconcomps = label(FiGc_image[0,:,:], cc)
+
+        # Dictionary for residuals in each component
+        resid1_FiGc_bdry = dict()
+        resid2_FiGc_bdry = dict()
+
+        # plt.figure(0)
+        # plt.imshow(FiGc_labeled[:,:])
+
+        # Get residuals for each connected component
+        for C in np.arange(nconcomps)+1:
+
+            # print('C: ', C)
+
+            # Get locations of non-zero values
+            FiGc_compC_loc = np.where(FiGc_labeled==C)
+
+            # Save residuals in dict
+            resid1_FiGc_bdry[C] = resid1[:,FiGc_compC_loc[0],FiGc_compC_loc[1]]
+            resid2_FiGc_bdry[C] = resid2[:,FiGc_compC_loc[0],FiGc_compC_loc[1]]
+
+            # print('resid shapes: ',resid1_FiGc_bdry[C].shape,resid2_FiGc_bdry[C].shape)
+
+        # -------------------------------------------------------------------
+        # Image of dFcHat intersect dGcHat
+        # -------------------------------------------------------------------
+
+        # Get image of dFc
+        dFcHat_image = get_bdry_map_combined(np.minimum(muHat1,muHat2), c)
+
+        # Get image of dGc
+        dGcHat_image = get_bdry_map_combined(np.maximum(muHat1,muHat2), c)
+
+        # Get intersection of images
+        FiGcHat_image = dFcHat_image*dGcHat_image
+
+        # plt.figure(0)
+        # plt.imshow(FiGc_image[0,:,:])
+        # plt.show()
+
+        # -------------------------------------------------------------------
+        # Connected components of dFcHat intersect dGcHat
+        # -------------------------------------------------------------------
+        # Get labels and number of connected components
+        FiGcHat_labeled,nconcomps = label(FiGcHat_image[0,:,:], cc)
+
+        # Dictionary for residuals in each component
+        resid1_FiGcHat_bdry = dict()
+        resid2_FiGcHat_bdry = dict()
+
+        # plt.figure(1)
+        # plt.imshow(FiGcHat_labeled[:,:])
+        # plt.show()
+
+        # Get residuals for each connected component
+        for C in np.arange(nconcomps)+1:
+
+            #print('C: ', C)
+
+            # Get locations of non-zero values
+            FiGcHat_compC_loc = np.where(FiGcHat_labeled==C)
+
+            # Save residuals in dict
+            resid1_FiGcHat_bdry[C] = resid1[:,FiGcHat_compC_loc[0],FiGcHat_compC_loc[1]]
+            resid2_FiGcHat_bdry[C] = resid2[:,FiGcHat_compC_loc[0],FiGcHat_compC_loc[1]]
+
+            #print('resid shapes: ',resid1_FiGcHat_bdry[C].shape,resid2_FiGcHat_bdry[C].shape)
+
+        del resid1, resid2
 
         # -------------------------------------------------------------------
         # True and estimated excursion sets
@@ -269,31 +364,11 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         FcHat = np.minimum(muHat1,muHat2) > c
 
         # -------------------------------------------------------------------
-        # Muhat1 and MuHat2 (interpolated) along the true Fc boundary
-        # -------------------------------------------------------------------
-
-        # Residuals along Fc boundary
-        muHat1_FcBdry = get_bdry_values(muHat1, Fc_bdry_locs)
-        muHat2_FcBdry = get_bdry_values(muHat2, Fc_bdry_locs)
-
-        # Interpolate along Fc boundary
-        muHat1_FcBdry = get_bdry_vals_interpolated(muHat1_FcBdry, Fc_bdry_weights)
-        muHat2_FcBdry = get_bdry_vals_interpolated(muHat2_FcBdry, Fc_bdry_weights)
-
-        # Residuals along Fc boundary (array version)
-        muHat1_FcBdry_concat = get_bdry_values_concat(muHat1, Fc_bdry_locs)
-        muHat2_FcBdry_concat = get_bdry_values_concat(muHat2, Fc_bdry_locs)
-
-        # Interpolate along Fc boundary (array version)
-        muHat1_FcBdry_concat = get_bdry_vals_interpolated_concat(muHat1_FcBdry_concat, Fc_bdry_weights_concat)
-        muHat2_FcBdry_concat = get_bdry_vals_interpolated_concat(muHat2_FcBdry_concat, Fc_bdry_weights_concat)
-
-        # -------------------------------------------------------------------
         # Bootstrap 
         # -------------------------------------------------------------------
         # Initialize empty bootstrap stores
-        max_g_Fc = np.zeros(nBoot)
-        max_g_FcHat = np.zeros(nBoot)
+        max_g_FiGc = np.zeros(nBoot)
+        max_g_FiGcHat = np.zeros(nBoot)
 
         t1 = time.time()
         # For each bootstrap record the max of the residuals along the
@@ -303,110 +378,81 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
             # Obtain bootstrap variables
             boot_vars = 2*np.random.randint(0,2,boot_dim)-1
 
-            # Reshape for broadcasting purposes (extra axis refers to the fact we have
-            # inner and outer boundary values in the last axes of resid_Ac_bdry_concat
-            # and resid_AcHat_bdry_concat)
-            boot_vars = boot_vars.reshape((*boot_vars.shape),1)
+            #print('testpoint: ', boot_vars.shape)
 
-            # Bootstrap residuals along Fc
-            boot_resid1_Fc_bdry_concat = boot_vars*resid1_Fc_bdry_concat
-            boot_resid2_Fc_bdry_concat = boot_vars*resid2_Fc_bdry_concat
+            # Empty arrays to store bootstrap value for each true connected
+            # component
+            boot_g1_FiGc_bdry = np.zeros(nconcomps)
+            boot_g2_FiGc_bdry = np.zeros(nconcomps)
 
-            # Bootstrap residuals along FcHat
-            boot_resid1_FcHat_bdry_concat = boot_vars*resid1_FcHat_bdry_concat
-            boot_resid2_FcHat_bdry_concat = boot_vars*resid2_FcHat_bdry_concat
+            # Empty arrays to store bootstrap value for each estimated connected
+            # component
+            boot_g1_FiGcHat_bdry = np.zeros(nconcomps)
+            boot_g2_FiGcHat_bdry = np.zeros(nconcomps)
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of Fc. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g1_Fc_bdry_concat = np.zeros(boot_resid1_Fc_bdry_concat.shape[-2:])
-            boot_g1_Fc_bdry_concat[...,0] = np.sum(boot_resid1_Fc_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g1_Fc_bdry_concat[...,1] = np.sum(boot_resid1_Fc_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+            # Bootstrap for each connected component of dFc intersect dGc
+            for C in np.arange(nconcomps)+1:
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of Fc. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g2_Fc_bdry_concat = np.zeros(boot_resid2_Fc_bdry_concat.shape[-2:])
-            boot_g2_Fc_bdry_concat[...,0] = np.sum(boot_resid2_Fc_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g2_Fc_bdry_concat[...,1] = np.sum(boot_resid2_Fc_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+                # -----------------------------------------------------------
+                # Components based on true excursions 
+                # -----------------------------------------------------------
 
-            # Obtain bootstrap standard deviations along Fc. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma1_boot_Fc_concat = np.zeros(boot_resid1_Fc_bdry_concat.shape[-2:])
-            sigma1_boot_Fc_concat[...,0] = np.std(boot_resid1_Fc_bdry_concat[...,0], axis=0, ddof=1)
-            sigma1_boot_Fc_concat[...,1] = np.std(boot_resid1_Fc_bdry_concat[...,1], axis=0, ddof=1)
+                # Bootstrap residuals in true component
+                boot_resid1_FiGcC_bdry = boot_vars*resid1_FiGc_bdry[C]
+                boot_resid2_FiGcC_bdry = boot_vars*resid2_FiGc_bdry[C]
 
-            # Obtain bootstrap standard deviations along Fc. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma2_boot_Fc_concat = np.zeros(boot_resid2_Fc_bdry_concat.shape[-2:])
-            sigma2_boot_Fc_concat[...,0] = np.std(boot_resid2_Fc_bdry_concat[...,0], axis=0, ddof=1)
-            sigma2_boot_Fc_concat[...,1] = np.std(boot_resid2_Fc_bdry_concat[...,1], axis=0, ddof=1)
+                # Sum across subjects to get the bootstrapped a values in
+                # true component
+                boot_g1_FiGcC_bdry = np.sum(boot_resid1_FiGcC_bdry, axis=0)/np.sqrt(nSub)
+                boot_g2_FiGcC_bdry = np.sum(boot_resid2_FiGcC_bdry, axis=0)/np.sqrt(nSub)
 
-            # Divide by the boostrap standard deviation on Fc
-            boot_g1_Fc_bdry_concat = boot_g1_Fc_bdry_concat/sigma1_boot_Fc_concat
+                # Obtain bootstrap standard deviations in true component.
+                sigma1_boot_FiGcC = np.std(boot_resid1_FiGcC_bdry, axis=0, ddof=1)
+                sigma2_boot_FiGcC = np.std(boot_resid2_FiGcC_bdry, axis=0, ddof=1)
 
-            # Divide by the boostrap standard deviation on Fc
-            boot_g2_Fc_bdry_concat = boot_g2_Fc_bdry_concat/sigma2_boot_Fc_concat
+                # Divide by the bootstrap standard deviation and take mean
+                # across cluster
+                boot_g1_FiGc_bdry[C-1] = np.mean(boot_g1_FiGcC_bdry/sigma1_boot_FiGcC)
+                boot_g2_FiGc_bdry[C-1] = np.mean(boot_g2_FiGcC_bdry/sigma2_boot_FiGcC)
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FcHat. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g1_FcHat_bdry_concat = np.zeros(boot_resid1_FcHat_bdry_concat.shape[-2:])
-            boot_g1_FcHat_bdry_concat[...,0] = np.sum(boot_resid1_FcHat_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g1_FcHat_bdry_concat[...,1] = np.sum(boot_resid1_FcHat_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+                # -----------------------------------------------------------
+                # Components based on estimated excursions 
+                # -----------------------------------------------------------
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FcHat. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g2_FcHat_bdry_concat = np.zeros(boot_resid2_FcHat_bdry_concat.shape[-2:])
-            boot_g2_FcHat_bdry_concat[...,0] = np.sum(boot_resid2_FcHat_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g2_FcHat_bdry_concat[...,1] = np.sum(boot_resid2_FcHat_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+                # Bootstrap residuals in estimated component
+                boot_resid1_FiGcCHat_bdry = boot_vars*resid1_FiGcHat_bdry[C]
+                boot_resid2_FiGcCHat_bdry = boot_vars*resid2_FiGcHat_bdry[C]
 
-            # Obtain bootstrap standard deviations along FcHat. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma1_boot_FcHat_concat = np.zeros(boot_resid1_FcHat_bdry_concat.shape[-2:])
-            sigma1_boot_FcHat_concat[...,0] = np.std(boot_resid1_FcHat_bdry_concat[...,0], axis=0, ddof=1)
-            sigma1_boot_FcHat_concat[...,1] = np.std(boot_resid1_FcHat_bdry_concat[...,1], axis=0, ddof=1)
+                # Sum across subjects to get the bootstrapped a values in
+                # true component
+                boot_g1_FiGcCHat_bdry = np.sum(boot_resid1_FiGcCHat_bdry, axis=0)/np.sqrt(nSub)
+                boot_g2_FiGcCHat_bdry = np.sum(boot_resid2_FiGcCHat_bdry, axis=0)/np.sqrt(nSub)
 
-            # Obtain bootstrap standard deviations along FcHat. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma2_boot_FcHat_concat = np.zeros(boot_resid2_FcHat_bdry_concat.shape[-2:])
-            sigma2_boot_FcHat_concat[...,0] = np.std(boot_resid2_FcHat_bdry_concat[...,0], axis=0, ddof=1)
-            sigma2_boot_FcHat_concat[...,1] = np.std(boot_resid2_FcHat_bdry_concat[...,1], axis=0, ddof=1)
+                # Obtain bootstrap standard deviations in true component.
+                sigma1_boot_FiGcCHat = np.std(boot_resid1_FiGcCHat_bdry, axis=0, ddof=1)
+                sigma2_boot_FiGcCHat = np.std(boot_resid2_FiGcCHat_bdry, axis=0, ddof=1)
 
-            # Divide by the boostrap standard deviation on FcHat for mu 1 residuals
-            boot_g1_FcHat_bdry_concat = boot_g1_FcHat_bdry_concat/sigma1_boot_FcHat_concat
+                # Divide by the bootstrap standard deviation and take mean
+                # across cluster
+                boot_g1_FiGcHat_bdry[C-1] = np.mean(boot_g1_FiGcCHat_bdry/sigma1_boot_FiGcCHat)
+                boot_g2_FiGcHat_bdry[C-1] = np.mean(boot_g2_FiGcCHat_bdry/sigma2_boot_FiGcCHat)
 
-            # Divide by the boostrap standard deviation on FcHat for mu 2 residuals
-            boot_g2_FcHat_bdry_concat = boot_g2_FcHat_bdry_concat/sigma2_boot_FcHat_concat
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-            # Interpolation for Fc boundary
-            boot_g1_Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_Fc_bdry_concat,Fc_bdry_weights_concat)
-            boot_g2_Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_Fc_bdry_concat,Fc_bdry_weights_concat)
+            # Get elementwise maxima of the two fields along FiGc
+            boot_g_FiGc_bdry = np.maximum(np.abs(boot_g1_FiGc_bdry),np.abs(boot_g2_FiGc_bdry))
 
-            # Interpolation for FcHat boundary
-            boot_g1_FcHat_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_FcHat_bdry_concat,FcHat_bdry_weights_concat)
-            boot_g2_FcHat_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_FcHat_bdry_concat,FcHat_bdry_weights_concat)
+            print('boot_g_FiGc_bdry: ', boot_g_FiGc_bdry)
 
-            # Get elementwise maxima of the two fields along Fc
-            boot_g_Fc_bdry_concat = np.maximum(np.abs(boot_g1_Fc_bdry_concat),np.abs(boot_g2_Fc_bdry_concat))
+            # Get maximum along FiGc
+            max_g_FiGc[b] = np.max(boot_g_FiGc_bdry) 
+
+            # Get elementwise maxima of the two fields along FiGcHat
+            boot_g_FiGcHat_bdry = np.maximum(np.abs(boot_g1_FiGcHat_bdry),np.abs(boot_g2_FiGcHat_bdry))
 
             # Get maximum along Fc
-            max_g_Fc[b] = np.max(boot_g_Fc_bdry_concat) 
-
-            # Get elementwise maxima of the two fields along FcHat
-            boot_g_FcHat_bdry_concat = np.maximum(np.abs(boot_g1_FcHat_bdry_concat),np.abs(boot_g2_FcHat_bdry_concat))
-
-            # Get maximum along Fc
-            max_g_FcHat[b] = np.max(np.abs(boot_g_FcHat_bdry_concat))  
+            max_g_FiGcHat[b] = np.max(np.abs(boot_g_FiGcHat_bdry))  
 
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
@@ -416,8 +462,8 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         # -------------------------------------------------------------------
 
         # Get the a estimates for the true boundaries and estimated boundaries
-        a_trueBdry = np.percentile(max_g_Fc, 100*p).reshape(nPvals,1,1,1)
-        a_estBdry = np.percentile(max_g_FcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        a_trueBdry = np.percentile(max_g_FiGc, 100*p).reshape(nPvals,1,1,1)
+        a_estBdry = np.percentile(max_g_FiGcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
 
         # Reformat them to an array form useful for boolean operation
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
@@ -532,15 +578,16 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
     print('Coverage: ', coverage_estBdry_intrp)
+    print('Coverage: ', coverage_trueBdry_intrp)
 
     # Save the violations to a file
-    append_to_file('trueSuccess'+str(nSub)+'v1.csv', trueBdry_success) 
-    append_to_file('estSuccess'+str(nSub)+'v1.csv', estBdry_success)
-    append_to_file('trueSuccess'+str(nSub)+'v1_intrp.csv', trueBdry_success_intrp) 
-    append_to_file('estSuccess'+str(nSub)+'v1_intrp.csv', estBdry_success_intrp)
+    append_to_file('trueSuccess'+str(nSub)+'v4.csv', trueBdry_success) 
+    append_to_file('estSuccess'+str(nSub)+'v4.csv', estBdry_success)
+    append_to_file('trueSuccess'+str(nSub)+'v4_intrp.csv', trueBdry_success_intrp) 
+    append_to_file('estSuccess'+str(nSub)+'v4_intrp.csv', estBdry_success_intrp)
 
     t2overall = time.time()
 
     print('overall time: ', t2overall-t1overall)
 
-SpatialSims_2mu_v3('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
+SpatialSims_2mu_v4('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
