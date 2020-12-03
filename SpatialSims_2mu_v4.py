@@ -438,12 +438,10 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
                 boot_g1_FiGcHat_bdry[C-1] = np.mean(boot_g1_FiGcCHat_bdry/sigma1_boot_FiGcCHat)
                 boot_g2_FiGcHat_bdry[C-1] = np.mean(boot_g2_FiGcCHat_bdry/sigma2_boot_FiGcCHat)
 
-        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
             # Get elementwise maxima of the two fields along FiGc
             boot_g_FiGc_bdry = np.maximum(np.abs(boot_g1_FiGc_bdry),np.abs(boot_g2_FiGc_bdry))
 
-            print('boot_g_FiGc_bdry: ', boot_g_FiGc_bdry)
+            #print('boot_g_FiGc_bdry: ', boot_g_FiGc_bdry)
 
             # Get maximum along FiGc
             max_g_FiGc[b] = np.max(boot_g_FiGc_bdry) 
@@ -505,7 +503,7 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         # has axes corresponding to [pvalue, field dimensions]
         Fc_sub_FcHatm_estBdry = Fc[...] & ~FcHat_pm_estBdry[:,0,...]
 
-        print(Fc_sub_FcHatm_estBdry.shape, Fc.shape, FcHat_pm_estBdry.shape)
+        #print(Fc_sub_FcHatm_estBdry.shape, Fc.shape, FcHat_pm_estBdry.shape)
 
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using voxelwise
@@ -549,10 +547,10 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
         # true boundary
         bdry_upperCheck_trueBdry = stat_FcBdry <= a_trueBdry[:,1,:,0]
 
-        print('here')
-        print(bdry_upperCheck_trueBdry.shape)
-        print(stat_FcBdry.shape)
-        print(a_trueBdry[:,1,:,0].shape)
+        #print('here')
+        #print(bdry_upperCheck_trueBdry.shape)
+        #print(stat_FcBdry.shape)
+        #print(a_trueBdry[:,1,:,0].shape)
 
         # -------------------------------------------------------------------
         # Work out whether simulation observed successful sets.
@@ -577,8 +575,8 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    print('Coverage: ', coverage_estBdry_intrp)
-    print('Coverage: ', coverage_trueBdry_intrp)
+    #print('Coverage: ', coverage_estBdry_intrp)
+    #print('Coverage: ', coverage_trueBdry_intrp)
 
     # Save the violations to a file
     append_to_file('trueSuccess'+str(nSub)+'v4.csv', trueBdry_success) 
@@ -588,6 +586,6 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
 
     t2overall = time.time()
 
-    print('overall time: ', t2overall-t1overall)
+    #print('overall time: ', t2overall-t1overall)
 
 #SpatialSims_2mu_v4('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
