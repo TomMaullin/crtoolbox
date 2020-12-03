@@ -590,4 +590,4 @@ def SpatialSims_2mu_v4(OutDir, nSub, nReals, c, p):
 
     print('overall time: ', t2overall-t1overall)
 
-SpatialSims_2mu_v4('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
+#SpatialSims_2mu_v4('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
