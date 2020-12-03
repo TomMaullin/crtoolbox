@@ -433,7 +433,6 @@ def get_bdry_weights_concat(bdry_vals_concat,c):
 
 def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
 
-
     # Get inner and outer boundary values in this dimension and
     # direction            
     outer_vals = bdry_vals_concat[...,0]
@@ -442,6 +441,7 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
     # Work out weights
     outer_weights = bdry_weights_concat[...,0]
     inner_weights = bdry_weights_concat[...,1]
+    
 
     # Work out interpolated values
     bdry_interp_concat = inner_weights*inner_vals + outer_weights*outer_vals
@@ -477,9 +477,11 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
 
 def testfn():
 
-    data, mu = get_data({'type': 'circle2D', 'center': np.array([0,0]), 'fwhm': np.array([3,3]), 'r': 30, 'mag': 3}, np.array([100,100,100]), np.array([0,5,5]))
+    data, mu = get_data({'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, np.array([100,50,50]), np.array([0,5,5]))
 
     muhat = np.mean(data,axis=0).reshape(mu.shape)
+
+    c=2
 
     # plt.figure(0)
     # plt.imshow(muhat[0,:,:])
@@ -490,7 +492,7 @@ def testfn():
     # plt.figure(2)
     print('maps')
     t1 = time.time()
-    bdry_maps = get_bdry_maps(muhat, 2)
+    bdry_maps = get_bdry_maps(muhat, c)
     t2 = time.time()
     print(t2-t1)
 
@@ -508,7 +510,7 @@ def testfn():
 
     print('weights')
     t1 = time.time()
-    bdry_weights=get_bdry_weights(bdry_vals,2)
+    bdry_weights=get_bdry_weights(bdry_vals,c)
     t2 = time.time()
     print(t2-t1)
 

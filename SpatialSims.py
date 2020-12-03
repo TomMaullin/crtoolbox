@@ -361,6 +361,8 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p, interpBootMode=2):
                 # Get maximum along AcHat boudary
                 max_g_AcHat[b] = np.max(np.abs(boot_g_AcHat_bdry_concat)) 
 
+        print(max_g_AcHat)
+
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
 
@@ -481,6 +483,11 @@ def SpatialSims(OutDir, nSub, muSpec, nReals, c, p, interpBootMode=2):
         # Perform upper check on muHat using thresholds based on the
         # true boundary
         bdry_upperCheck_trueBdry = muHat_AcBdry <= muHat_AcBdry_threshs_trueBdry[:,1,:]
+
+        print('here')
+        print(bdry_upperCheck_trueBdry.shape)
+        print(muHat_AcBdry.shape)
+        print(muHat_AcBdry_threshs_trueBdry[:,1,:].shape)
 
         # -------------------------------------------------------------------
         # Work out whether simulation observed successful sets.

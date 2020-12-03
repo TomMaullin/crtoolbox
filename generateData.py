@@ -35,6 +35,8 @@ def get_data(muSpec,dim,fwhm):
     # Obtain the noise fields
     noise = get_noise(fwhm, dim)
 
+    print(noise.shape)
+
     # Obtain mu
     mu = get_mu(muSpec, dim)
     
@@ -120,6 +122,62 @@ def get_mu(muSpec, dim):
         # Smooth the data
         mu = mag*(smooth_data(mu, 2, fwhm, scaling='max'))
 
+
+    # Circular signal centered at 0 with radius 2.
+    if muSpec['type']=='circle2D_2mu':
+
+        # Radius
+        r = muSpec['r']
+
+        # Magnitude
+        mag = muSpec['mag']
+
+        # FWHM
+        fwhm = muSpec['fwhm']
+
+        # Work out first circle center (setting origin to the image center).
+        center1 = np.array([dim[-2]//2, dim[-1]//2]) + muSpec['center'][0,:]
+
+        # Get an ogrid
+        Y, X = np.ogrid[:dim[-2], :dim[-1]]
+
+        # Make unsmoothed circular signal for circle 1
+        mu1 = np.array(np.sqrt((X-center1[-2])**2+(Y-center1[-1])**2) < r[0], dtype='float')
+
+        # Smooth the data
+        mu1 = mag[0]*(smooth_data(mu1, 2, fwhm, scaling='max'))
+
+        # Work out first circle center (setting origin to the image center).
+        center2 = np.array([dim[-2]//2, dim[-1]//2]) + muSpec['center'][1,:]
+
+        # Get an ogrid
+        Y, X = np.ogrid[:dim[-2], :dim[-1]]
+
+        # Make unsmoothed circular signal for circle 1
+        mu2 = np.array(np.sqrt((X-center2[-2])**2+(Y-center2[-1])**2) < r[1], dtype='float')
+
+        # Smooth the data
+        mu2 = mag[1]*(smooth_data(mu2, 2, fwhm, scaling='max'))
+
+        # Reshape mu1 and mu2 for concatenation later (easier to do it here
+        # so max and min fields all have the correct dimensions)
+        mu1 = mu1.reshape(1, (*mu1.shape))
+        mu2 = mu2.reshape(1, (*mu2.shape))
+
+        # # Get max and min fields
+        # muMax = np.maximum(mu1,mu2)
+        # muMin = np.minimum(mu1,mu2)
+
+        # # Get second level max min fields
+        # muMax_MinMax = np.maximum(4-muMin,4-muMax)
+        # muMin_MinMax = np.minimum(4-muMin,4-muMax)
+
+        # Get mu
+        mu = np.concatenate((mu1,mu2),axis=0)
+
+        print(mu.shape)
+
+
     # -----------------------------------------------------------------------
     # Give mu the correct dimensions to be broadcasted with the data we are
     # creating
@@ -142,8 +200,8 @@ def get_mu(muSpec, dim):
             # Replace ith dimension
             newD[-(i+1)] = mu.shape[-(i+1)]
 
-    # Reshape mu 
-    mu = mu.reshape(newD)
+        # Reshape mu 
+        mu = mu.reshape(newD)
 
     # Return mu
     return(mu)
@@ -309,3 +367,110 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
 
     return(data)
 
+
+
+
+
+
+def testfn():
+
+    mu = get_mu({'type': 'circle2D_2mu', 'center': np.array([[-20,0],[20,0]]), 'fwhm': np.array([3,3]), 'r': np.array([25,25]), 'mag': np.array([3,3])}, np.array([1,100,100]))
+
+    print(mu.shape)
+    c=2
+
+    plt.figure(0)
+    plt.imshow(1*(mu[0,:,:]>c))
+    plt.colorbar()
+    
+    plt.figure(1)
+    plt.imshow(1*(mu[1,:,:]>c))
+    plt.colorbar()
+    
+    plt.figure(2)
+    plt.imshow(1*(mu[2,:,:]>c))
+    plt.colorbar()
+    
+    plt.figure(3)
+    plt.imshow(1*(mu[3,:,:]>c))
+    plt.colorbar()
+
+    plt.figure(4)
+    plt.imshow(1*(mu[4,:,:]>c))
+    plt.colorbar()
+
+    plt.figure(5)
+    plt.imshow(1*(mu[5,:,:]>c))
+    plt.colorbar()
+
+    # # plt.figure(2)
+    # print('maps')
+    # t1 = time.time()
+    # bdry_maps = get_bdry_maps(mu, 2)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # print('locs')
+    # t1 = time.time()
+    # bdry_locs = get_bdry_locs(bdry_maps)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # print('vals')
+    # t1 = time.time()
+    # bdry_vals=get_bdry_values(mu, bdry_locs)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # print('weights')
+    # t1 = time.time()
+    # bdry_weights=get_bdry_weights(bdry_vals,2)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # t1 = time.time()
+    # bdry_vals=get_bdry_values(mu, bdry_locs)
+    # t2 = time.time()
+
+    # print('interp')
+    # t1 = time.time()
+    # bdry_interp=get_bdry_vals_interpolated(bdry_vals,bdry_weights)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # # print(bdry_maps)
+
+    # # bdrys2 = get_bdry_maps(data, 2)
+
+    # # print(bdrys2)
+    # plt.figure(0)
+    # plt.imshow(mu[0,:,:])
+    # plt.colorbar()
+    
+    # plt.figure(1)
+    # plt.imshow(muhat[0,:,:])
+    # plt.colorbar()
+    
+    # plt.figure(2)
+    # plt.imshow(data[8,:,:])
+    # plt.colorbar()
+    
+    # plt.figure(3)
+    # plt.imshow(mu[0,:,:]>2)
+    
+    # plt.figure(4)
+    # plt.imshow(muhat[0,:,:]>2)
+
+    # tmp = (bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0
+    
+    # plt.figure(5)
+    # plt.imshow(tmp)
+
+    # tmp2=(bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0
+    # plt.figure(6)
+    # plt.imshow(tmp2)
+
+    # plt.figure(7)
+    # plt.imshow(tmp+tmp2)
+
+    plt.show()
