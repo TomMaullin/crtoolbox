@@ -620,12 +620,125 @@ def SpatialSims_2mu(ipath):
             boot_g2_FsdGcHat2_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_FsdGcHat2_bdry_concat,FsdGcHat2_bdry_weights_concat)
 
             # Get maximum along FsdGc1 and FsdGc2 boudary
-            max_g1_FsdGc1[b] = np.max(np.abs(boot_g1_FsdGc1_bdry_concat)) 
-            max_g2_FsdGc2[b] = np.max(np.abs(boot_g2_FsdGc2_bdry_concat)) 
+            try:
+                max_g1_FsdGc1[b] = np.max(np.abs(boot_g1_FsdGc1_bdry_concat)) 
+                max_g2_FsdGc2[b] = np.max(np.abs(boot_g2_FsdGc2_bdry_concat)) 
 
-            # Get maximum along FsdGcHat1 and FsdGcHat2 boudary
-            max_g1_FsdGcHat1[b] = np.max(np.abs(boot_g1_FsdGcHat1_bdry_concat))
-            max_g2_FsdGcHat2[b] = np.max(np.abs(boot_g2_FsdGcHat2_bdry_concat)) 
+                # Get maximum along FsdGcHat1 and FsdGcHat2 boudary
+                max_g1_FsdGcHat1[b] = np.max(np.abs(boot_g1_FsdGcHat1_bdry_concat))
+                max_g2_FsdGcHat2[b] = np.max(np.abs(boot_g2_FsdGcHat2_bdry_concat)) 
+
+            except:
+            
+                # Make image directory
+                fEDir = os.path.join(OutDir, 'sim'+str(simNo), 'FiguresErrored')
+                if not os.path.exists(fEDir):
+                    os.mkdir(fEDir)
+
+                # AcHat1
+                AcHat1_im = muHat1>c
+                plt.figure(0)
+                plt.imshow(1*AcHat1_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'AcHat1_cfg'+str(cfgId)+'.png'))
+
+                # dAcHat1
+                dAcHat1_im = get_bdry_map_combined(muHat1, c)
+                plt.figure(1)
+                plt.imshow(1*dAcHat1_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dAcHat1_cfg'+str(cfgId)+'.png'))
+
+                # AcHat2
+                AcHat2_im = muHat2>c
+                plt.figure(2)
+                plt.imshow(1*AcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'AcHat2_cfg'+str(cfgId)+'.png'))
+
+                # dAcHat2
+                dAcHat2_im = get_bdry_map_combined(muHat2, c)
+                plt.figure(3)
+                plt.imshow(1*dAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dAcHat2_cfg'+str(cfgId)+'.png'))
+
+                # AcHat1 \cup AcHat2
+                AcHat1cupAcHat2_im = np.maximum(muHat1,muHat2)>c
+                plt.figure(4)
+                plt.imshow(1*AcHat1cupAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'GcHat_cfg'+str(cfgId)+'.png'))
+
+                # d(AcHat1 \cup AcHat2)
+                dAcHat1cupAcHat2_im = get_bdry_map_combined(np.maximum(muHat1,muHat2),c)
+                plt.figure(5)
+                plt.imshow(1*dAcHat1cupAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dGcHat_cfg'+str(cfgId)+'.png'))
+
+                # AcHat1 \cap AcHat2
+                AcHat1capAcHat2_im = np.minimum(muHat1,muHat2)>c
+                plt.figure(6)
+                plt.imshow(1*AcHat1capAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'FcHat_cfg'+str(cfgId)+'.png'))
+
+                # d(AcHat1 \cap AcHat2)
+                dAcHat1capAcHat2_im = get_bdry_map_combined(np.minimum(muHat1,muHat2),c)
+                plt.figure(7)
+                plt.imshow(1*dAcHat1capAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dFcHat_cfg'+str(cfgId)+'.png'))
+
+                # dF12cHat = dAcHat1 \cap dAcHat2
+                dAcHat1capdAcHat2_im = dAcHat1capAcHat2_im*dAcHat1cupAcHat2_im
+                plt.figure(8)
+                plt.imshow(1*dAcHat1capdAcHat2_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dF12cHat_cfg'+str(cfgId)+'.png'))
+
+                # dF1cHat = dAcHat1 \cap AcHat2
+                rhs_im = dAcHat1_im*AcHat2_im
+                plt.figure(10)
+                plt.imshow(1*rhs_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dF1cHat_cfg'+str(cfgId)+'.png'))
+
+                # dF2cHat = dAcHat2 \cap AcHat1
+                lhs_im = dAcHat2_im*AcHat1_im
+                plt.figure(9)
+                plt.imshow(1*lhs_im[0,:,:])
+                plt.savefig(os.path.join(fEDir, 'dF2cHat_cfg'+str(cfgId)+'.png'))
+
+                # muHat1
+                plt.figure(11)
+                plt.imshow(muHat1[0,:,:])
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'muHat1_cfg'+str(cfgId)+'.png'))
+
+                # muHat2
+                plt.figure(12)
+                plt.imshow(muHat2[0,:,:])
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'muHat2_cfg'+str(cfgId)+'.png'))
+
+                # data1
+                plt.figure(13)
+                plt.imshow(data1[10,:,:])
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'data1_cfg'+str(cfgId)+'.png'))
+
+                # data2
+                plt.figure(14)
+                plt.imshow(data2[10,:,:])
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'data2_cfg'+str(cfgId)+'.png'))
+
+                # max(muHat1,muHat2)
+                plt.figure(15)
+                plt.imshow(np.maximum(muHat1[0,:,:],muHat2[0,:,:]))
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'maxMuHat_cfg'+str(cfgId)+'.png'))
+
+                # min(muHat1,muHat2)
+                plt.figure(16)
+                plt.imshow(np.minimum(muHat1[0,:,:],muHat2[0,:,:]))
+                plt.colorbar()
+                plt.savefig(os.path.join(fEDir, 'minMuHat_cfg'+str(cfgId)+'.png'))
+
+
+            # -------------------------------------------------------------------------------------
 
         # Get the maximum needed for the true boundary
         max_g_FsdGc = np.maximum(max_g1_FsdGc1,max_g2_FsdGc2)
