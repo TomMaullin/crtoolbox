@@ -145,12 +145,10 @@ def generateCfgs(OutDir, simNo):
     # a sign to run the next stage of the simulations)
     #--------------------------------------------------------------------------------------
     # Delete fields which vary across simulation
-    del inputs['mu2']['center'] inputs['figGen'] inputs['cfgId'] inputs['nSub']
+    del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
     # Save the yml
     with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
         yaml.dump(inputs, outfile, default_flow_style=False)
 
-
-
-generateCfgs('/home/tommaullin/Documents/ConfSets/', 1)
+    print(os.path.join(simDir,'cfgs'))
