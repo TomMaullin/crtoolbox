@@ -20,7 +20,7 @@ CONFSETS_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 echo "Generating configurations..."
 
 # Submit config generation job
-fsl_sub -l $config_logdir -N setup bash $CONFSETS_PATH/TwoSmp/genCfgs_2mu.sh \
+fsl_sub -l $CONFSETS_PATH/results/log -N genCfgs bash $CONFSETS_PATH/TwoSmp/genCfgs_2mu.sh \
 $CONFSETS_PATH/results $simNo > \
 /tmp/$$ && cfgGenID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
@@ -35,12 +35,15 @@ echo "Configurations generated"
 
 echo "Submitting simulation instances..."
 
+i=0
 for cfg in $CONFSETS_PATH/results/sim$simNo/cfgs/cfg*.yml; do
 
 	# Submit the job
-	fsl_sub -j $cfgGenID -l $config_logdir -N setup \
+	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/log -N cfg$i \
 	bash $CONFSETS_PATH/TwoSmp/SpatialSims_2mu.sh $CONFSETS_PATH/results/sim$simNo/cfgs/$cfg \
-	> /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+	> /tmp/$$ && simInstancesID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+
+	i=$(($i + 1))
 
 done
 
