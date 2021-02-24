@@ -63,3 +63,25 @@ def append_to_file(fname, data):
     # Delete lock file, so other jobs know they can now write to the
     # file
     os.remove(fname + ".lock")
+
+# ============================================================================
+#
+# The below function takes in a string representing a vector and returns the
+# vector as an array.
+#
+# ============================================================================
+def str2vec(c):
+
+    c = str(c)
+    c = c.replace("'", "")
+    c = c.replace('][', '], [').replace('],[', '], [').replace('] [', '], [')
+    c = c.replace('[ [', '[[').replace('] ]', ']]')
+    cs = c.split(' ')
+    cf = ''
+    for i in range(0,len(cs)):
+        cs[i]=cs[i].replace(',', '')
+        cf=cf + cs[i]
+        if i < (len(cs)-1):
+            cf = cf + ', '
+        
+    return(eval(cf))

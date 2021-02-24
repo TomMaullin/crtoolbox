@@ -2,8 +2,8 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
-from generateData import *
-from boundary import *
+from lib.generateData import *
+from lib.boundary import *
 
 
 # Obtain max and min fields (corresponding to union and intersection

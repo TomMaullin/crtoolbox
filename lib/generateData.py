@@ -110,11 +110,15 @@ def get_mu(muSpec, dim):
         # FWHM
         fwhm = muSpec['fwhm']
 
+        # Adjust dimensions in case signal rolls off edge (we don't want signal to be smoothed
+        # on the cutoff at the edge of the image as though there are zeros next to it)
+        adjdim = np.array(dim)+2*r
+
         # Work out circle center (setting origin to the image center).
-        center = np.array([dim[-2]//2, dim[-1]//2]) + muSpec['center']
+        center = np.array([adjdim[-2]//2, adjdim[-1]//2]) + muSpec['center']
 
         # Get an ogrid
-        Y, X = np.ogrid[:dim[-2], :dim[-1]]
+        Y, X = np.ogrid[:adjdim[-2], :adjdim[-1]]
 
         # Make unsmoothed circular signal
         mu = np.array(np.sqrt((X-center[-2])**2+(Y-center[-1])**2) < r, dtype='float')
@@ -122,60 +126,8 @@ def get_mu(muSpec, dim):
         # Smooth the data
         mu = mag*(smooth_data(mu, 2, fwhm, scaling='max'))
 
-
-    # Circular signal centered at 0 with radius 2.
-    if muSpec['type']=='circle2D_2mu':
-
-        # Radius
-        r = muSpec['r']
-
-        # Magnitude
-        mag = muSpec['mag']
-
-        # FWHM
-        fwhm = muSpec['fwhm']
-
-        # Work out first circle center (setting origin to the image center).
-        center1 = np.array([dim[-2]//2, dim[-1]//2]) + muSpec['center'][0,:]
-
-        # Get an ogrid
-        Y, X = np.ogrid[:dim[-2], :dim[-1]]
-
-        # Make unsmoothed circular signal for circle 1
-        mu1 = np.array(np.sqrt((X-center1[-2])**2+(Y-center1[-1])**2) < r[0], dtype='float')
-
-        # Smooth the data
-        mu1 = mag[0]*(smooth_data(mu1, 2, fwhm, scaling='max'))
-
-        # Work out first circle center (setting origin to the image center).
-        center2 = np.array([dim[-2]//2, dim[-1]//2]) + muSpec['center'][1,:]
-
-        # Get an ogrid
-        Y, X = np.ogrid[:dim[-2], :dim[-1]]
-
-        # Make unsmoothed circular signal for circle 1
-        mu2 = np.array(np.sqrt((X-center2[-2])**2+(Y-center2[-1])**2) < r[1], dtype='float')
-
-        # Smooth the data
-        mu2 = mag[1]*(smooth_data(mu2, 2, fwhm, scaling='max'))
-
-        # Reshape mu1 and mu2 for concatenation later (easier to do it here
-        # so max and min fields all have the correct dimensions)
-        mu1 = mu1.reshape(1, (*mu1.shape))
-        mu2 = mu2.reshape(1, (*mu2.shape))
-
-        # # Get max and min fields
-        # muMax = np.maximum(mu1,mu2)
-        # muMin = np.minimum(mu1,mu2)
-
-        # # Get second level max min fields
-        # muMax_MinMax = np.maximum(4-muMin,4-muMax)
-        # muMin_MinMax = np.minimum(4-muMin,4-muMax)
-
-        # Get mu
-        mu = np.concatenate((mu1,mu2),axis=0)
-
-        print(mu.shape)
+        # Recrop to original dimensions again
+        mu = mu[...,r:adjdim[-2]-r,r:adjdim[-1]-r]
 
 
     # -----------------------------------------------------------------------

@@ -36,22 +36,22 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 		# Read in observed values for the estimated boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations
-		obs_est = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'v4.csv'), header=None, index_col=None)
+		obs_est = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'.csv'), header=None, index_col=None)
 
 		# Read in observed values for the true boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations
-		obs_true = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'v4.csv'), header=None, index_col=None)
+		obs_true = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'.csv'), header=None, index_col=None)
 
 		# Read in observed values for the estimated boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations (based on interpolation assessment)
-		obs_est_intrp = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'v4_intrp.csv'), header=None, index_col=None)
+		obs_est_intrp = pd.read_csv(os.path.join(OutDir,'estSuccess'+str(nSub)+'_intrp.csv'), header=None, index_col=None)
 
 		# Read in observed values for the true boundary. This will be a 
 		# boolean array of ones and zeros representing observed violations
 		# across simulations (based on interpolation assessment)
-		obs_true_intrp = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'v4_intrp.csv'), header=None, index_col=None)
+		obs_true_intrp = pd.read_csv(os.path.join(OutDir,'trueSuccess'+str(nSub)+'_intrp.csv'), header=None, index_col=None)
 
 		# Get the coverage probabilities from the observed results for the
 		# estimated boundary
@@ -144,4 +144,4 @@ def join_and_plot(OutDir, nSubs, nBoot, nReals, pVals):
 	    plt.clf()
 
 # Run for example output.
-join_and_plot('/home/tommaullin/Documents/ConfRes/2Sample/v5', np.int32(np.linspace(40,500,24)), 5000, 5000, np.linspace(0,1,21))
+join_and_plot('/home/tommaullin/Documents/ConfRes/2Sample/v6', np.int32(np.linspace(40,500,24)), 5000, 5000, np.linspace(0,1,21))

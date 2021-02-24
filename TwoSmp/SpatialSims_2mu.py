@@ -1,16 +1,16 @@
 import os
 import numpy as np
-from generateData import *
-from boundary import *
-from fileio import *
+from lib.generateData import *
+from lib.boundary import *
+from lib.fileio import *
+import yaml
 from scipy.ndimage.measurements import label
 
 # ===========================================================================
 #
-# Version 5: Testing for a controlled by
+# Simulation where `a' is controlled by
 #
-# 				a = sup_(dAc1\intersectAc2) union (Ac1\intersectAc2d) 
-#                                       max(|g1|, |g2|)
+# 		a = max(sup_(dAc1\intersectAc2) |g1|, sup_(Ac1\intersectAc2d)|g2|)
 #
 # On two cirlces. 
 #
@@ -25,6 +25,7 @@ from scipy.ndimage.measurements import label
 # - `nReals`: Number of realizations.
 # - `c`: threshold of interest for mu.
 # - `p`: numpy array of p-values.
+# - `simNo`: Number under which results will be saved
 #
 # ---------------------------------------------------------------------------
 #
@@ -36,18 +37,81 @@ from scipy.ndimage.measurements import label
 #                  for "Symmetric difference"
 #
 # ===========================================================================
-def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
+def SpatialSims_2mu(ipath):
 
+    # -----------------------------------------------------------------------
+    # Load in inputs 
+    # -----------------------------------------------------------------------
+    # Read in file
+    with open(ipath, 'r') as stream:
+        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
+    # Get output directory
+    OutDir = inputs['OutDir']
+
+    # Get number of subjects
+    nSub = int(inputs['nSub'])
+
+    # Get number of simulation realizations
+    nReals = int(inputs['nReals'])
+
+    # Get Threshold
+    c = np.float(inputs['c'])
+
+    # Get p values
+    p = eval(inputs['p'])
+
+    # Get simulation number
+    simNo = int(inputs['simNo'])
+
+    # FWHM
+    fwhm = str2vec(inputs['FWHM']) 
+
+    # Get number of bootstraps
+    if 'nBoot' in inputs:
+        nBoot = int(inputs['nBoot'])
+    else:
+        nBoot = 5000 # Recommended 1e4 
+
+    # Get number of bootstraps
+    if 'tau' in inputs:
+        tau = eval(inputs['tau'])
+    else:
+        tau = 1/np.sqrt(nSub)
+
+    # Get specification for mu 1
+    muSpec1 = inputs['mu1']
+
+    # Reformat center and fwhm if needed
+    if 'center' in muSpec1:
+        muSpec1['center']=eval(muSpec1['center'])
+    if 'fwhm' in muSpec1:
+        muSpec1['fwhm']=eval(muSpec1['fwhm'])
+
+    # Get specification for mu 2
+    muSpec2 = inputs['mu2']
+
+    # Reformat center and fwhm if needed
+    if 'center' in muSpec2:
+        muSpec2['center']=eval(muSpec2['center'])
+    if 'fwhm' in muSpec2:
+        muSpec2['fwhm']=eval(muSpec2['fwhm'])
+
+    # ID for the configuration
+    cfgId = inputs['cfgId']
+
+    # -----------------------------------------------------------------------
+
+    # Simulation directory
+    simDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId))
+    if not os.path.exists(simDir):
+        os.mkdir(simDir)
+
+    # Timing
     t1overall = time.time()
-
-	# Define tau_n
-    tau = 1/np.sqrt(nSub)
 
     # Get the number of p-values we're looking at
     nPvals = len(p)
-
-    # Define the number of bootstraps
-    nBoot = 5000 # Recommended 1e4
 
     # Dimensions of simulated data
     data_dim = np.array([nSub, 100,100])
@@ -55,8 +119,6 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
     # Dimensions of bootstrap variables
     boot_dim = np.array([nSub, 1]) # MARKER: COULD MAKE  np.array([batchBoot, nSub, 1])
 
-    # Smoothing
-    fwhm = [0,3,3]
 
     # Initialise array for recording the whether set violations occured, for a derived
     # from bootstrapping the true boundary and estimated boundary, respectively. The
@@ -71,10 +133,6 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
     # condition violations.
     trueBdry_success_intrp = np.zeros((nReals,nPvals))
     estBdry_success_intrp = np.zeros((nReals,nPvals))
-
-    # Specify signal for each mu
-    muSpec1 = {'type': 'circle2D', 'center': np.array([-20,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}
-    muSpec2 = {'type': 'circle2D', 'center': np.array([20,0]), 'fwhm': np.array([5,5]), 'r': 30, 'mag': 3}
 
     # Loop through realizations
     for r in np.arange(nReals):
@@ -248,7 +306,7 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
         resid2_FcHat_bdry_concat = get_bdry_values_concat(resid2, FcHat_bdry_locs)
 
         # Delete residuals as they are no longer needed
-        del data1, data2
+        #del data1, data2
 
         # -------------------------------------------------------------------
         # Mu along FsdGcHat and MuHat along FsdGcHat
@@ -258,14 +316,127 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
         mu1_Fc_bdry_concat = get_bdry_values_concat(mu1, Fc_bdry_locs)
         mu2_Fc_bdry_concat = get_bdry_values_concat(mu2, Fc_bdry_locs)
 
+        # -------------------------------------------------------------------
+        # Images
+        # -------------------------------------------------------------------
+        if r==1: and inputs['figGen']:
+            
+            # Make image directory
+            figDir = os.path.join(OutDir, 'sim'+str(simNo), 'Figures')
+            if not os.path.exists(figDir):
+                os.mkdir(figDir)
+
+            # AcHat1
+            AcHat1_im = muHat1>c
+            plt.figure(0)
+            plt.imshow(1*AcHat1_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'AcHat1_cfg'+str(cfgId)+'.png'))
+
+            # dAcHat1
+            dAcHat1_im = get_bdry_map_combined(muHat1, c)
+            plt.figure(1)
+            plt.imshow(1*dAcHat1_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dAcHat1_cfg'+str(cfgId)+'.png'))
+
+            # AcHat2
+            AcHat2_im = muHat2>c
+            plt.figure(2)
+            plt.imshow(1*AcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'AcHat2_cfg'+str(cfgId)+'.png'))
+
+            # dAcHat2
+            dAcHat2_im = get_bdry_map_combined(muHat2, c)
+            plt.figure(3)
+            plt.imshow(1*dAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dAcHat2_cfg'+str(cfgId)+'.png'))
+
+            # AcHat1 \cup AcHat2
+            AcHat1cupAcHat2_im = np.maximum(muHat1,muHat2)>c
+            plt.figure(4)
+            plt.imshow(1*AcHat1cupAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'GcHat_cfg'+str(cfgId)+'.png'))
+
+            # d(AcHat1 \cup AcHat2)
+            dAcHat1cupAcHat2_im = get_bdry_map_combined(np.maximum(muHat1,muHat2),c)
+            plt.figure(5)
+            plt.imshow(1*dAcHat1cupAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dGcHat_cfg'+str(cfgId)+'.png'))
+
+            # AcHat1 \cap AcHat2
+            AcHat1capAcHat2_im = np.minimum(muHat1,muHat2)>c
+            plt.figure(6)
+            plt.imshow(1*AcHat1capAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'FcHat_cfg'+str(cfgId)+'.png'))
+
+            # d(AcHat1 \cap AcHat2)
+            dAcHat1capAcHat2_im = get_bdry_map_combined(np.minimum(muHat1,muHat2),c)
+            plt.figure(7)
+            plt.imshow(1*dAcHat1capAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dFcHat_cfg'+str(cfgId)+'.png'))
+
+            # dF12cHat = dAcHat1 \cap dAcHat2
+            dAcHat1capdAcHat2_im = dAcHat1capAcHat2_im*dAcHat1cupAcHat2_im
+            plt.figure(8)
+            plt.imshow(1*dAcHat1capdAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF12cHat_cfg'+str(cfgId)+'.png'))
+
+            # dF1cHat = dAcHat1 \cap AcHat2
+            rhs_im = dAcHat1_im*AcHat2_im
+            plt.figure(10)
+            plt.imshow(1*rhs_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF1cHat_cfg'+str(cfgId)+'.png'))
+
+            # dF2cHat = dAcHat2 \cap AcHat1
+            lhs_im = dAcHat2_im*AcHat1_im
+            plt.figure(9)
+            plt.imshow(1*lhs_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF2cHat_cfg'+str(cfgId)+'.png'))
+
+            # muHat1
+            plt.figure(11)
+            plt.imshow(muHat1[0,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'muHat1_cfg'+str(cfgId)+'.png'))
+
+            # muHat2
+            plt.figure(12)
+            plt.imshow(muHat2[0,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'muHat2_cfg'+str(cfgId)+'.png'))
+
+            # data1
+            plt.figure(13)
+            plt.imshow(data1[10,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'data1_cfg'+str(cfgId)+'.png'))
+
+            # data2
+            plt.figure(14)
+            plt.imshow(data2[10,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'data2_cfg'+str(cfgId)+'.png'))
+
+            # max(muHat1,muHat2)
+            plt.figure(15)
+            plt.imshow(np.maximum(muHat1[0,:,:],muHat2[0,:,:]))
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'maxMuHat_cfg'+str(cfgId)+'.png'))
+
+            # min(muHat1,muHat2)
+            plt.figure(16)
+            plt.imshow(np.minimum(muHat1[0,:,:],muHat2[0,:,:]))
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'minMuHat_cfg'+str(cfgId)+'.png'))
+
+
         print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_Fc_bdry_concat.shape)
 
-        # Get locations where outer mu1 and mu2 are non-zero
-        mu1_Fc_bdry_nzloc = np.where(mu1_Fc_bdry_concat[0,:,1]>c)[0]
-        mu2_Fc_bdry_nzloc = np.where(mu2_Fc_bdry_concat[0,:,1]>c)[0]
+        # Get locations where outer mu1 and mu2 are greater than c
+        mu1_Fc_bdry_gcloc = np.where(mu1_Fc_bdry_concat[0,:,1]>c)[0]
+        mu2_Fc_bdry_gcloc = np.where(mu2_Fc_bdry_concat[0,:,1]>c)[0]
 
-        print(resid1_Fc_bdry_concat[:,mu1_Fc_bdry_nzloc,:].shape)
-        print(resid2_Fc_bdry_concat[:,mu2_Fc_bdry_nzloc,:].shape)
+        print(resid1_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:].shape)
+        print(resid2_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:].shape)
 
         # Obtain MuHat along Fc
         muHat1_FcHat_bdry_concat = get_bdry_values_concat(muHat1, FcHat_bdry_locs)
@@ -273,12 +444,12 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
 
         print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
 
-        # Get locations where outer muHat1 and muHat2 are non-zero
-        muHat1_FcHat_bdry_nzloc = np.where(muHat1_FcHat_bdry_concat[0,:,1]>c)[0]
-        muHat2_FcHat_bdry_nzloc = np.where(muHat2_FcHat_bdry_concat[0,:,1]>c)[0]
+        # Get locations where outer muHat1 and muHat2 are greater than c
+        muHat1_FcHat_bdry_gcloc = np.where(muHat1_FcHat_bdry_concat[0,:,1]>c)[0]
+        muHat2_FcHat_bdry_gcloc = np.where(muHat2_FcHat_bdry_concat[0,:,1]>c)[0]
 
-        print(resid1_FcHat_bdry_concat[:,muHat1_FcHat_bdry_nzloc,:].shape)
-        print(resid2_FcHat_bdry_concat[:,muHat2_FcHat_bdry_nzloc,:].shape)
+        print(resid1_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:].shape)
+        print(resid2_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:].shape)
 
         # -------------------------------------------------------------------
         # Residuals along FsdG and FsdGHat boundaries (Array version)
@@ -286,14 +457,14 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
         # for field 2.
-        resid1_FsdGc1_bdry_concat = resid1_Fc_bdry_concat[:,mu2_Fc_bdry_nzloc,:]
-        resid2_FsdGc2_bdry_concat = resid2_Fc_bdry_concat[:,mu1_Fc_bdry_nzloc,:]
+        resid1_FsdGc1_bdry_concat = resid1_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:]
+        resid2_FsdGc2_bdry_concat = resid2_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:]
 
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
         # vice versa for field 2.
-        resid1_FsdGcHat1_bdry_concat = resid1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_nzloc,:]
-        resid2_FsdGcHat2_bdry_concat = resid2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_nzloc,:]
+        resid1_FsdGcHat1_bdry_concat = resid1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:]
+        resid2_FsdGcHat2_bdry_concat = resid2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:]
 
         # -------------------------------------------------------------------
         # Mu and MuHat along FsdG and FsdGHat boundaries (Array version)
@@ -301,14 +472,14 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
         # for field 2.
-        mu1_FsdGc1_bdry_concat = mu1_Fc_bdry_concat[:,mu2_Fc_bdry_nzloc,:]
-        mu2_FsdGc2_bdry_concat = mu2_Fc_bdry_concat[:,mu1_Fc_bdry_nzloc,:]
+        mu1_FsdGc1_bdry_concat = mu1_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:]
+        mu2_FsdGc2_bdry_concat = mu2_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:]
 
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
         # vice versa for field 2.
-        muHat1_FsdGcHat1_bdry_concat = muHat1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_nzloc,:]
-        muHat2_FsdGcHat2_bdry_concat = muHat2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_nzloc,:]
+        muHat1_FsdGcHat1_bdry_concat = muHat1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:]
+        muHat2_FsdGcHat2_bdry_concat = muHat2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:]
 
         # -------------------------------------------------------------------
         # Interpolation weights FsdG and FsdGHat boundaries (Array version)
@@ -330,9 +501,6 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
 
         # Obtain Fc
         Fc = np.minimum(mu1,mu2) > c
-
-        # Obtain Gc
-        Gc = np.maximum(mu1,mu2) > c
 
         # Obtain AcHat2 and AcHat2 
         AcHat1 = muHat1 > c
@@ -591,14 +759,18 @@ def SpatialSims_2mu_v5(OutDir, nSub, nReals, c, p):
     print('Coverage: ', coverage_estBdry_intrp)
     print('Coverage: ', coverage_trueBdry_intrp)
 
+    # Make results folder
+    if not os.path.exists(os.path.join(simDir, 'RawResults')):
+        os.mkdir(os.path.join(simDir, 'RawResults'))
+
     # Save the violations to a file
-    append_to_file('trueSuccess'+str(nSub)+'v5.csv', trueBdry_success) 
-    append_to_file('estSuccess'+str(nSub)+'v5.csv', estBdry_success)
-    append_to_file('trueSuccess'+str(nSub)+'v5_intrp.csv', trueBdry_success_intrp) 
-    append_to_file('estSuccess'+str(nSub)+'v5_intrp.csv', estBdry_success_intrp)
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess'+str(nSub)+'.csv'), trueBdry_success) # Successes based on the true boundary (assessed without interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess'+str(nSub)+'.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess'+str(nSub)+'_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess'+str(nSub)+'_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
 
+    # Save the computation times
     t2overall = time.time()
+    append_to_file(os.path.join(simDir, 'RawResults', 'computationTime'+str(nSub)+'.csv'), np.array([t2overall-t1overall]))
 
-    #print('overall time: ', t2overall-t1overall)
-
-SpatialSims_2mu_v5('/home/tommaullin/Documents/ConfSets/',100, 30, 2, np.linspace(0,1,21))
+SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')

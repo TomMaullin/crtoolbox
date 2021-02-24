@@ -1,8 +1,8 @@
 import os
 import numpy as np
-from generateData import *
-from boundary import *
-from fileio import *
+from lib.generateData import *
+from lib.boundary import *
+from lib.fileio import *
 
 # ===========================================================================
 #
