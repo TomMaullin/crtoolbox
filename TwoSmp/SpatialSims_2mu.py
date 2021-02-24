@@ -319,7 +319,7 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
         # Images
         # -------------------------------------------------------------------
-        if r==1: and inputs['figGen']:
+        if r==1 and inputs['figGen']:
             
             # Make image directory
             figDir = os.path.join(OutDir, 'sim'+str(simNo), 'Figures')
