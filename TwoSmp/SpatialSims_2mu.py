@@ -877,10 +877,10 @@ def SpatialSims_2mu(ipath):
         os.mkdir(os.path.join(simDir, 'RawResults'))
 
     # Save the violations to a file
-    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess'+str(nSub)+'.csv'), trueBdry_success) # Successes based on the true boundary (assessed without interpolation)
-    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess'+str(nSub)+'.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
-    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess'+str(nSub)+'_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
-    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess'+str(nSub)+'_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess.csv'), trueBdry_success) # Successes based on the true boundary (assessed without interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
 
     # Save the computation times
     t2overall = time.time()
