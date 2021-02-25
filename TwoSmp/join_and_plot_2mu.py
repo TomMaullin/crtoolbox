@@ -174,7 +174,7 @@ def joinAndPlot(OutDir, simNo):
             # Delete files
             # ------------------------------------------------------------------
             # Delete folder for this simulation
-            shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
+            #shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
 
             # We are no longer looking at the first configuration file
             if first:
