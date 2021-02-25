@@ -3,6 +3,7 @@ import numpy as np
 import yaml
 import glob
 import pandas as pd
+from lib.fileio import *
 
 def joinAndPlot(OutDir, simNo):
 
@@ -182,4 +183,25 @@ def joinAndPlot(OutDir, simNo):
         # ----------------------------------------------------------------------
         # Sort and save to csv
         # ----------------------------------------------------------------------
-        table_time.to_csv()
+        # Make final results results directory
+        fResDir = os.path.join(OutDir, 'sim'+str(simNo), 'FinalResults')
+        if not os.path.exists(fResDir):
+            os.mkdir(fResDir)
+
+        # Save times table
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+
+        # Save estimated boundary results table
+        append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
+
+        # Save true boundary results table
+        append_to_file(os.path.join(fResDir,'trueBdry.csv'), table_true)
+
+        # Save estimated boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'estBdry_intrp.csv'), table_est_intrp)
+
+        # Save true boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'trueBdry_intrp.csv'), table_true_intrp)
+
+
+        
