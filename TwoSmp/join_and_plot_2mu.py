@@ -166,18 +166,18 @@ def joinAndPlot(OutDir, simNo):
             # ------------------------------------------------------------------
             # Get computation times
             # ------------------------------------------------------------------
-            tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+            # tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
 
-            # If this is the first cfg we've looked at, intialize the results tables
-            if first:
+            # # If this is the first cfg we've looked at, intialize the results tables
+            # if first:
 
-                # Initialize time table
-                table_time = pd.DataFrame(tableLine_time)
+            #     # Initialize time table
+            #     table_time = pd.DataFrame(tableLine_time)
 
-            else:
+            # else:
 
-                # Append to existing time table
-                table_time = table_time.append(pd.DataFrame(tableLine_time))
+            #     # Append to existing time table
+            #     table_time = table_time.append(pd.DataFrame(tableLine_time))
 
             # ------------------------------------------------------------------
             # Delete files
@@ -197,8 +197,8 @@ def joinAndPlot(OutDir, simNo):
         if not os.path.exists(fResDir):
             os.mkdir(fResDir)
 
-        # Save times table
-        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        # # Save times table
+        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
