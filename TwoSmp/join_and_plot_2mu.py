@@ -11,7 +11,7 @@ def joinAndPlot(OutDir, simNo):
     simDir = os.path.join(OutDir, 'sim'+str(simNo))
 
     # Make directory to store configuration files
-    cfgFiles = os.path.join(simDir,'cfgs','*.yml')
+    cfgFiles = glob.glob(os.path.join(simDir,'cfgs','*.yml'))
 
     # ==========================================================================
     #
@@ -204,4 +204,3 @@ def joinAndPlot(OutDir, simNo):
         append_to_file(os.path.join(fResDir,'trueBdry_intrp.csv'), table_true_intrp)
 
 
-        
