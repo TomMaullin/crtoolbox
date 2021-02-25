@@ -45,7 +45,7 @@ for cfg in $CONFSETS_PATH/results/sim$simNo/cfgs/cfg*.yml; do
 	eval $(parse_yaml $cfg "config_")
 
 	# Submit the job
-	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/sim$simNo/log/ -N config_cfgId \
+	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/sim$simNo/log/ -N cfg$config_cfgId \
 	bash $CONFSETS_PATH/SpatialSims_2mu.sh $cfg \
 	> /tmp/$$ && simInstancesID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
