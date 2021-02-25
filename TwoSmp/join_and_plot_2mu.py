@@ -78,19 +78,19 @@ def joinAndPlot(OutDir, simNo):
 
             # Get the coverage probabilities from the observed results for the
             # estimated boundary
-            covp_est = np.mean(obs_est,axis=0)[:]
+            covp_est = np.mean(obs_est.values,axis=0)[:]
 
             # Get the coverage probabilities from the observed results for the
             # true boundary
-            covp_true = np.mean(obs_true,axis=0)[:]
+            covp_true = np.mean(obs_true.values,axis=0)[:]
 
             # Get the coverage probabilities from the observed results for the
             # estimated boundary (for coverage assessed using interpolation)
-            covp_est_intrp = np.mean(obs_est_intrp,axis=0)[:]
+            covp_est_intrp = np.mean(obs_est_intrp.values,axis=0)[:]
 
             # Get the coverage probabilities from the observed results for the
             # true boundary (for coverage assessed using interpolation)
-            covp_true_intrp = np.mean(obs_true_intrp,axis=0)[:]
+            covp_true_intrp = np.mean(obs_true_intrp.values,axis=0)[:]
 
             # ------------------------------------------------------------------
             # Get number of subjects and distance between radii
