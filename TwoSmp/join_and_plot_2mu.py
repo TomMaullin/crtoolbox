@@ -43,7 +43,7 @@ def joinAndPlot(OutDir, simNo):
             # Get directory of results for this config file
             # ------------------------------------------------------------------
             # Get configuration ID
-            cfgId = inputs['cfgId']
+            cfgId = int(inputs['cfgId'])
 
             # Results directory
             resDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId), 'RawResults')
@@ -100,7 +100,7 @@ def joinAndPlot(OutDir, simNo):
             nSub = inputs['nSub']
 
             # Distance between circle centers
-            distance = inputs['mu2']['center']-inputs['mu1']['center']
+            distance = eval(inputs['mu2']['center'])-eval(inputs['mu1']['center'])
 
             # ------------------------------------------------------------------
             # Add coverage probabilities to table
