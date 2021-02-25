@@ -49,6 +49,15 @@ def joinAndPlot(OutDir, simNo):
             resDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId), 'RawResults')
 
             # ------------------------------------------------------------------
+            # Get number of p values
+            # ------------------------------------------------------------------ 
+            # Get p values
+            p = eval(inputs['p'])
+
+            # Number of p values
+            n_p = np.prod(p.shape)
+
+            # ------------------------------------------------------------------
             # Read in results
             # ------------------------------------------------------------------
 
@@ -107,22 +116,22 @@ def joinAndPlot(OutDir, simNo):
             # ------------------------------------------------------------------
             # Line for table of estimated boundary results
             tableLine_est = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                            covp_est.reshape(1,10)),\
+                                            covp_est.reshape(1,n_p)),\
                                             axis=1)
 
             # Line for table of true boundary results
             tableLine_true = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                             covp_true.reshape(1,10)),\
+                                             covp_true.reshape(1,n_p)),\
                                              axis=1)
 
             # Line for table of estimated boundary interpolation assessed results
             tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                  covp_est_intrp.reshape(1,10)),\
+                                                  covp_est_intrp.reshape(1,n_p)),\
                                                   axis=1)
 
             # Line for table of true boundary interpolation assessed results
             tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                   covp_true_intrp.reshape(1,10)),\
+                                                   covp_true_intrp.reshape(1,n_p)),\
                                                    axis=1)
 
             # If this is the first cfg we've looked at, intialize the results tables
