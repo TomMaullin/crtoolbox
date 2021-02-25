@@ -100,7 +100,7 @@ def joinAndPlot(OutDir, simNo):
             nSub = inputs['nSub']
 
             # Distance between circle centers
-            distance = eval(inputs['mu2']['center'])-eval(inputs['mu1']['center'])
+            distance = np.sum(eval(inputs['mu2']['center'])-eval(inputs['mu1']['center']))
 
             # ------------------------------------------------------------------
             # Add coverage probabilities to table
