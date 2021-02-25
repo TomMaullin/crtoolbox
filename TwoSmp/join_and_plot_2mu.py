@@ -11,7 +11,7 @@ def joinAndPlot(OutDir, simNo):
     simDir = os.path.join(OutDir, 'sim'+str(simNo))
 
     # Make directory to store configuration files
-    cfgFiles = glob.glob(os.path.join(simDir,'cfgs','*.yml'))
+    cfgFiles = glob.glob(os.path.join(simDir,'cfgs','cfg*.yml'))
 
     # ==========================================================================
     #
