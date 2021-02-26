@@ -199,6 +199,8 @@ def joinAndPlot(OutDir, simNo):
 
             except:
 
+                print('here')
+
                 pass
 
         # ----------------------------------------------------------------------
