@@ -63,145 +63,143 @@ def joinAndPlot(OutDir, simNo):
             # is that if a boundary is empty the code will error and no results
             # will be produced. In such a case, we skip that result.
             # ------------------------------------------------------------------ 
-            try:
+            # try:
 
-                # ------------------------------------------------------------------
-                # Read in results
-                # ------------------------------------------------------------------
+            # ------------------------------------------------------------------
+            # Read in results
+            # ------------------------------------------------------------------
 
-                # Read in observed values for the estimated boundary. This will be a 
-                # boolean array of ones and zeros representing observed violations
-                # across simulations
-                obs_est = pd.read_csv(os.path.join(resDir,'estSuccess.csv'), header=None, index_col=None)
+            # Read in observed values for the estimated boundary. This will be a 
+            # boolean array of ones and zeros representing observed violations
+            # across simulations
+            obs_est = pd.read_csv(os.path.join(resDir,'estSuccess.csv'), header=None, index_col=None)
 
-                # Read in observed values for the true boundary. This will be a 
-                # boolean array of ones and zeros representing observed violations
-                # across simulations
-                obs_true = pd.read_csv(os.path.join(resDir,'trueSuccess.csv'), header=None, index_col=None)
+            # Read in observed values for the true boundary. This will be a 
+            # boolean array of ones and zeros representing observed violations
+            # across simulations
+            obs_true = pd.read_csv(os.path.join(resDir,'trueSuccess.csv'), header=None, index_col=None)
 
-                # Read in observed values for the estimated boundary. This will be a 
-                # boolean array of ones and zeros representing observed violations
-                # across simulations (based on interpolation assessment)
-                obs_est_intrp = pd.read_csv(os.path.join(resDir,'estSuccess_intrp.csv'), header=None, index_col=None)
+            # Read in observed values for the estimated boundary. This will be a 
+            # boolean array of ones and zeros representing observed violations
+            # across simulations (based on interpolation assessment)
+            obs_est_intrp = pd.read_csv(os.path.join(resDir,'estSuccess_intrp.csv'), header=None, index_col=None)
 
-                # Read in observed values for the true boundary. This will be a 
-                # boolean array of ones and zeros representing observed violations
-                # across simulations (based on interpolation assessment)
-                obs_true_intrp = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp.csv'), header=None, index_col=None)
+            # Read in observed values for the true boundary. This will be a 
+            # boolean array of ones and zeros representing observed violations
+            # across simulations (based on interpolation assessment)
+            obs_true_intrp = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp.csv'), header=None, index_col=None)
 
-                # ------------------------------------------------------------------
-                # Get coverage probabilities
-                # ------------------------------------------------------------------
+            # ------------------------------------------------------------------
+            # Get coverage probabilities
+            # ------------------------------------------------------------------
 
-                # Get the coverage probabilities from the observed results for the
-                # estimated boundary
-                covp_est = np.mean(obs_est.values,axis=0)[:]
+            # Get the coverage probabilities from the observed results for the
+            # estimated boundary
+            covp_est = np.mean(obs_est.values,axis=0)[:]
 
-                # Get the coverage probabilities from the observed results for the
-                # true boundary
-                covp_true = np.mean(obs_true.values,axis=0)[:]
+            # Get the coverage probabilities from the observed results for the
+            # true boundary
+            covp_true = np.mean(obs_true.values,axis=0)[:]
 
-                # Get the coverage probabilities from the observed results for the
-                # estimated boundary (for coverage assessed using interpolation)
-                covp_est_intrp = np.mean(obs_est_intrp.values,axis=0)[:]
+            # Get the coverage probabilities from the observed results for the
+            # estimated boundary (for coverage assessed using interpolation)
+            covp_est_intrp = np.mean(obs_est_intrp.values,axis=0)[:]
 
-                # Get the coverage probabilities from the observed results for the
-                # true boundary (for coverage assessed using interpolation)
-                covp_true_intrp = np.mean(obs_true_intrp.values,axis=0)[:]
+            # Get the coverage probabilities from the observed results for the
+            # true boundary (for coverage assessed using interpolation)
+            covp_true_intrp = np.mean(obs_true_intrp.values,axis=0)[:]
 
-                # ------------------------------------------------------------------
-                # Get number of subjects and distance between radii
-                # ------------------------------------------------------------------
+            # ------------------------------------------------------------------
+            # Get number of subjects and distance between radii
+            # ------------------------------------------------------------------
 
-                # Number of subjects
-                nSub = inputs['nSub']
+            # Number of subjects
+            nSub = inputs['nSub']
 
-                # Distance between circle centers
-                distance = np.sum(eval(inputs['mu2']['center'])-eval(inputs['mu1']['center']))
+            # Distance between circle centers
+            distance = np.sum(eval(inputs['mu2']['center'])-eval(inputs['mu1']['center']))
 
-                # ------------------------------------------------------------------
-                # Add coverage probabilities to table
-                # ------------------------------------------------------------------
-                # Line for table of estimated boundary results
-                tableLine_est = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                covp_est.reshape(1,n_p)),\
-                                                axis=1)
+            # ------------------------------------------------------------------
+            # Add coverage probabilities to table
+            # ------------------------------------------------------------------
+            # Line for table of estimated boundary results
+            tableLine_est = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                            covp_est.reshape(1,n_p)),\
+                                            axis=1)
 
-                # Line for table of true boundary results
-                tableLine_true = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                 covp_true.reshape(1,n_p)),\
-                                                 axis=1)
+            # Line for table of true boundary results
+            tableLine_true = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                             covp_true.reshape(1,n_p)),\
+                                             axis=1)
 
-                # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                      covp_est_intrp.reshape(1,n_p)),\
-                                                      axis=1)
+            # Line for table of estimated boundary interpolation assessed results
+            tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                  covp_est_intrp.reshape(1,n_p)),\
+                                                  axis=1)
 
-                # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
-                                                       covp_true_intrp.reshape(1,n_p)),\
-                                                       axis=1)
+            # Line for table of true boundary interpolation assessed results
+            tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                   covp_true_intrp.reshape(1,n_p)),\
+                                                   axis=1)
 
-                # If this is the first cfg we've looked at, intialize the results tables
-                if first:
+            # If this is the first cfg we've looked at, intialize the results tables
+            if first:
 
-                    # Initialize estimated boundary results table
-                    table_est = pd.DataFrame(tableLine_est)
+                # Initialize estimated boundary results table
+                table_est = pd.DataFrame(tableLine_est)
 
-                    # Initialize true boundary results table
-                    table_true = pd.DataFrame(tableLine_true)
+                # Initialize true boundary results table
+                table_true = pd.DataFrame(tableLine_true)
 
-                    # Initialize estimated boundary interpolated results table
-                    table_est_intrp = pd.DataFrame(tableLine_est_intrp)
+                # Initialize estimated boundary interpolated results table
+                table_est_intrp = pd.DataFrame(tableLine_est_intrp)
 
-                    # Initialize true boundary interpolated results table
-                    table_true_intrp = pd.DataFrame(tableLine_true_intrp)
+                # Initialize true boundary interpolated results table
+                table_true_intrp = pd.DataFrame(tableLine_true_intrp)
 
-                else:
+            else:
 
-                    # Append to existing estimated boundary results table
-                    table_est = table_est.append(pd.DataFrame(tableLine_est))
+                # Append to existing estimated boundary results table
+                table_est = table_est.append(pd.DataFrame(tableLine_est))
 
-                    # Append to existing true boundary results table
-                    table_true = table_true.append(pd.DataFrame(tableLine_true))
+                # Append to existing true boundary results table
+                table_true = table_true.append(pd.DataFrame(tableLine_true))
 
-                    # Append to existing estimated boundary interpolated results table
-                    table_est_intrp = table_est_intrp.append(pd.DataFrame(tableLine_est_intrp))
+                # Append to existing estimated boundary interpolated results table
+                table_est_intrp = table_est_intrp.append(pd.DataFrame(tableLine_est_intrp))
 
-                    # Append to existing true boundary interpolated results table
-                    table_true_intrp = table_true_intrp.append(pd.DataFrame(tableLine_true_intrp))
+                # Append to existing true boundary interpolated results table
+                table_true_intrp = table_true_intrp.append(pd.DataFrame(tableLine_true_intrp))
 
-                # ------------------------------------------------------------------
-                # Get computation times
-                # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+            # ------------------------------------------------------------------
+            # Get computation times
+            # ------------------------------------------------------------------
+            tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
 
-                # If this is the first cfg we've looked at, intialize the results tables
-                if first:
+            # If this is the first cfg we've looked at, intialize the results tables
+            if first:
 
-                    # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                # Initialize time table
+                table_time = pd.DataFrame(tableLine_time)
 
-                else:
+            else:
 
-                    # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                # Append to existing time table
+                table_time = table_time.append(pd.DataFrame(tableLine_time))
 
-                # ------------------------------------------------------------------
-                # Delete files
-                # ------------------------------------------------------------------
-                # Delete folder for this simulation
-                shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
+            # ------------------------------------------------------------------
+            # Delete files
+            # ------------------------------------------------------------------
+            # Delete folder for this simulation
+            shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
 
-                # We are no longer looking at the first configuration file
-                if first:
-                    first = False
+            # We are no longer looking at the first configuration file
+            if first:
+                first = False
 
-            except:
+            # except:
 
-                print('here')
-
-                pass
+            #     pass
 
         # ----------------------------------------------------------------------
         # Sort and save to csv
