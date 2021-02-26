@@ -270,13 +270,13 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'coverage_vs_distance_p'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+                plt.savefig(os.path.join(fResDir, 'd_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
 
                 # Clear figure
                 plt.clf()
 
-        # Loop through all values of n
-        for n in n_values:
+        # Loop through all values of distance
+        for d in d_values:
 
             # Loop through all values of p
             for p in p_values:
