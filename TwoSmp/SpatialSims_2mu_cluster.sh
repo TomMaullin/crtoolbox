@@ -58,8 +58,8 @@ echo "Submitting concatenation job..."
 
 # Submit the job
 fsl_sub -j $simInstancesID -l $CONFSETS_PATH/results/sim$simNo/log/ -N concat \
-bash $CONFSETS_PATH/join_and_plot_2mu.sh $CONFSETS_PATH/results $simNo \
-> /tmp/$$ && concatID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+bash $CONFSETS_PATH/join_and_plot_2mu.sh $CONFSETS_PATH/results $simNo > \
+/tmp/$$ && concatID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
 echo "All jobs submitted, please monitor progress using qstat."
 
