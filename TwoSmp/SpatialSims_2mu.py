@@ -686,27 +686,23 @@ def SpatialSims_2mu(ipath):
                 pVal = p[pInd]
 
                 # FcHat plus (based on estimated bdry)
-                plt.figure(15)
-                plt.imshow(FcHat_pm_estBdry[pInd,0,...])
-                plt.colorbar()
+                plt.figure(16)
+                plt.imshow(1*FcHat_pm_estBdry[pInd,0,...])
                 plt.savefig(os.path.join(figDir, 'FcHat_plus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
 
                 # FcHat minus (based on estimated bdry)
-                plt.figure(15)
-                plt.imshow(FcHat_pm_estBdry[pInd,1,...])
-                plt.colorbar()
+                plt.figure(17)
+                plt.imshow(1*FcHat_pm_estBdry[pInd,1,...])
                 plt.savefig(os.path.join(figDir, 'FcHat_minus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
 
                 # FcHat plus (based on true bdry)
-                plt.figure(15)
-                plt.imshow(FcHat_pm_trueBdry[pInd,0,...])
-                plt.colorbar()
+                plt.figure(18)
+                plt.imshow(1*FcHat_pm_trueBdry[pInd,0,...])
                 plt.savefig(os.path.join(figDir, 'FcHat_plus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
 
                 # FcHat minus (based on true bdry)
-                plt.figure(15)
-                plt.imshow(FcHat_pm_trueBdry[pInd,1,...])
-                plt.colorbar()
+                plt.figure(19)
+                plt.imshow(1*FcHat_pm_trueBdry[pInd,1,...])
                 plt.savefig(os.path.join(figDir, 'FcHat_minus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
 
 
