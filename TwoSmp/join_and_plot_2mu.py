@@ -3,6 +3,7 @@ import numpy as np
 import yaml
 import glob
 import pandas as pd
+from matplotlib import pyplot as plt
 from lib.fileio import *
 
 def joinAndPlot(OutDir, simNo):
@@ -223,4 +224,88 @@ def joinAndPlot(OutDir, simNo):
         # Save true boundary (with interpolation) results table
         append_to_file(os.path.join(fResDir,'trueBdry_intrp.csv'), table_true_intrp)
 
+        # ----------------------------------------------------------------------
+        # Make figures
+        # ----------------------------------------------------------------------
 
+        # Column headers
+        colhdr = ['cfgID', 'n', 'distance']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+
+        # Assign column headers
+        table_true.columns=colhdr
+        table_est.columns=colhdr
+
+        # List of n and p values
+        n_values = np.unique(table_est['n'].values)
+        d_values = np.unique(table_est['distance'].values)
+        p_values = np.linspace(0,1,21)
+
+        # Loop through all values of n
+        for n in n_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_n = table_est[table_est['n']==n].sort_values('distance')
+                table_true_n = table_true[table_true['n']==n].sort_values('distance')
+
+                # Distances
+                distances_est_n = table_est_n[['distance']].values
+                p_est_n = table_est_n[['p='+('%.2f' % p)]].values
+                distances_true_n = table_true_n[['distance']].values
+                p_true_n = table_true_n[['p='+('%.2f' % p)]].values
+
+                plt.plot(distances_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(distances_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(distances_est_n), np.max(distances_est_n),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
+
+                # Axes
+                plt.xlabel("Distance between circles")
+                plt.ylabel("Observed coverage")
+
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'coverage_vs_distance_p'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+
+                # Clear figure
+                plt.clf()
+
+        # Loop through all values of n
+        for n in n_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_d = table_est[table_est['distance']==d].sort_values('n')
+                table_true_d = table_true[table_true['distance']==d].sort_values('n')
+
+                # Distances
+                n_est_d = table_est_d[['n']].values
+                p_est_d = table_est_d[['p='+('%.2f' % p)]].values
+                n_true_d = table_true_d[['n']].values
+                p_true_d = table_true_d[['p='+('%.2f' % p)]].values
+
+                plt.plot(n_est_d,p_est_d,color="red",label="Estimated boundary")
+                plt.plot(n_true_d,p_true_d,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_d), np.max(n_est_d),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, distance " + str(int(d)) + ")")
+
+                # Axes
+                plt.xlabel("Number of subjects")
+                plt.ylabel("Observed coverage")
+
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+
+                # Clear figure
+                plt.clf()

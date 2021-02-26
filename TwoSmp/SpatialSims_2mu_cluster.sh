@@ -38,7 +38,6 @@ echo "Configurations generated"
 
 echo "Submitting simulation instances..."
 
-i=0
 for cfg in $CONFSETS_PATH/results/sim$simNo/cfgs/cfg*.yml; do
 
 	# read yaml file to get output directory
@@ -47,10 +46,20 @@ for cfg in $CONFSETS_PATH/results/sim$simNo/cfgs/cfg*.yml; do
 	# Submit the job
 	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/sim$simNo/log/ -N cfg$config_cfgId \
 	bash $CONFSETS_PATH/SpatialSims_2mu.sh $cfg \
-	> /tmp/$$ && simInstancesID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
-
-	i=$(($i + 1))
+	> /tmp/$$ && simInstancesID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$simInstancesID
 
 done
 
-echo "Simulation instances submitted!"
+# -----------------------------------------------------------------------
+# Run concatenation job
+# -----------------------------------------------------------------------
+
+echo "Submitting concatenation job..."
+
+# Submit the job
+fsl_sub -j $simInstancesID -l $CONFSETS_PATH/results/sim$simNo/log/ -N concat \
+bash $CONFSETS_PATH/join_and_plot_2mu.sh $CONFSETS_PATH/results $simNo > \
+> /tmp/$$ && concatID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+
+echo "All jobs submitted, please monitor progress using qstat."
+
