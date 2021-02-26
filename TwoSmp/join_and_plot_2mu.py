@@ -247,8 +247,8 @@ def joinAndPlot(OutDir, simNo):
             # Loop through all values of p
             for p in p_values:
 
-                table_est_n = table_est[table_est['n']==n].sort_values('distance')
-                table_true_n = table_true[table_true['n']==n].sort_values('distance')
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('distance')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('distance')
 
                 # Distances
                 distances_est_n = table_est_n[['distance']].values
@@ -282,8 +282,8 @@ def joinAndPlot(OutDir, simNo):
             # Loop through all values of p
             for p in p_values:
 
-                table_est_d = table_est[table_est['distance']==d].sort_values('n')
-                table_true_d = table_true[table_true['distance']==d].sort_values('n')
+                table_est_d = table_est_intrp[table_est_intrp['distance']==d].sort_values('n')
+                table_true_d = table_true_intrp[table_true_intrp['distance']==d].sort_values('n')
 
                 # Distances
                 n_est_d = table_est_d[['n']].values
@@ -306,7 +306,7 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_d'+str(np.int(d))+'.png'))
 
                 # Clear figure
                 plt.clf()
