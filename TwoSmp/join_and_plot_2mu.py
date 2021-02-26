@@ -2,6 +2,7 @@ import os
 import numpy as np
 import yaml
 import glob
+import shutil
 import pandas as pd
 from matplotlib import pyplot as plt
 from lib.fileio import *
