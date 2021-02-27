@@ -233,12 +233,12 @@ def joinAndPlot(OutDir, simNo):
         colhdr = ['cfgID', 'n', 'distance']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
 
         # Assign column headers
-        table_true.columns=colhdr
-        table_est.columns=colhdr
+        table_true_intrp.columns=colhdr
+        table_est_intrp.columns=colhdr
 
         # List of n and p values
-        n_values = np.unique(table_est['n'].values)
-        d_values = np.unique(table_est['distance'].values)
+        n_values = np.unique(table_est_intrp['n'].values)
+        d_values = np.unique(table_est_intrp['distance'].values)
         p_values = np.linspace(0,1,21)
 
         # Loop through all values of n
