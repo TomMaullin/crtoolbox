@@ -267,6 +267,9 @@ def joinAndPlot(OutDir, simNo):
                 plt.xlabel("Distance between circles")
                 plt.ylabel("Observed coverage")
 
+                # Make axis a bit clearer
+                plt.ylim((p-0.02,1))
+                
                 # Legend
                 plt.legend()
 
@@ -301,7 +304,10 @@ def joinAndPlot(OutDir, simNo):
                 # Axes
                 plt.xlabel("Number of subjects")
                 plt.ylabel("Observed coverage")
-
+                
+                # Make axis a bit clearer
+                plt.ylim((p-0.02,1))
+                
                 # Legend
                 plt.legend()
 

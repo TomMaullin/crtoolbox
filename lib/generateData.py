@@ -129,6 +129,38 @@ def get_mu(muSpec, dim):
         # Recrop to original dimensions again
         mu = mu[...,r:adjdim[-2]-r,r:adjdim[-1]-r]
 
+    # Square signal centered at 0 with radius 2.
+    if muSpec['type']=='square2D':
+
+        # Radius
+        r = muSpec['r']
+
+        # Magnitude
+        mag = muSpec['mag']
+
+        # FWHM
+        fwhm = muSpec['fwhm']
+
+        # Adjust dimensions in case signal rolls off edge (we don't want signal to be smoothed
+        # on the cutoff at the edge of the image as though there are zeros next to it)
+        adjdim = np.array(dim)+(np.array(dim)>1)*2*r
+
+        # Work out circle center (setting origin to the image center).
+        center = np.array([adjdim[-2]//2, adjdim[-1]//2]) + muSpec['center']
+
+        # Get an ogrid
+        Y, X = np.ogrid[center[-2]-r:center[-2]+r, center[-1]-r:center[-1]+r]
+
+        # Make unsmoothed circular signal
+        mu = np.zeros(adjdim)
+        mu[...,X,Y]=1
+
+        # Smooth the data
+        mu = mag*(smooth_data(mu, 2, fwhm, scaling='max'))
+
+        # Recrop to original dimensions again
+        mu = mu[...,r:adjdim[-2]-r,r:adjdim[-1]-r]
+
 
     # -----------------------------------------------------------------------
     # Give mu the correct dimensions to be broadcasted with the data we are
