@@ -145,14 +145,14 @@ def get_mu(muSpec, dim):
         # on the cutoff at the edge of the image as though there are zeros next to it)
         adjdim = np.array(dim)+(np.array(dim)>1)*2*r
 
-        # Work out circle center (setting origin to the image center).
+        # Work out square center (setting origin to the image center).
         center = np.array([adjdim[-2]//2, adjdim[-1]//2]) + muSpec['center']
 
         # Get an ogrid
         Y, X = np.ogrid[center[-2]-r:center[-2]+r, center[-1]-r:center[-1]+r]
 
-        # Make unsmoothed circular signal
-        mu = np.zeros(adjdim)
+        # Make unsmoothed square signal
+        mu = np.zeros((adjdim[-2],adjdim[-1]))
         mu[...,X,Y]=1
 
         # Smooth the data
