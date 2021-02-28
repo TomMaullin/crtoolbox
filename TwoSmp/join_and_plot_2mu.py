@@ -264,11 +264,14 @@ def joinAndPlot(OutDir, simNo):
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("Distance between circles")
+                if simNo in [1,2]:
+                    plt.xlabel("Distance between circles")
+                else:
+                    plt.xlabel("Distance between squares")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
-                plt.ylim((p-0.02,1))
+                plt.ylim((np.min(p_true_n)-0.02,1))
                 
                 # Legend
                 plt.legend()
@@ -306,7 +309,7 @@ def joinAndPlot(OutDir, simNo):
                 plt.ylabel("Observed coverage")
                 
                 # Make axis a bit clearer
-                plt.ylim((p-0.02,1))
+                plt.ylim((np.min(p_true_d)-0.02,1))
                 
                 # Legend
                 plt.legend()

@@ -100,6 +100,9 @@ def SpatialSims_2mu(ipath):
     # ID for the configuration
     cfgId = inputs['cfgId']
 
+    # Bootstrap mode
+    mode = inputs['mode']
+
     # -----------------------------------------------------------------------
 
     # Simulation directory
@@ -117,7 +120,7 @@ def SpatialSims_2mu(ipath):
     data_dim = np.array([nSub, 100,100])
 
     # Dimensions of bootstrap variables
-    boot_dim = np.array([nSub, 1]) # MARKER: COULD MAKE  np.array([batchBoot, nSub, 1])
+    boot_dim = np.array([nSub, 1]) # : COULD MAKE  np.array([batchBoot, nSub, 1])
 
 
     # Initialise array for recording the whether set violations occured, for a derived
@@ -298,8 +301,8 @@ def SpatialSims_2mu(ipath):
         resid2 = (data2-muHat2)/sigma2
 
 		# Residuals along Fc boundary
-        resid1_Fc_bdry_concat = get_bdry_values_concat(resid1, Fc_bdry_locs)
-        resid2_Fc_bdry_concat = get_bdry_values_concat(resid2, Fc_bdry_locs)
+        resid1_dFc_concat = get_bdry_values_concat(resid1, Fc_bdry_locs)
+        resid2_dFc_concat = get_bdry_values_concat(resid2, Fc_bdry_locs)
 
         # Residuals along FcHat boundary
         resid1_FcHat_bdry_concat = get_bdry_values_concat(resid1, FcHat_bdry_locs)
@@ -429,14 +432,15 @@ def SpatialSims_2mu(ipath):
             plt.savefig(os.path.join(figDir, 'minMuHat_cfg'+str(cfgId)+'.png'))
 
 
-        print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_Fc_bdry_concat.shape)
+        print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_dFc_concat.shape)
 
         # Get locations where outer mu1 and mu2 are greater than c
-        mu1_Fc_bdry_gcloc = np.where(mu1_Fc_bdry_concat[0,:,1]>c)[0]
-        mu2_Fc_bdry_gcloc = np.where(mu2_Fc_bdry_concat[0,:,1]>c)[0]
+        d1Fc_loc = np.where(mu2_Fc_bdry_concat[0,:,1]>c)[0]
+        d2Fc_loc = np.where(mu1_Fc_bdry_concat[0,:,1]>c)[0]
+        d12Fc_loc = np.where((mu2_Fc_bdry_concat[0,:,1]<= c)*(mu1_Fc_bdry_concat[0,:,1]<=c))[0]
 
-        print(resid1_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:].shape)
-        print(resid2_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:].shape)
+        print(resid1_dFc_concat[:,d1Fc_loc,:].shape)
+        print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
 
         # Obtain MuHat along Fc
         muHat1_FcHat_bdry_concat = get_bdry_values_concat(muHat1, FcHat_bdry_locs)
@@ -445,52 +449,105 @@ def SpatialSims_2mu(ipath):
         print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
 
         # Get locations where outer muHat1 and muHat2 are greater than c
-        muHat1_FcHat_bdry_gcloc = np.where(muHat1_FcHat_bdry_concat[0,:,1]>c)[0]
-        muHat2_FcHat_bdry_gcloc = np.where(muHat2_FcHat_bdry_concat[0,:,1]>c)[0]
+        d1FcHat_loc = np.where(muHat2_FcHat_bdry_concat[0,:,1]>c)[0]
+        d2FcHat_loc = np.where(muHat1_FcHat_bdry_concat[0,:,1]>c)[0]
+        d12FcHat_loc = np.where((muHat2_FcHat_bdry_concat[0,:,1]<= c)*(muHat1_FcHat_bdry_concat[0,:,1]<=c))[0]
 
-        print(resid1_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:].shape)
-        print(resid2_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:].shape)
-
-        # -------------------------------------------------------------------
-        # Residuals along FsdG and FsdGHat boundaries (Array version)
-        # -------------------------------------------------------------------
-        # In this simulation we are bootstrapping the residuals for field 1
-        # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
-        # for field 2.
-        resid1_FsdGc1_bdry_concat = resid1_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:]
-        resid2_FsdGc2_bdry_concat = resid2_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:]
-
-        # In this simulation we are bootstrapping the residuals for field 1
-        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
-        # vice versa for field 2.
-        resid1_FsdGcHat1_bdry_concat = resid1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:]
-        resid2_FsdGcHat2_bdry_concat = resid2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:]
+        print(resid1_FcHat_bdry_concat[:,d1FcHat_loc,:].shape)
+        print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
 
         # -------------------------------------------------------------------
-        # Mu and MuHat along FsdG and FsdGHat boundaries (Array version)
+        # Residuals along dkFc and dkFcHat boundaries (Array version)
         # -------------------------------------------------------------------
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
         # for field 2.
-        mu1_FsdGc1_bdry_concat = mu1_Fc_bdry_concat[:,mu2_Fc_bdry_gcloc,:]
-        mu2_FsdGc2_bdry_concat = mu2_Fc_bdry_concat[:,mu1_Fc_bdry_gcloc,:]
+        resid1_d1Fc_concat = resid1_dFc_concat[:,d1Fc_loc,:]
+        resid2_d2Fc_concat = resid2_dFc_concat[:,d2Fc_loc,:]
 
         # In this simulation we are bootstrapping the residuals for field 1
         # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
         # vice versa for field 2.
-        muHat1_FsdGcHat1_bdry_concat = muHat1_FcHat_bdry_concat[:,muHat2_FcHat_bdry_gcloc,:]
-        muHat2_FsdGcHat2_bdry_concat = muHat2_FcHat_bdry_concat[:,muHat1_FcHat_bdry_gcloc,:]
+        resid1_d1FcHat_concat = resid1_FcHat_bdry_concat[:,d1FcHat_loc,:]
+        resid2_d2FcHat_concat = resid2_FcHat_bdry_concat[:,d2FcHat_loc,:]
+
+        # If we are in mode 2 or 3 we need to bootstrap along the intersection
+        # boundary as well
+        if mode == 2 or mode == 3:
+
+            # For true boundary
+            resid1_d12Fc_concat = resid1_dFc_concat[:,d12Fc_loc,:]
+            resid2_d12Fc_concat = resid2_dFc_concat[:,d12Fc_loc,:]
+
+            # For estimated boundary
+            resid1_d12FcHat_concat = resid1_FcHat_bdry_concat[:,d12FcHat_loc,:]
+            resid2_d12FcHat_concat = resid2_FcHat_bdry_concat[:,d12FcHat_loc,:]
 
         # -------------------------------------------------------------------
-        # Interpolation weights FsdG and FsdGHat boundaries (Array version)
+        # Mu and MuHat along dkFc and dkFcHat boundaries (Array version)
         # -------------------------------------------------------------------
-        # Obtain the weights along the boundary for FsdGc
-        FsdGc1_bdry_weights_concat = get_bdry_weights_concat(mu1_FsdGc1_bdry_concat, c)
-        FsdGc2_bdry_weights_concat = get_bdry_weights_concat(mu2_FsdGc2_bdry_concat, c)
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
+        # for field 2.
+        mu1_d1Fc_concat = mu1_Fc_bdry_concat[:,d1Fc_loc,:]
+        mu2_d2Fc_concat = mu2_Fc_bdry_concat[:,d2Fc_loc,:]
 
-        # Obtain the weights along the boundary for FsdGcHat
-        FsdGcHat1_bdry_weights_concat = get_bdry_weights_concat(muHat1_FsdGcHat1_bdry_concat, c)
-        FsdGcHat2_bdry_weights_concat = get_bdry_weights_concat(muHat2_FsdGcHat2_bdry_concat, c)
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
+        # vice versa for field 2.
+        muHat1_d1FcHat_concat = muHat1_FcHat_bdry_concat[:,d1FcHat_loc,:]
+        muHat2_d2FcHat_concat = muHat2_FcHat_bdry_concat[:,d2FcHat_loc,:]
+
+        # If we are in mode 2 or 3 we need to bootstrap along the intersection
+        # boundary as well
+        if mode == 2 or mode == 3:
+            
+            # For true boundary
+            mu1_d12Fc_concat = mu1_Fc_bdry_concat[:,d12Fc_loc,:]
+            mu2_d12Fc_concat = mu2_Fc_bdry_concat[:,d12Fc_loc,:]
+
+            # For estimated boundary
+            muHat1_d12FcHat_concat = muHat1_FcHat_bdry_concat[:,d12FcHat_loc,:]
+            muHat2_d12FcHat_concat = muHat2_FcHat_bdry_concat[:,d12FcHat_loc,:]
+
+
+        print('marker')
+        print(mu1_d1Fc_concat.shape)
+        print(mu1_Fc_bdry_concat.shape)
+        print(d2Fc_loc.shape)
+        print(mu2_d2Fc_concat.shape)
+        print(mu2_Fc_bdry_concat.shape)
+        print(d1Fc_loc.shape)
+        print(muHat1_d1FcHat_concat.shape)
+
+        print('marker2')
+        print(d1FcHat_loc.shape)
+        print(d2FcHat_loc.shape)
+        print(d12FcHat_loc.shape)
+        print(muHat1_FcHat_bdry_concat.shape)
+
+        # -------------------------------------------------------------------
+        # Interpolation weights dkFc and dkFcHat boundaries (Array version)
+        # -------------------------------------------------------------------
+        # Obtain the weights along the boundary for dkFc
+        d1Fc_bdry_weights_concat = get_bdry_weights_concat(mu1_d1Fc_concat, c)
+        d2Fc_bdry_weights_concat = get_bdry_weights_concat(mu2_d2Fc_concat, c)
+
+        # Obtain the weights along the boundary for dkFcHat
+        d1FcHat_weights_concat = get_bdry_weights_concat(muHat1_d1FcHat_concat, c)
+        d2FcHat_weights_concat = get_bdry_weights_concat(muHat2_d2FcHat_concat, c)
+
+        # If we are in mode 2 or 3 we need to bootstrap along the intersection
+        # boundary as well
+        if mode == 2 or mode == 3:
+            
+            # For true boundary
+            d12Fc_mu1_bdry_weights_concat = get_bdry_weights_concat(mu1_d12Fc_concat, c)
+            d12Fc_mu2_bdry_weights_concat = get_bdry_weights_concat(mu2_d12Fc_concat, c)
+
+            # For estimated boundary
+            d12FcHat_muHat1_weights_concat = get_bdry_weights_concat(muHat1_d12FcHat_concat, c)
+            d12FcHat_muHat2_weights_concat = get_bdry_weights_concat(muHat2_d12FcHat_concat, c)
 
         # -------------------------------------------------------------------
         # True and estimated excursion sets
@@ -513,10 +570,22 @@ def SpatialSims_2mu(ipath):
         # Bootstrap 
         # -------------------------------------------------------------------
         # Initialize empty bootstrap stores
-        max_g1_FsdGc1 = np.zeros(nBoot)
-        max_g2_FsdGc2 = np.zeros(nBoot)
-        max_g1_FsdGcHat1 = np.zeros(nBoot)
-        max_g2_FsdGcHat2 = np.zeros(nBoot)
+        max_g1_d1Fc = np.zeros(nBoot)
+        max_g2_d2Fc = np.zeros(nBoot)
+        max_g1_d1FcHat = np.zeros(nBoot)
+        max_g2_d2FcHat = np.zeros(nBoot)
+
+        if mode == 2:
+
+            # Empty bootstrap store for intersection boundary
+            max_g1g2_d12Fc = np.zeros(nBoot)
+            max_g1g2_d12FcHat = np.zeros(nBoot)
+
+        if mode == 3:
+
+            # Empty bootstrap store for intersection boundary
+            min_g1g2_d12Fc = np.zeros(nBoot)
+            min_g1g2_d12FcHat = np.zeros(nBoot)
 
         t1 = time.time()
         # For each bootstrap record the max of the residuals along the
@@ -531,102 +600,244 @@ def SpatialSims_2mu(ipath):
             # and resid_FsdGcHat_bdry_concat)
             boot_vars = boot_vars.reshape((*boot_vars.shape),1)
 
-            # Bootstrap residuals along FsdGc1 and FsdGc2
-            boot_resid1_FsdGc1_bdry_concat = boot_vars*resid1_FsdGc1_bdry_concat
-            boot_resid2_FsdGc2_bdry_concat = boot_vars*resid2_FsdGc2_bdry_concat
+            # Bootstrap residuals along d1Fc and d2Fc
+            boot_resid1_d1Fc_concat = boot_vars*resid1_d1Fc_concat
+            boot_resid2_d2Fc_concat = boot_vars*resid2_d2Fc_concat
 
-            # Bootstrap residuals along FsdGcHat1 and FsdGcHat2
-            boot_resid1_FsdGcHat1_bdry_concat = boot_vars*resid1_FsdGcHat1_bdry_concat
-            boot_resid2_FsdGcHat2_bdry_concat = boot_vars*resid2_FsdGcHat2_bdry_concat
+            # Bootstrap residuals along d1FcHat and d2FcHat
+            boot_resid1_d1FcHat_concat = boot_vars*resid1_d1FcHat_concat
+            boot_resid2_d2FcHat_concat = boot_vars*resid2_d2FcHat_concat
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FsdGc1. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g1_FsdGc1_bdry_concat = np.zeros(boot_resid1_FsdGc1_bdry_concat.shape[-2:])
-            boot_g1_FsdGc1_bdry_concat[...,0] = np.sum(boot_resid1_FsdGc1_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g1_FsdGc1_bdry_concat[...,1] = np.sum(boot_resid1_FsdGc1_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+            # If we are in mode 2 or 3 we need to bootstrap along the intersection
+            # boundary as well
+            if mode == 2 or mode == 3:
+            
+                # Bootstrap residuals along d12Fc
+                boot_resid1_d12Fc_concat = boot_vars*resid1_d12Fc_concat
+                boot_resid2_d12Fc_concat = boot_vars*resid2_d12Fc_concat
 
-            # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FsdGc2. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. 
-            # I am still looking into why this is)
-            boot_g2_FsdGc2_bdry_concat = np.zeros(boot_resid2_FsdGc2_bdry_concat.shape[-2:])
-            boot_g2_FsdGc2_bdry_concat[...,0] = np.sum(boot_resid2_FsdGc2_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g2_FsdGc2_bdry_concat[...,1] = np.sum(boot_resid2_FsdGc2_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+                # Bootstrap residuals along d12FcHat
+                boot_resid1_d12FcHat_concat = boot_vars*resid1_d12FcHat_concat
+                boot_resid2_d12FcHat_concat = boot_vars*resid2_d12FcHat_concat
 
-            # Obtain bootstrap standard deviations along FsdGc1. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma1_boot_FsdGc1_concat = np.zeros(boot_resid1_FsdGc1_bdry_concat.shape[-2:])
-            sigma1_boot_FsdGc1_concat[...,0] = np.std(boot_resid1_FsdGc1_bdry_concat[...,0], axis=0, ddof=1)
-            sigma1_boot_FsdGc1_concat[...,1] = np.std(boot_resid1_FsdGc1_bdry_concat[...,1], axis=0, ddof=1)
-
-            # Obtain bootstrap standard deviations along FsdGc2. (Note: For some reason this is 
-            # much faster if performed seperately for each of the last rows. I am still looking
-            # into why this is)
-            sigma2_boot_FsdGc2_concat = np.zeros(boot_resid2_FsdGc2_bdry_concat.shape[-2:])
-            sigma2_boot_FsdGc2_concat[...,0] = np.std(boot_resid2_FsdGc2_bdry_concat[...,0], axis=0, ddof=1)
-            sigma2_boot_FsdGc2_concat[...,1] = np.std(boot_resid2_FsdGc2_bdry_concat[...,1], axis=0, ddof=1)
-
-            # Divide by the boostrap standard deviation on FsdGc1
-            boot_g1_FsdGc1_bdry_concat = boot_g1_FsdGc1_bdry_concat/sigma1_boot_FsdGc1_concat
-
-            # Divide by the boostrap standard deviation on FsdGc2
-            boot_g2_FsdGc2_bdry_concat = boot_g2_FsdGc2_bdry_concat/sigma2_boot_FsdGc2_concat
+            # ------------------------------------------------------------------------------------------
+            # True boundary
+            # ------------------------------------------------------------------------------------------
 
             # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FsdGcHat1. (Note: For some reason this is 
+            # the boundary of d1Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. 
             # I am still looking into why this is)
-            boot_g1_FsdGcHat1_bdry_concat = np.zeros(boot_resid1_FsdGcHat1_bdry_concat.shape[-2:])
-            boot_g1_FsdGcHat1_bdry_concat[...,0] = np.sum(boot_resid1_FsdGcHat1_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g1_FsdGcHat1_bdry_concat[...,1] = np.sum(boot_resid1_FsdGcHat1_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+            boot_g1_d1Fc_bdry_concat = np.zeros(boot_resid1_d1Fc_concat.shape[-2:])
+            boot_g1_d1Fc_bdry_concat[...,0] = np.sum(boot_resid1_d1Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g1_d1Fc_bdry_concat[...,1] = np.sum(boot_resid1_d1Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
             # Sum across subjects to get the bootstrapped a values along
-            # the boundary of FsdGcHat2. (Note: For some reason this is 
+            # the boundary of d2Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. 
             # I am still looking into why this is)
-            boot_g2_FsdGcHat2_bdry_concat = np.zeros(boot_resid2_FsdGcHat2_bdry_concat.shape[-2:])
-            boot_g2_FsdGcHat2_bdry_concat[...,0] = np.sum(boot_resid2_FsdGcHat2_bdry_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g2_FsdGcHat2_bdry_concat[...,1] = np.sum(boot_resid2_FsdGcHat2_bdry_concat[...,1], axis=0)/np.sqrt(nSub)
+            boot_g2_d2Fc_bdry_concat = np.zeros(boot_resid2_d2Fc_concat.shape[-2:])
+            boot_g2_d2Fc_bdry_concat[...,0] = np.sum(boot_resid2_d2Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g2_d2Fc_bdry_concat[...,1] = np.sum(boot_resid2_d2Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
-            # Obtain bootstrap standard deviations along FsdGcHat1. (Note: For some reason this is 
+            # Obtain bootstrap standard deviations along d1Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. I am still looking
             # into why this is)
-            sigma1_boot_FsdGcHat1_concat = np.zeros(boot_resid1_FsdGcHat1_bdry_concat.shape[-2:])
-            sigma1_boot_FsdGcHat1_concat[...,0] = np.std(boot_resid1_FsdGcHat1_bdry_concat[...,0], axis=0, ddof=1)
-            sigma1_boot_FsdGcHat1_concat[...,1] = np.std(boot_resid1_FsdGcHat1_bdry_concat[...,1], axis=0, ddof=1)
+            sigma1_boot_d1Fc_concat = np.zeros(boot_resid1_d1Fc_concat.shape[-2:])
+            sigma1_boot_d1Fc_concat[...,0] = np.std(boot_resid1_d1Fc_concat[...,0], axis=0, ddof=1)
+            sigma1_boot_d1Fc_concat[...,1] = np.std(boot_resid1_d1Fc_concat[...,1], axis=0, ddof=1)
 
-            # Obtain bootstrap standard deviations along FsdGcHat2. (Note: For some reason this is 
+            # Obtain bootstrap standard deviations along d2Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. I am still looking
             # into why this is)
-            sigma2_boot_FsdGcHat2_concat = np.zeros(boot_resid2_FsdGcHat2_bdry_concat.shape[-2:])
-            sigma2_boot_FsdGcHat2_concat[...,0] = np.std(boot_resid2_FsdGcHat2_bdry_concat[...,0], axis=0, ddof=1)
-            sigma2_boot_FsdGcHat2_concat[...,1] = np.std(boot_resid2_FsdGcHat2_bdry_concat[...,1], axis=0, ddof=1)
+            sigma2_boot_d2Fc_concat = np.zeros(boot_resid2_d2Fc_concat.shape[-2:])
+            sigma2_boot_d2Fc_concat[...,0] = np.std(boot_resid2_d2Fc_concat[...,0], axis=0, ddof=1)
+            sigma2_boot_d2Fc_concat[...,1] = np.std(boot_resid2_d2Fc_concat[...,1], axis=0, ddof=1)
 
-            # Divide by the boostrap standard deviation on FsdGcHat1
-            boot_g1_FsdGcHat1_bdry_concat = boot_g1_FsdGcHat1_bdry_concat/sigma1_boot_FsdGcHat1_concat
+            # Divide by the boostrap standard deviation on d1Fc
+            boot_g1_d1Fc_bdry_concat = boot_g1_d1Fc_bdry_concat/sigma1_boot_d1Fc_concat
 
-            # Divide by the boostrap standard deviation on FsdGcHat2
-            boot_g2_FsdGcHat2_bdry_concat = boot_g2_FsdGcHat2_bdry_concat/sigma2_boot_FsdGcHat2_concat
+            # Divide by the boostrap standard deviation on d2Fc
+            boot_g2_d2Fc_bdry_concat = boot_g2_d2Fc_bdry_concat/sigma2_boot_d2Fc_concat
 
-            # Interpolation for FsdGc1 and FsdGc2 boundary
-            boot_g1_FsdGc1_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_FsdGc1_bdry_concat,FsdGc1_bdry_weights_concat)
-            boot_g2_FsdGc2_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_FsdGc2_bdry_concat,FsdGc2_bdry_weights_concat)
+            # ------------------------------------------------------------------------------------------
+            # True boundary (mode == 2 or 3)
+            # ------------------------------------------------------------------------------------------
 
-            # Interpolation for FsdGcHat1 and FsdGcHat2 boundary
-            boot_g1_FsdGcHat1_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_FsdGcHat1_bdry_concat,FsdGcHat1_bdry_weights_concat)
-            boot_g2_FsdGcHat2_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_FsdGcHat2_bdry_concat,FsdGcHat2_bdry_weights_concat)
+            # If we are in mode 2 or 3 we need to bootstrap along the intersection
+            # boundary as well
+            if mode == 2 or mode == 3:
 
-            # Get maximum along FsdGc1 and FsdGc2 boudary
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of d12Fc. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g1_d12Fc_bdry_concat = np.zeros(boot_resid1_d12Fc_concat.shape[-2:])
+                boot_g1_d12Fc_bdry_concat[...,0] = np.sum(boot_resid1_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g1_d12Fc_bdry_concat[...,1] = np.sum(boot_resid1_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of d12Fc. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g2_d12Fc_bdry_concat = np.zeros(boot_resid2_d12Fc_concat.shape[-2:])
+                boot_g2_d12Fc_bdry_concat[...,0] = np.sum(boot_resid2_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g2_d12Fc_bdry_concat[...,1] = np.sum(boot_resid2_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+
+                # Obtain bootstrap standard deviations along d12Fc. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma1_boot_d12Fc_concat = np.zeros(boot_resid1_d12Fc_concat.shape[-2:])
+                sigma1_boot_d12Fc_concat[...,0] = np.std(boot_resid1_d12Fc_concat[...,0], axis=0, ddof=1)
+                sigma1_boot_d12Fc_concat[...,1] = np.std(boot_resid1_d12Fc_concat[...,1], axis=0, ddof=1)
+
+                # Obtain bootstrap standard deviations along d12Fc. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma2_boot_d12Fc_concat = np.zeros(boot_resid2_d12Fc_concat.shape[-2:])
+                sigma2_boot_d12Fc_concat[...,0] = np.std(boot_resid2_d12Fc_concat[...,0], axis=0, ddof=1)
+                sigma2_boot_d12Fc_concat[...,1] = np.std(boot_resid2_d12Fc_concat[...,1], axis=0, ddof=1)
+
+                # Divide by the boostrap standard deviation on d12Fc
+                boot_g1_d12Fc_bdry_concat = boot_g1_d12Fc_bdry_concat/sigma1_boot_d12Fc_concat
+
+                # Divide by the boostrap standard deviation on d12Fc
+                boot_g2_d12Fc_bdry_concat = boot_g2_d12Fc_bdry_concat/sigma2_boot_d12Fc_concat
+
+            # ------------------------------------------------------------------------------------------
+            # Estimated boundary
+            # ------------------------------------------------------------------------------------------
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of d1FcHat. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g1_d1FcHat_concat = np.zeros(boot_resid1_d1FcHat_concat.shape[-2:])
+            boot_g1_d1FcHat_concat[...,0] = np.sum(boot_resid1_d1FcHat_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g1_d1FcHat_concat[...,1] = np.sum(boot_resid1_d1FcHat_concat[...,1], axis=0)/np.sqrt(nSub)
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of d2FcHat. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g2_d2FcHat_concat = np.zeros(boot_resid2_d2FcHat_concat.shape[-2:])
+            boot_g2_d2FcHat_concat[...,0] = np.sum(boot_resid2_d2FcHat_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g2_d2FcHat_concat[...,1] = np.sum(boot_resid2_d2FcHat_concat[...,1], axis=0)/np.sqrt(nSub)
+
+            # Obtain bootstrap standard deviations along d1FcHat. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma1_boot_d1FcHat_concat = np.zeros(boot_resid1_d1FcHat_concat.shape[-2:])
+            sigma1_boot_d1FcHat_concat[...,0] = np.std(boot_resid1_d1FcHat_concat[...,0], axis=0, ddof=1)
+            sigma1_boot_d1FcHat_concat[...,1] = np.std(boot_resid1_d1FcHat_concat[...,1], axis=0, ddof=1)
+
+            # Obtain bootstrap standard deviations along d2FcHat. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma2_boot_d2FcHat_concat = np.zeros(boot_resid2_d2FcHat_concat.shape[-2:])
+            sigma2_boot_d2FcHat_concat[...,0] = np.std(boot_resid2_d2FcHat_concat[...,0], axis=0, ddof=1)
+            sigma2_boot_d2FcHat_concat[...,1] = np.std(boot_resid2_d2FcHat_concat[...,1], axis=0, ddof=1)
+
+            # Divide by the boostrap standard deviation on d1FcHat
+            boot_g1_d1FcHat_concat = boot_g1_d1FcHat_concat/sigma1_boot_d1FcHat_concat
+
+            # Divide by the boostrap standard deviation on d2FcHat
+            boot_g2_d2FcHat_concat = boot_g2_d2FcHat_concat/sigma2_boot_d2FcHat_concat
+                
+            # ------------------------------------------------------------------------------------------
+            # Estimated boundary (mode == 2 or 3)
+            # ------------------------------------------------------------------------------------------
+
+            # If we are in mode 2 or 3 we need to bootstrap along the intersection
+            # boundary as well
+            if mode == 2 or mode == 3:
+
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of d12FcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g1_d12FcHat_concat = np.zeros(boot_resid1_d12FcHat_concat.shape[-2:])
+                boot_g1_d12FcHat_concat[...,0] = np.sum(boot_resid1_d12FcHat_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g1_d12FcHat_concat[...,1] = np.sum(boot_resid1_d12FcHat_concat[...,1], axis=0)/np.sqrt(nSub)
+
+                # Sum across subjects to get the bootstrapped a values along
+                # the boundary of d12FcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. 
+                # I am still looking into why this is)
+                boot_g2_d12FcHat_concat = np.zeros(boot_resid2_d12FcHat_concat.shape[-2:])
+                boot_g2_d12FcHat_concat[...,0] = np.sum(boot_resid2_d12FcHat_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g2_d12FcHat_concat[...,1] = np.sum(boot_resid2_d12FcHat_concat[...,1], axis=0)/np.sqrt(nSub)
+
+                # Obtain bootstrap standard deviations along d12FcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma1_boot_d12FcHat_concat = np.zeros(boot_resid1_d12FcHat_concat.shape[-2:])
+                sigma1_boot_d12FcHat_concat[...,0] = np.std(boot_resid1_d12FcHat_concat[...,0], axis=0, ddof=1)
+                sigma1_boot_d12FcHat_concat[...,1] = np.std(boot_resid1_d12FcHat_concat[...,1], axis=0, ddof=1)
+
+                # Obtain bootstrap standard deviations along d12FcHat. (Note: For some reason this is 
+                # much faster if performed seperately for each of the last rows. I am still looking
+                # into why this is)
+                sigma2_boot_d12FcHat_concat = np.zeros(boot_resid2_d12FcHat_concat.shape[-2:])
+                sigma2_boot_d12FcHat_concat[...,0] = np.std(boot_resid2_d12FcHat_concat[...,0], axis=0, ddof=1)
+                sigma2_boot_d12FcHat_concat[...,1] = np.std(boot_resid2_d12FcHat_concat[...,1], axis=0, ddof=1)
+
+                # Divide by the boostrap standard deviation on d12FcHat
+                boot_g1_d12FcHat_concat = boot_g1_d12FcHat_concat/sigma1_boot_d12FcHat_concat
+
+                # Divide by the boostrap standard deviation on d12FcHat
+                boot_g2_d12FcHat_concat = boot_g2_d12FcHat_concat/sigma2_boot_d12FcHat_concat
+
+            # ------------------------------------------------------------------------------------------
+            # Interpolation
+            # ------------------------------------------------------------------------------------------
+
+            # Interpolation for d1Fc and d2Fc boundary
+            boot_g1_d1Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_d1Fc_bdry_concat,d1Fc_bdry_weights_concat)
+            boot_g2_d2Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_d2Fc_bdry_concat,d2Fc_bdry_weights_concat)
+
+            # Interpolation for d1FcHat and d2FcHat boundary
+            boot_g1_d1FcHat_concat = get_bdry_vals_interpolated_concat(boot_g1_d1FcHat_concat,d1FcHat_weights_concat)
+            boot_g2_d2FcHat_concat = get_bdry_vals_interpolated_concat(boot_g2_d2FcHat_concat,d2FcHat_weights_concat)
+
+            # If we are in mode 2 or 3 we need to bootstrap along the intersection
+            # boundary as well
+            if mode == 2 or mode == 3:
+
+                # Interpolation for d1Fc and d2Fc boundary
+                boot_g1_d12Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_d12Fc_bdry_concat,d12Fc_mu1_bdry_weights_concat)
+                boot_g2_d12Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_d12Fc_bdry_concat,d12Fc_mu2_bdry_weights_concat)
+
+                # Interpolation for d12FcHat and d12FcHat boundary
+                boot_g1_d12FcHat_concat = get_bdry_vals_interpolated_concat(boot_g1_d12FcHat_concat,d12FcHat_muHat1_weights_concat)
+                boot_g2_d12FcHat_concat = get_bdry_vals_interpolated_concat(boot_g2_d12FcHat_concat,d12FcHat_muHat2_weights_concat)
+
+            # Get maximum along d1Fc and d2Fc boudary
             try:
-                max_g1_FsdGc1[b] = np.max(np.abs(boot_g1_FsdGc1_bdry_concat)) 
-                max_g2_FsdGc2[b] = np.max(np.abs(boot_g2_FsdGc2_bdry_concat)) 
+                max_g1_d1Fc[b] = np.max(np.abs(boot_g1_d1Fc_bdry_concat)) 
+                max_g2_d2Fc[b] = np.max(np.abs(boot_g2_d2Fc_bdry_concat)) 
 
-                # Get maximum along FsdGcHat1 and FsdGcHat2 boudary
-                max_g1_FsdGcHat1[b] = np.max(np.abs(boot_g1_FsdGcHat1_bdry_concat))
-                max_g2_FsdGcHat2[b] = np.max(np.abs(boot_g2_FsdGcHat2_bdry_concat)) 
+                # Get maximum along d1FcHat and d2FcHat boudary
+                max_g1_d1FcHat[b] = np.max(np.abs(boot_g1_d1FcHat_concat))
+                max_g2_d2FcHat[b] = np.max(np.abs(boot_g2_d2FcHat_concat)) 
+
+                if mode == 2:
+
+                    # Maximum of both |g1| and |g2| on d12Fc boundary
+                    max_g1g2_d12Fc[b] = np.maximum(np.max(np.abs(boot_g1_d12Fc_bdry_concat)),np.max(np.abs(boot_g2_d12Fc_bdry_concat)))
+
+                    # Maximum of both |g1| and |g2| on d12Fc boundary
+                    max_g1g2_d12FcHat[b] = np.maximum(np.max(np.abs(boot_g1_d12FcHat_concat)),np.max(np.abs(boot_g2_d12FcHat_concat)))
+
+                if mode == 3:
+
+                    # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
+                    # the minimum in this mode, unlike in mode 2 where they were inside)
+                    min_g1g2_d12Fc[b] = np.max(np.abs(np.minimum(boot_g1_d12Fc_bdry_concat,boot_g2_d12Fc_bdry_concat)))
+
+                    # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
+                    # the minimum in this mode, unlike in mode 2 where they were inside)
+                    min_g1g2_d12FcHat[b] = np.max(np.abs(np.minimum(boot_g1_d12FcHat_concat,boot_g2_d12FcHat_concat)))
 
             except:
             
@@ -635,11 +846,33 @@ def SpatialSims_2mu(ipath):
 
             # -------------------------------------------------------------------------------------
 
-        # Get the maximum needed for the true boundary
-        max_g_FsdGc = np.maximum(max_g1_FsdGc1,max_g2_FsdGc2)
+        # In mode 1, we only bootstrap G1 along d1Fc and G2 along d2Fc
+        if mode == 1:
 
-        # Get the maximum needed for the estimated boundary
-        max_g_FsdGcHat = np.maximum(max_g1_FsdGcHat1,max_g2_FsdGcHat2)
+            # Get the maximum needed for the true boundary
+            max_g_dFc = np.maximum(max_g1_d1Fc,max_g2_d2Fc)
+
+            # Get the maximum needed for the estimated boundary
+            max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat)
+
+        # In mode 2, we bootstrap G1 along d1Fc union d12Fc and G2 along d2Fc union d12Fc
+        if mode == 2:
+
+            # Get the maximum needed for the true boundary
+            max_g_dFc = np.maximum(max_g1_d1Fc,max_g2_d2Fc,max_g1g2_d12Fc)
+
+            # Get the maximum needed for the estimated boundary
+            max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat,max_g1g2_d12FcHat)
+
+
+        # In mode 3, we bootstrap G1 along d1Fc and G2 along d2Fc and min(G1,G2) along d12Fc
+        if mode == 3:
+
+            # Get the maximum needed for the true boundary
+            max_g_dFc = np.maximum(max_g1_d1Fc,max_g2_d2Fc,min_g1g2_d12Fc)
+
+            # Get the maximum needed for the estimated boundary
+            max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat,min_g1g2_d12FcHat)
 
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
@@ -649,8 +882,8 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
 
         # Get the a estimates for the true boundaries and estimated boundaries
-        a_trueBdry = np.percentile(max_g_FsdGc, 100*p).reshape(nPvals,1,1,1)
-        a_estBdry = np.percentile(max_g_FsdGcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        a_trueBdry = np.percentile(max_g_dFc, 100*p).reshape(nPvals,1,1,1)
+        a_estBdry = np.percentile(max_g_dFcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
 
         # Reformat them to an array form useful for boolean operation
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
@@ -734,10 +967,10 @@ def SpatialSims_2mu(ipath):
         # etc)
         # -------------------------------------------------------------------
         # Record if we saw a violation in the true boundary based sets
-        trueBdry_success[r,:] = 1-(np.any(FcHatp_sub_Fc_trueBdry,axis=(1,2)) | np.any(Fc_sub_FcHatm_trueBdry,axis=(1,2))) # MARKER: AXES WONT WORK FOR 3D ATM
+        trueBdry_success[r,:] = 1-(np.any(FcHatp_sub_Fc_trueBdry,axis=(1,2)) | np.any(Fc_sub_FcHatm_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
 
         # Record if we saw a violation in the estimated boundary based sets
-        estBdry_success[r,:] = 1-(np.any(FcHatp_sub_Fc_estBdry,axis=(1,2)) | np.any(Fc_sub_FcHatm_estBdry,axis=(1,2)))# MARKER: AXES WONT WORK FOR 3D ATM
+        estBdry_success[r,:] = 1-(np.any(FcHatp_sub_Fc_estBdry,axis=(1,2)) | np.any(Fc_sub_FcHatm_estBdry,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
 
         # -------------------------------------------------------------------
         # Get stat along the Fc boundary
@@ -779,10 +1012,10 @@ def SpatialSims_2mu(ipath):
         # Work out whether simulation observed successful sets.
         # -------------------------------------------------------------------
         # Record if we saw a violation in the true boundary based sets
-        trueBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_trueBdry,axis=(1)) & np.all(bdry_upperCheck_trueBdry,axis=(1))# MARKER: AXES WONT WORK FOR 3D ATM
+        trueBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_trueBdry,axis=(1)) & np.all(bdry_upperCheck_trueBdry,axis=(1))# : AXES WONT WORK FOR 3D ATM
 
         # Record if we saw a violation in the estimated boundary based sets
-        estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)) # MARKER: AXES WONT WORK FOR 3D ATM
+        estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry,axis=(1)) & np.all(bdry_upperCheck_estBdry,axis=(1)) # : AXES WONT WORK FOR 3D ATM
 
 
     # For the interpolated boundary success checks, we still need to do the 
@@ -815,4 +1048,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-#SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')
+SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')
