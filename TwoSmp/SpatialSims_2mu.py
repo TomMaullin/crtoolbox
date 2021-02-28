@@ -1048,4 +1048,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')
+#SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')
