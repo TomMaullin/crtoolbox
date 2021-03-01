@@ -26,7 +26,7 @@ def joinAndPlot(OutDir, simNo):
     # center and, as usual, the number of subjects.
     #
     # ==========================================================================
-    if simNo in [1, 2, 3, 4]:
+    if simNo in [1, 2, 3, 4, 5, 6, 7, 8]:
 
         # Variable to check if this is the first file weve looked at
         first = True
