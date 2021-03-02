@@ -628,17 +628,17 @@ def SpatialSims_2mu(ipath):
             # the boundary of d1Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. 
             # I am still looking into why this is)
-            boot_g1_d1Fc_bdry_concat = np.zeros(boot_resid1_d1Fc_concat.shape[-2:])
-            boot_g1_d1Fc_bdry_concat[...,0] = np.sum(boot_resid1_d1Fc_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g1_d1Fc_bdry_concat[...,1] = np.sum(boot_resid1_d1Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+            boot_g1_d1Fc_concat = np.zeros(boot_resid1_d1Fc_concat.shape[-2:])
+            boot_g1_d1Fc_concat[...,0] = np.sum(boot_resid1_d1Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g1_d1Fc_concat[...,1] = np.sum(boot_resid1_d1Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
             # Sum across subjects to get the bootstrapped a values along
             # the boundary of d2Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. 
             # I am still looking into why this is)
-            boot_g2_d2Fc_bdry_concat = np.zeros(boot_resid2_d2Fc_concat.shape[-2:])
-            boot_g2_d2Fc_bdry_concat[...,0] = np.sum(boot_resid2_d2Fc_concat[...,0], axis=0)/np.sqrt(nSub)
-            boot_g2_d2Fc_bdry_concat[...,1] = np.sum(boot_resid2_d2Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+            boot_g2_d2Fc_concat = np.zeros(boot_resid2_d2Fc_concat.shape[-2:])
+            boot_g2_d2Fc_concat[...,0] = np.sum(boot_resid2_d2Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g2_d2Fc_concat[...,1] = np.sum(boot_resid2_d2Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
             # Obtain bootstrap standard deviations along d1Fc. (Note: For some reason this is 
             # much faster if performed seperately for each of the last rows. I am still looking
@@ -655,10 +655,10 @@ def SpatialSims_2mu(ipath):
             sigma2_boot_d2Fc_concat[...,1] = np.std(boot_resid2_d2Fc_concat[...,1], axis=0, ddof=1)
 
             # Divide by the boostrap standard deviation on d1Fc
-            boot_g1_d1Fc_bdry_concat = boot_g1_d1Fc_bdry_concat/sigma1_boot_d1Fc_concat
+            boot_g1_d1Fc_concat = boot_g1_d1Fc_concat/sigma1_boot_d1Fc_concat
 
             # Divide by the boostrap standard deviation on d2Fc
-            boot_g2_d2Fc_bdry_concat = boot_g2_d2Fc_bdry_concat/sigma2_boot_d2Fc_concat
+            boot_g2_d2Fc_concat = boot_g2_d2Fc_concat/sigma2_boot_d2Fc_concat
 
             # ------------------------------------------------------------------------------------------
             # True boundary (mode == 2 or 3)
@@ -672,17 +672,17 @@ def SpatialSims_2mu(ipath):
                 # the boundary of d12Fc. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. 
                 # I am still looking into why this is)
-                boot_g1_d12Fc_bdry_concat = np.zeros(boot_resid1_d12Fc_concat.shape[-2:])
-                boot_g1_d12Fc_bdry_concat[...,0] = np.sum(boot_resid1_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
-                boot_g1_d12Fc_bdry_concat[...,1] = np.sum(boot_resid1_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+                boot_g1_d12Fc_concat = np.zeros(boot_resid1_d12Fc_concat.shape[-2:])
+                boot_g1_d12Fc_concat[...,0] = np.sum(boot_resid1_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g1_d12Fc_concat[...,1] = np.sum(boot_resid1_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
                 # Sum across subjects to get the bootstrapped a values along
                 # the boundary of d12Fc. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. 
                 # I am still looking into why this is)
-                boot_g2_d12Fc_bdry_concat = np.zeros(boot_resid2_d12Fc_concat.shape[-2:])
-                boot_g2_d12Fc_bdry_concat[...,0] = np.sum(boot_resid2_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
-                boot_g2_d12Fc_bdry_concat[...,1] = np.sum(boot_resid2_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
+                boot_g2_d12Fc_concat = np.zeros(boot_resid2_d12Fc_concat.shape[-2:])
+                boot_g2_d12Fc_concat[...,0] = np.sum(boot_resid2_d12Fc_concat[...,0], axis=0)/np.sqrt(nSub)
+                boot_g2_d12Fc_concat[...,1] = np.sum(boot_resid2_d12Fc_concat[...,1], axis=0)/np.sqrt(nSub)
 
                 # Obtain bootstrap standard deviations along d12Fc. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. I am still looking
@@ -699,10 +699,10 @@ def SpatialSims_2mu(ipath):
                 sigma2_boot_d12Fc_concat[...,1] = np.std(boot_resid2_d12Fc_concat[...,1], axis=0, ddof=1)
 
                 # Divide by the boostrap standard deviation on d12Fc
-                boot_g1_d12Fc_bdry_concat = boot_g1_d12Fc_bdry_concat/sigma1_boot_d12Fc_concat
+                boot_g1_d12Fc_concat = boot_g1_d12Fc_concat/sigma1_boot_d12Fc_concat
 
                 # Divide by the boostrap standard deviation on d12Fc
-                boot_g2_d12Fc_bdry_concat = boot_g2_d12Fc_bdry_concat/sigma2_boot_d12Fc_concat
+                boot_g2_d12Fc_concat = boot_g2_d12Fc_concat/sigma2_boot_d12Fc_concat
 
             # ------------------------------------------------------------------------------------------
             # Estimated boundary
@@ -793,8 +793,8 @@ def SpatialSims_2mu(ipath):
             # ------------------------------------------------------------------------------------------
 
             # Interpolation for d1Fc and d2Fc boundary
-            boot_g1_d1Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_d1Fc_bdry_concat,d1Fc_bdry_weights_concat)
-            boot_g2_d2Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_d2Fc_bdry_concat,d2Fc_bdry_weights_concat)
+            boot_g1_d1Fc_concat = get_bdry_vals_interpolated_concat(boot_g1_d1Fc_concat,d1Fc_bdry_weights_concat)
+            boot_g2_d2Fc_concat = get_bdry_vals_interpolated_concat(boot_g2_d2Fc_concat,d2Fc_bdry_weights_concat)
 
             # Interpolation for d1FcHat and d2FcHat boundary
             boot_g1_d1FcHat_concat = get_bdry_vals_interpolated_concat(boot_g1_d1FcHat_concat,d1FcHat_weights_concat)
@@ -805,43 +805,61 @@ def SpatialSims_2mu(ipath):
             if mode == 2 or mode == 3:
 
                 # Interpolation for d1Fc and d2Fc boundary
-                boot_g1_d12Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g1_d12Fc_bdry_concat,d12Fc_mu1_bdry_weights_concat)
-                boot_g2_d12Fc_bdry_concat = get_bdry_vals_interpolated_concat(boot_g2_d12Fc_bdry_concat,d12Fc_mu2_bdry_weights_concat)
+                boot_g1_d12Fc_concat = get_bdry_vals_interpolated_concat(boot_g1_d12Fc_concat,d12Fc_mu1_bdry_weights_concat)
+                boot_g2_d12Fc_concat = get_bdry_vals_interpolated_concat(boot_g2_d12Fc_concat,d12Fc_mu2_bdry_weights_concat)
 
                 # Interpolation for d12FcHat and d12FcHat boundary
                 boot_g1_d12FcHat_concat = get_bdry_vals_interpolated_concat(boot_g1_d12FcHat_concat,d12FcHat_muHat1_weights_concat)
                 boot_g2_d12FcHat_concat = get_bdry_vals_interpolated_concat(boot_g2_d12FcHat_concat,d12FcHat_muHat2_weights_concat)
 
-            # Get maximum along d1Fc and d2Fc boudary
-            try:
-                max_g1_d1Fc[b] = np.max(np.abs(boot_g1_d1Fc_bdry_concat)) 
-                max_g2_d2Fc[b] = np.max(np.abs(boot_g2_d2Fc_bdry_concat)) 
 
-                # Get maximum along d1FcHat and d2FcHat boudary
-                max_g1_d1FcHat[b] = np.max(np.abs(boot_g1_d1FcHat_concat))
+            # Get the maximum along d1Fc if it exists
+            if np.prod(boot_g1_d1Fc_concat.shape) > 0:
+                max_g1_d1Fc[b] = np.max(np.abs(boot_g1_d1Fc_concat)) 
+
+
+            # Get the maximum along d2Fc if it exists
+            if np.prod(boot_g2_d2Fc_concat.shape) > 0:
+                max_g2_d2Fc[b] = np.max(np.abs(boot_g2_d2Fc_concat)) 
+
+            # Get the maximum along d1FcHat if it exists
+            if np.prod(boot_g1_d1FcHat_concat.shape) > 0:
+                max_g1_d1FcHat[b] = np.max(np.abs(boot_g1_d1FcHat_concat)) 
+
+
+            # Get the maximum along d2FcHat if it exists
+            if np.prod(boot_g2_d2FcHat_concat.shape) > 0:
                 max_g2_d2FcHat[b] = np.max(np.abs(boot_g2_d2FcHat_concat)) 
 
-                if mode == 2:
+            if mode == 2:
+
+                # Get the maximum along d12Fc if it exists
+                if np.prod(boot_g1_d12Fc_concat.shape) > 0:
 
                     # Maximum of both |g1| and |g2| on d12Fc boundary
-                    max_g1g2_d12Fc[b] = np.maximum(np.max(np.abs(boot_g1_d12Fc_bdry_concat)),np.max(np.abs(boot_g2_d12Fc_bdry_concat)))
+                    max_g1g2_d12Fc[b] = np.maximum(np.max(np.abs(boot_g1_d12Fc_concat)),np.max(np.abs(boot_g2_d12Fc_concat)))
+
+                # Get the maximum along d12FcHat if it exists
+                if np.prod(boot_g1_d12FcHat_concat.shape) > 0:
 
                     # Maximum of both |g1| and |g2| on d12Fc boundary
                     max_g1g2_d12FcHat[b] = np.maximum(np.max(np.abs(boot_g1_d12FcHat_concat)),np.max(np.abs(boot_g2_d12FcHat_concat)))
 
-                if mode == 3:
+            if mode == 3:
+
+                # Get the maximum along d12Fc if it exists
+                if np.prod(boot_g1_d12Fc_concat.shape) > 0:
 
                     # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
                     # the minimum in this mode, unlike in mode 2 where they were inside)
-                    min_g1g2_d12Fc[b] = np.max(np.abs(np.minimum(boot_g1_d12Fc_bdry_concat,boot_g2_d12Fc_bdry_concat)))
+                    min_g1g2_d12Fc[b] = np.max(np.abs(np.minimum(boot_g1_d12Fc_concat,boot_g2_d12Fc_concat)))
 
+                # Get the maximum along d12FcHat if it exists
+                if np.prod(boot_g1_d12FcHat_concat.shape) > 0:
+                    
                     # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
                     # the minimum in this mode, unlike in mode 2 where they were inside)
                     min_g1g2_d12FcHat[b] = np.max(np.abs(np.minimum(boot_g1_d12FcHat_concat,boot_g2_d12FcHat_concat)))
-
-            except:
-            
-                pass
 
 
             # -------------------------------------------------------------------------------------
