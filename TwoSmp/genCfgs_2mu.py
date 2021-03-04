@@ -40,7 +40,7 @@ def generateCfgs(OutDir, simNo):
         inputs['OutDir'] = OutDir
 
         # Add number of realizations
-        inputs['nReals'] = 1000
+        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -58,7 +58,7 @@ def generateCfgs(OutDir, simNo):
         inputs['FWHM'] = '[0, 3, 3]'
 
         # Add number of bootstraps
-        inputs['nBoot'] = 10000
+        inputs['nBoot'] = 5000
 
         # Add tau expression
         inputs['tau'] = '1/np.sqrt(nSub)'
@@ -322,7 +322,7 @@ def generateCfgs(OutDir, simNo):
         inputs['OutDir'] = OutDir
 
         # Add number of realizations
-        inputs['nReals'] = 1000
+        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -340,7 +340,7 @@ def generateCfgs(OutDir, simNo):
         inputs['FWHM'] = '[0, 3, 3]'
 
         # Add number of bootstraps
-        inputs['nBoot'] = 10000
+        inputs['nBoot'] = 5000
 
         # Add tau expression
         inputs['tau'] = '1/np.sqrt(nSub)'
@@ -603,7 +603,7 @@ def generateCfgs(OutDir, simNo):
         inputs['OutDir'] = OutDir
 
         # Add number of realizations
-        inputs['nReals'] = 1000
+        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -621,7 +621,7 @@ def generateCfgs(OutDir, simNo):
         inputs['FWHM'] = '[0, 3, 3]'
 
         # Add number of bootstraps
-        inputs['nBoot'] = 10000
+        inputs['nBoot'] = 5000
 
         # Add tau expression
         inputs['tau'] = '1/np.sqrt(nSub)'
@@ -885,7 +885,7 @@ def generateCfgs(OutDir, simNo):
         inputs['OutDir'] = OutDir
 
         # Add number of realizations
-        inputs['nReals'] = 1000
+        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
