@@ -874,6 +874,14 @@ def SpatialSims_2mu(ipath):
             # Get the maximum needed for the estimated boundary
             max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat,min_g1g2_d12FcHat)
 
+            print('active')
+            print(max_g1_d1Fc.shape,max_g2_d2Fc.shape,min_g1g2_d12Fc.shape)
+            print(max_g_dFc)
+
+            print('active2')
+            print(max_g1_d1FcHat.shape,max_g2_d2FcHat.shape,min_g1g2_d12FcHat.shape)
+            print(max_g_dFcHat)
+            
         t2 = time.time()
         print('Bootstrap time: ', t2-t1)
 
@@ -888,6 +896,10 @@ def SpatialSims_2mu(ipath):
         # Reformat them to an array form useful for boolean operation
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
         a_estBdry = np.concatenate((-a_estBdry,a_estBdry),axis=1)
+
+        print('a')
+        print(a_trueBdry)
+        print(a_estBdry)
 
         # Get the statistic field which defined Achat^{+/-,1/2}
         stat1 = ((muHat1-c)/(sigma1*tau)).reshape(1,(*muHat1.shape))
@@ -1048,4 +1060,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-#SpatialSims_2mu('/home/tommaullin/Documents/ConfSets/sim1/cfgs/cfg623.yml')
+SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim7/sim7/cfgs/cfg21.yml')
