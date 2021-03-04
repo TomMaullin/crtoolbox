@@ -432,29 +432,29 @@ def SpatialSims_2mu(ipath):
             plt.savefig(os.path.join(figDir, 'minMuHat_cfg'+str(cfgId)+'.png'))
 
 
-        print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_dFc_concat.shape)
+        # print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_dFc_concat.shape)
 
         # Get locations where outer mu1 and mu2 are greater than c
         d1Fc_loc = np.where(mu2_Fc_bdry_concat[0,:,1]>c)[0]
         d2Fc_loc = np.where(mu1_Fc_bdry_concat[0,:,1]>c)[0]
         d12Fc_loc = np.where((mu2_Fc_bdry_concat[0,:,1]<= c)*(mu1_Fc_bdry_concat[0,:,1]<=c))[0]
 
-        print(resid1_dFc_concat[:,d1Fc_loc,:].shape)
-        print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
+        # print(resid1_dFc_concat[:,d1Fc_loc,:].shape)
+        # print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
 
         # Obtain MuHat along Fc
         muHat1_FcHat_bdry_concat = get_bdry_values_concat(muHat1, FcHat_bdry_locs)
         muHat2_FcHat_bdry_concat = get_bdry_values_concat(muHat2, FcHat_bdry_locs)
 
-        print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
+        # print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
 
         # Get locations where outer muHat1 and muHat2 are greater than c
         d1FcHat_loc = np.where(muHat2_FcHat_bdry_concat[0,:,1]>c)[0]
         d2FcHat_loc = np.where(muHat1_FcHat_bdry_concat[0,:,1]>c)[0]
         d12FcHat_loc = np.where((muHat2_FcHat_bdry_concat[0,:,1]<= c)*(muHat1_FcHat_bdry_concat[0,:,1]<=c))[0]
 
-        print(resid1_FcHat_bdry_concat[:,d1FcHat_loc,:].shape)
-        print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
+        # print(resid1_FcHat_bdry_concat[:,d1FcHat_loc,:].shape)
+        # print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
 
         # -------------------------------------------------------------------
         # Residuals along dkFc and dkFcHat boundaries (Array version)
@@ -511,20 +511,20 @@ def SpatialSims_2mu(ipath):
             muHat2_d12FcHat_concat = muHat2_FcHat_bdry_concat[:,d12FcHat_loc,:]
 
 
-        print('marker')
-        print(mu1_d1Fc_concat.shape)
-        print(mu1_Fc_bdry_concat.shape)
-        print(d2Fc_loc.shape)
-        print(mu2_d2Fc_concat.shape)
-        print(mu2_Fc_bdry_concat.shape)
-        print(d1Fc_loc.shape)
-        print(muHat1_d1FcHat_concat.shape)
+        # print('marker')
+        # print(mu1_d1Fc_concat.shape)
+        # print(mu1_Fc_bdry_concat.shape)
+        # print(d2Fc_loc.shape)
+        # print(mu2_d2Fc_concat.shape)
+        # print(mu2_Fc_bdry_concat.shape)
+        # print(d1Fc_loc.shape)
+        # print(muHat1_d1FcHat_concat.shape)
 
-        print('marker2')
-        print(d1FcHat_loc.shape)
-        print(d2FcHat_loc.shape)
-        print(d12FcHat_loc.shape)
-        print(muHat1_FcHat_bdry_concat.shape)
+        # print('marker2')
+        # print(d1FcHat_loc.shape)
+        # print(d2FcHat_loc.shape)
+        # print(d12FcHat_loc.shape)
+        # print(muHat1_FcHat_bdry_concat.shape)
 
         # -------------------------------------------------------------------
         # Interpolation weights dkFc and dkFcHat boundaries (Array version)
@@ -847,13 +847,20 @@ def SpatialSims_2mu(ipath):
 
             if mode == 3:
 
+                #print('marker4')
+
                 # Get the maximum along d12Fc if it exists
                 if np.prod(boot_g1_d12Fc_concat.shape) > 0:
+
+                    #print('marker3')
 
                     # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
                     # the minimum in this mode, unlike in mode 2 where they were inside)
                     min_g1g2_d12Fc[b] = np.max(np.abs(np.minimum(boot_g1_d12Fc_concat,boot_g2_d12Fc_concat)))
 
+                    # print('1: ', min_g1g2_d12Fc)
+                    # print(min_g1g2_d12Fc[b])
+ 
                 # Get the maximum along d12FcHat if it exists
                 if np.prod(boot_g1_d12FcHat_concat.shape) > 0:
                     
@@ -863,6 +870,8 @@ def SpatialSims_2mu(ipath):
 
 
             # -------------------------------------------------------------------------------------
+
+            # print('2: ', min_g1g2_d12Fc)
 
         # In mode 1, we only bootstrap G1 along d1Fc and G2 along d2Fc
         if mode == 1:
@@ -877,31 +886,39 @@ def SpatialSims_2mu(ipath):
         if mode == 2:
 
             # Get the maximum needed for the true boundary
-            max_g_dFc = np.maximum(max_g1_d1Fc,max_g2_d2Fc,max_g1g2_d12Fc)
+            max_g_dFc = np.maximum(np.maximum(max_g1_d1Fc,max_g2_d2Fc),max_g1g2_d12Fc)
 
             # Get the maximum needed for the estimated boundary
-            max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat,max_g1g2_d12FcHat)
+            max_g_dFcHat = np.maximum(np.maximum(max_g1_d1FcHat,max_g2_d2FcHat),max_g1g2_d12FcHat)
 
 
         # In mode 3, we bootstrap G1 along d1Fc and G2 along d2Fc and min(G1,G2) along d12Fc
         if mode == 3:
 
+            # print('3: ', min_g1g2_d12Fc)
             # Get the maximum needed for the true boundary
-            max_g_dFc = np.maximum(max_g1_d1Fc,max_g2_d2Fc,min_g1g2_d12Fc)
+            max_g_dFc = np.maximum(np.maximum(max_g1_d1Fc,max_g2_d2Fc),min_g1g2_d12Fc)
 
             # Get the maximum needed for the estimated boundary
-            max_g_dFcHat = np.maximum(max_g1_d1FcHat,max_g2_d2FcHat,min_g1g2_d12FcHat)
+            max_g_dFcHat = np.maximum(np.maximum(max_g1_d1FcHat,max_g2_d2FcHat),min_g1g2_d12FcHat)
 
-            print('active')
-            print(max_g1_d1Fc.shape,max_g2_d2Fc.shape,min_g1g2_d12Fc.shape)
-            print(max_g_dFc)
+            # print('active')
+            # print(max_g1_d1Fc.shape,max_g2_d2Fc.shape,min_g1g2_d12Fc.shape)
+            # print('1')
+            # print(max_g1_d1Fc)
+            # print('2')
+            # print(max_g2_d2Fc)
+            # print('1and2')
+            # print('4: ', min_g1g2_d12Fc)
+            # print('max')
+            # print(max_g_dFc)
 
-            print('active2')
-            print(max_g1_d1FcHat.shape,max_g2_d2FcHat.shape,min_g1g2_d12FcHat.shape)
-            print(max_g_dFcHat)
+            # print('active2')
+            # print(max_g1_d1FcHat.shape,max_g2_d2FcHat.shape,min_g1g2_d12FcHat.shape)
+            # print(max_g_dFcHat)
             
         t2 = time.time()
-        print('Bootstrap time: ', t2-t1)
+        # print('Bootstrap time: ', t2-t1)
 
         # -------------------------------------------------------------------
         # Obtaining a from percentiles of the max distribution
@@ -915,9 +932,9 @@ def SpatialSims_2mu(ipath):
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
         a_estBdry = np.concatenate((-a_estBdry,a_estBdry),axis=1)
 
-        print('a')
-        print(a_trueBdry)
-        print(a_estBdry)
+        # print('a')
+        # print(a_trueBdry)
+        # print(a_estBdry)
 
         # Get the statistic field which defined Achat^{+/-,1/2}
         stat1 = ((muHat1-c)/(sigma1*tau)).reshape(1,(*muHat1.shape))
@@ -1061,8 +1078,8 @@ def SpatialSims_2mu(ipath):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    print('Coverage: ', coverage_estBdry_intrp)
-    print('Coverage: ', coverage_trueBdry_intrp)
+    # print('Coverage: ', coverage_estBdry_intrp)
+    # print('Coverage: ', coverage_trueBdry_intrp)
 
     # Make results folder
     if not os.path.exists(os.path.join(simDir, 'RawResults')):
@@ -1078,4 +1095,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim7/sim7/cfgs/cfg21.yml')
+#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim7/sim7/cfgs/cfg21.yml')

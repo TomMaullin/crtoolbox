@@ -903,7 +903,7 @@ def generateCfgs(OutDir, simNo):
         inputs['FWHM'] = '[0, 3, 3]'
 
         # Add number of bootstraps
-        inputs['nBoot'] = 10000
+        inputs['nBoot'] = 5000
 
         # Add tau expression
         inputs['tau'] = '1/np.sqrt(nSub)'
@@ -1141,3 +1141,5 @@ def generateCfgs(OutDir, simNo):
             yaml.dump(inputs, outfile, default_flow_style=False)
 
     print(os.path.join(simDir,'cfgs'))
+
+#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim7', 7)
