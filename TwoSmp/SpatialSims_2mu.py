@@ -64,8 +64,15 @@ def SpatialSims_2mu(ipath):
     # Get simulation number
     simNo = int(inputs['simNo'])
 
-    # FWHM
-    fwhm = str2vec(inputs['FWHM']) 
+    # FWHM for the noise
+    fwhm1 = str2vec(inputs['FWHM']) 
+
+    # If we have a second FWHM then it is for field 2
+    if 'FWHM2' in inputs:
+        fwhm2 = str2vec(inputs['FWHM2'])
+    else: 
+        # Otherwise use same FWHM for both
+        fwhm2 = np.array(fwhm1)
 
     # Get number of bootstraps
     if 'nBoot' in inputs:
@@ -146,8 +153,8 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
 
         # Obtain data
-        data1, mu1 = get_data(muSpec1, data_dim, fwhm)
-        data2, mu2 = get_data(muSpec2, data_dim, fwhm)
+        data1, mu1 = get_data(muSpec1, data_dim, fwhm1)
+        data2, mu2 = get_data(muSpec2, data_dim, fwhm2)
 
         # -------------------------------------------------------------------
         # Mean and variance estimates
