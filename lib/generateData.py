@@ -259,6 +259,8 @@ def get_noise(noiseSpec, dim):
 
         noise = noise*np.linspace(0.5,1.5,a.shape[-1])
 
+    print('noise2 shape: ', noise.shape)
+
     return(noise)
 
 # Smoothing function

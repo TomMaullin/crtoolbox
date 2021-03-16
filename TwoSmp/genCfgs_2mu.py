@@ -1204,4 +1204,466 @@ def generateCfgs(OutDir, simNo):
     with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
         yaml.dump(inputs, outfile, default_flow_style=False)
 
+
+    # ==========================================================================
+    #
+    # Simulation 11: Squares moving closer (mode 3) (but heterogenous ramp on
+    # one square)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two squares of 
+    # equal diameter close to one another. For this reason, we vary the squares
+    # center and, as usual, the number of subjects.
+    #
+    # ==========================================================================
+    if simNo==11:
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'heterogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+    # ==========================================================================
+    #
+    # Simulation 12: Squares moving closer (but lower fwhm) (mode 3)  (but 
+    # heterogenous ramp on one square)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two squares of 
+    # equal diameter close to one another. For this reason, we vary the squares
+    # center and, as usual, the number of subjects. This differs from the 
+    # previous setting in terms of smoothing and fwhm.
+    #
+    # ==========================================================================
+    if simNo==12:
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 2/3
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'heterogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 1
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 1
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+    # ==========================================================================
+    #
+    # Simulation 13: Squares moving closer (mode 3) (but heterogenous ramp on
+    # both squares)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two squares of 
+    # equal diameter close to one another. For this reason, we vary the squares
+    # center and, as usual, the number of subjects.
+    #
+    # ==========================================================================
+    if simNo==13:
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'heterogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'heterogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+    # ==========================================================================
+    #
+    # Simulation 14: Squares moving closer (but lower fwhm) (mode 3)  (but 
+    # heterogenous ramp on both square)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two squares of 
+    # equal diameter close to one another. For this reason, we vary the squares
+    # center and, as usual, the number of subjects. This differs from the 
+    # previous setting in terms of smoothing and fwhm.
+    #
+    # ==========================================================================
+    if simNo==14:
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 2/3
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'heterogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'heterogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 1
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 1
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
 #generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim7', 7)
