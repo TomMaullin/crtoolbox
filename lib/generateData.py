@@ -30,10 +30,10 @@ from matplotlib import pyplot as plt
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def get_data(muSpec,dim,fwhm):
+def get_data(muSpec,noiseSpec,dim):
 
     # Obtain the noise fields
-    noise = get_noise(fwhm, dim)
+    noise = get_noise(noiseSpec, dim)
 
     print(noise.shape)
 
@@ -202,7 +202,10 @@ def get_mu(muSpec, dim):
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def get_noise(fwhm, dim):
+def get_noise(noiseSpec, dim):
+
+    # Get FWHM
+    fwhm = noiseSpec['FWHM']
 
     # -----------------------------------------------------------------------
     # Useful scalars
@@ -248,6 +251,13 @@ def get_noise(fwhm, dim):
         noise = noise[(radii+1)[0]:(dim+radii+1)[0],(radii+1)[1]:(dim+radii+1)[1],(radii+1)[2]:(dim+radii+1)[2]]
     if D==4:
         noise = noise[(radii+1)[0]:(dim+radii+1)[0],(radii+1)[1]:(dim+radii+1)[1],(radii+1)[2]:(dim+radii+1)[2],(radii+1)[3]:(dim+radii+1)[3]]
+
+    print('noise shape: ', noise.shape)
+
+    # Heterogenous noise (ramp)
+    if noiseSpec['type']=='heterogen':
+
+        noise = noise*np.linspace(0.5,1.5,a.shape[-1])
 
     return(noise)
 

@@ -14,6 +14,44 @@ def generateCfgs(OutDir, simNo):
     if not os.path.exists(os.path.join(simDir,'cfgs')):
         os.mkdir(os.path.join(simDir,'cfgs'))
 
+
+    # ==========================================================================
+    # Basic inputs for all simulations
+    # ==========================================================================
+
+    # New empty inputs structure
+    inputs={}
+
+    # Add output directory
+    inputs['OutDir'] = OutDir
+
+    # Add simulation number (helps identify simulation)
+    inputs['simNo'] = simNo
+
+    # Add range of p-values
+    inputs['p'] = 'np.linspace(0,1,21)'
+
+    # Add tau expression
+    inputs['tau'] = '1/np.sqrt(nSub)'
+
+    # Add number of realizations
+    inputs['nReals'] = 500
+
+    # Add number of bootstraps
+    inputs['nBoot'] = 5000
+
+    # Create mu1 and mu2 specification
+    mu1 = {}
+    mu2 = {}
+
+    # Create noise1 and noise2 specification
+    noise1 = {}
+    noise2 = {}
+
+    # These are our sample sizes:
+    nSubs = np.linspace(40,500,24)
+    fg_nSubs = np.array([100,300,500])  
+
     # ==========================================================================
     #
     # Simulation 1: Circles moving closer
@@ -27,20 +65,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==1:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -48,23 +74,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 1
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'circle2D' 
@@ -84,9 +108,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'circle2D' 
 
@@ -101,7 +122,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -142,17 +162,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
     # ==========================================================================
     #
@@ -168,20 +179,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==2:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -189,23 +188,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 1
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'circle2D' 
@@ -225,9 +222,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'circle2D' 
 
@@ -242,7 +236,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -283,17 +276,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
 
     # ==========================================================================
@@ -309,20 +293,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==3:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -330,23 +302,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 1
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -366,9 +336,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -383,7 +350,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -424,17 +390,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
     # ==========================================================================
     #
@@ -450,20 +407,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==4:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -471,23 +416,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 1
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -507,9 +450,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -524,7 +464,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -565,17 +504,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
     # ==========================================================================
     #
@@ -590,20 +520,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==5:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -611,23 +529,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 2
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -647,9 +563,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -664,7 +577,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -705,17 +617,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
     # ==========================================================================
     #
@@ -731,20 +634,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==6:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -752,23 +643,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 2
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -788,9 +677,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -805,7 +691,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -846,17 +731,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
 
     # ==========================================================================
@@ -872,20 +748,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==7:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -893,23 +757,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 3
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -929,9 +791,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -946,7 +805,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -987,17 +845,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
 
     # ==========================================================================
     #
@@ -1013,20 +862,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==8:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our circles centers
         centers = np.arange(-20,32,2)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -1034,23 +871,21 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 3
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -1070,9 +905,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 to inputs
         inputs['mu1'] = mu1
 
-        # Create mu2 specification
-        mu2 = {}
-
         # Add mu2 type
         mu2['type'] = 'square2D' 
 
@@ -1087,7 +919,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -1128,19 +959,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
-
-    print(os.path.join(simDir,'cfgs'))
 
     # ==========================================================================
     #
@@ -1156,20 +976,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==9:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our noise fwhms
         FWHM2s = np.linspace(1,6,26)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2
@@ -1177,23 +985,17 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 3
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise 1
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM 1
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
-
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noise 1
+        inputs['noise1'] = noise1
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -1212,9 +1014,6 @@ def generateCfgs(OutDir, simNo):
 
         # Add mu1 to inputs
         inputs['mu1'] = mu1
-
-        # Create mu2 specification
-        mu2 = {}
 
         # Add mu2 type
         mu2['type'] = 'square2D' 
@@ -1236,7 +1035,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_FWHM2s = np.array([1,3,6])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -1245,8 +1043,10 @@ def generateCfgs(OutDir, simNo):
         for FWHM2 in FWHM2s:
 
             # Add FWHM for second noise field
-            inputs['FWHM2'] = '[0, ' + str(FWHM2) + ', ' + str(FWHM2) + ']'
+            noise2['FWHM'] = '[0, ' + str(FWHM2) + ', ' + str(FWHM2) + ']'
 
+            # Save noise field 2
+            inputs['noise2'] = noise2   
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -1275,17 +1075,8 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
-        del inputs['FWHM2'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
+        del inputs['noise2']['FWHM'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
     # ==========================================================================
     #
@@ -1301,20 +1092,8 @@ def generateCfgs(OutDir, simNo):
     # ==========================================================================
     if simNo==10:
 
-        # These are our sample sizes:
-        nSubs = np.linspace(40,500,24)
-
         # These are our noise fwhms
         FWHM2s = np.linspace(1,6,26)
-
-        # New empty inputs directory
-        inputs={}
-
-        # Add output directory
-        inputs['OutDir'] = OutDir
-
-        # Add number of realizations
-        inputs['nReals'] = 500
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -1322,23 +1101,17 @@ def generateCfgs(OutDir, simNo):
         # Add mode
         inputs['mode'] = 3
 
-        # Add range of p-values
-        inputs['p'] = 'np.linspace(0,1,21)'
+        # Add FWHM for noise 1
+        noise1['FWHM'] = '[0, 3, 3]'
 
-        # Add simulation number (helps identify simulation)
-        inputs['simNo'] = simNo
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
 
-        # Add FWHM 1
-        inputs['FWHM'] = '[0, 3, 3]'
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
 
-        # Add number of bootstraps
-        inputs['nBoot'] = 5000
-
-        # Add tau expression
-        inputs['tau'] = '1/np.sqrt(nSub)'
-
-        # Create mu1 specification
-        mu1 = {}
+        # Save noises
+        inputs['noise1'] = noise1
 
         # Add mu1 type
         mu1['type'] = 'square2D' 
@@ -1357,9 +1130,6 @@ def generateCfgs(OutDir, simNo):
 
         # Add mu1 to inputs
         inputs['mu1'] = mu1
-
-        # Create mu2 specification
-        mu2 = {}
 
         # Add mu2 type
         mu2['type'] = 'square2D' 
@@ -1381,7 +1151,6 @@ def generateCfgs(OutDir, simNo):
 
         # We will generate figures for these settings
         fg_FWHM2s = np.array([1,3,6])
-        fg_nSubs = np.array([100,300,500])
 
         # Id for config file
         cfgId = 1
@@ -1389,9 +1158,11 @@ def generateCfgs(OutDir, simNo):
         # Loop through all FWHM2 settings
         for FWHM2 in FWHM2s:
 
-            # Add FWHM for second noise field
-            inputs['FWHM2'] = '[0, ' + str(FWHM2) + ', ' + str(FWHM2) + ']'
+            # Add FWHM  for noise 2
+            noise2['FWHM'] = '[0, ' + str(FWHM2) + ', ' + str(FWHM2) + ']'
 
+            # Add noise 2 to inputs
+            inputs['noise2'] = noise2
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -1420,16 +1191,17 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
-        #--------------------------------------------------------------------------------------
-        # Save the baseline configuration (Note: This must be the last file output as the bash
-        # script used for running simulations on the cluster will take this files existence as
-        # a sign to run the next stage of the simulations)
-        #--------------------------------------------------------------------------------------
         # Delete fields which vary across simulation
-        del inputs['FWHM2'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del inputs['noise2']['FWHM'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
-        # Save the yml
-        with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-            yaml.dump(inputs, outfile, default_flow_style=False)
+
+    #--------------------------------------------------------------------------------------
+    # Save the baseline configuration (Note: This must be the last file output as the bash
+    # script used for running simulations on the cluster will take this files existence as
+    # a sign to run the next stage of the simulations)
+    #--------------------------------------------------------------------------------------
+    # Save the yml
+    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
 
 #generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim7', 7)
