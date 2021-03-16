@@ -257,7 +257,7 @@ def get_noise(noiseSpec, dim):
     # Heterogenous noise (ramp)
     if noiseSpec['type']=='heterogen':
 
-        noise = noise*np.linspace(0.5,1.5,a.shape[-1])
+        noise = noise*np.linspace(0.5,1.5,noise.shape[-1])
 
     print('noise2 shape: ', noise.shape)
 
