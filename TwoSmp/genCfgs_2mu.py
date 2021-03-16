@@ -1195,16 +1195,6 @@ def generateCfgs(OutDir, simNo):
         del inputs['noise2']['FWHM'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
-    #--------------------------------------------------------------------------------------
-    # Save the baseline configuration (Note: This must be the last file output as the bash
-    # script used for running simulations on the cluster will take this files existence as
-    # a sign to run the next stage of the simulations)
-    #--------------------------------------------------------------------------------------
-    # Save the yml
-    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-        yaml.dump(inputs, outfile, default_flow_style=False)
-
-
     # ==========================================================================
     #
     # Simulation 11: Squares moving closer (mode 3) (but heterogenous ramp on
@@ -1663,6 +1653,16 @@ def generateCfgs(OutDir, simNo):
 
         # Delete fields which vary across simulation
         del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+    #--------------------------------------------------------------------------------------
+    # Save the baseline configuration (Note: This must be the last file output as the bash
+    # script used for running simulations on the cluster will take this files existence as
+    # a sign to run the next stage of the simulations)
+    #--------------------------------------------------------------------------------------
+    # Save the yml
+    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
 
 
 
