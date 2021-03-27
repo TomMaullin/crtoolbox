@@ -856,12 +856,10 @@ def SpatialSims_2mu(ipath):
 
             if mode == 3:
 
-                #print('marker4')
+                # print('marker4')
 
                 # Get the maximum along d12Fc if it exists
                 if np.prod(boot_g1_d12Fc_concat.shape) > 0:
-
-                    #print('marker3')
 
                     # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
                     # the minimum in this mode, unlike in mode 2 where they were inside)
@@ -869,13 +867,17 @@ def SpatialSims_2mu(ipath):
 
                     # print('1: ', min_g1g2_d12Fc)
                     # print(min_g1g2_d12Fc[b])
+
+                    # print('marker3',min_g1g2_d12Fc[b])
  
                 # Get the maximum along d12FcHat if it exists
                 if np.prod(boot_g1_d12FcHat_concat.shape) > 0:
-                    
+
                     # Minimum of both g1 and g2 on d12Fc boundary (note: the absolute values must be outside
                     # the minimum in this mode, unlike in mode 2 where they were inside)
                     min_g1g2_d12FcHat[b] = np.max(np.abs(np.minimum(boot_g1_d12FcHat_concat,boot_g2_d12FcHat_concat)))
+                    
+                    # print('marker2',min_g1g2_d12FcHat[b])
 
 
             # -------------------------------------------------------------------------------------
@@ -900,6 +902,7 @@ def SpatialSims_2mu(ipath):
             # Get the maximum needed for the estimated boundary
             max_g_dFcHat = np.maximum(np.maximum(max_g1_d1FcHat,max_g2_d2FcHat),max_g1g2_d12FcHat)
 
+        # print('marker11', min_g1g2_d12FcHat)
 
         # In mode 3, we bootstrap G1 along d1Fc and G2 along d2Fc and min(G1,G2) along d12Fc
         if mode == 3:
@@ -941,7 +944,7 @@ def SpatialSims_2mu(ipath):
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
         a_estBdry = np.concatenate((-a_estBdry,a_estBdry),axis=1)
 
-        # print('a')
+        # print('a makes sense')
         # print(a_trueBdry)
         # print(a_estBdry)
 
@@ -964,7 +967,10 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
         # Images
         # -------------------------------------------------------------------
+        # print('hereeeee')
         if r==1 and inputs['figGen']:
+
+            # print('hereeeee2')
 
             # Indices for 0.8,0.9 and 0.95
             pInds = [16,18,19]
@@ -1015,8 +1021,6 @@ def SpatialSims_2mu(ipath):
         # has axes corresponding to [pvalue, field dimensions]
         Fc_sub_FcHatm_estBdry = Fc[...] & ~FcHat_pm_estBdry[:,0,...]
 
-        #print(Fc_sub_FcHatm_estBdry.shape, Fc.shape, FcHat_pm_estBdry.shape)
-
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using voxelwise
         # set logic (checking if voxels existed in one set but not another, 
@@ -1031,11 +1035,26 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
         # Get stat along the Fc boundary
         # -------------------------------------------------------------------
-        # Get the values along the outer and inner boundaries
-        stat_FcBdry = get_bdry_values(stat, Fc_bdry_locs)
 
-        # Interpolate to get the values along the true boundary
-        stat_FcBdry = get_bdry_vals_interpolated(stat_FcBdry, Fc_bdry_weights)
+        # Obtain stat1 and stat2 along the boundary for Fc
+        stat1_FcBdry = get_bdry_values(stat1, Fc_bdry_locs)
+        stat2_FcBdry = get_bdry_values(stat2, Fc_bdry_locs)
+
+        # Obtain the mu values along the boundary for Fc
+        Fc_bdry_vals_mu1 = get_bdry_values(mu1, Fc_bdry_locs)
+        Fc_bdry_vals_mu2 = get_bdry_values(mu2, Fc_bdry_locs)
+
+        # Obtain the weights along the boundary for Fc
+        Fc_bdry_weights_mu1 = get_bdry_weights(Fc_bdry_vals_mu1, c)
+        Fc_bdry_weights_mu2 = get_bdry_weights(Fc_bdry_vals_mu2, c)
+
+        # Interpolate stat1 and stat2
+        stat1_FcBdry = get_bdry_vals_interpolated(stat1_FcBdry, Fc_bdry_weights_mu1)
+        stat2_FcBdry = get_bdry_vals_interpolated(stat2_FcBdry, Fc_bdry_weights_mu2)
+
+        # Take the minimum of the two statistics
+        stat_FcBdry = np.minimum(stat1_FcBdry,stat2_FcBdry)
+        stat_FcBdry = stat_FcBdry.reshape(stat_FcBdry.shape[-2],stat_FcBdry.shape[-1])
 
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using interpolated
@@ -1058,11 +1077,6 @@ def SpatialSims_2mu(ipath):
         # Perform upper check on stat map using thresholds based on the
         # true boundary
         bdry_upperCheck_trueBdry = stat_FcBdry <= a_trueBdry[:,1,:,0]
-
-        #print('here')
-        #print(bdry_upperCheck_trueBdry.shape)
-        #print(stat_FcBdry.shape)
-        #print(a_trueBdry[:,1,:,0].shape)
 
         # -------------------------------------------------------------------
         # Work out whether simulation observed successful sets.
@@ -1087,8 +1101,7 @@ def SpatialSims_2mu(ipath):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    # print('Coverage: ', coverage_estBdry_intrp)
-    # print('Coverage: ', coverage_trueBdry_intrp)
+    print(coverage_estBdry_intrp)
 
     # Make results folder
     if not os.path.exists(os.path.join(simDir, 'RawResults')):
@@ -1104,4 +1117,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim7/sim7/cfgs/cfg21.yml')
+#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim11/sim11/cfgs/cfg9.yml')

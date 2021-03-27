@@ -35,8 +35,6 @@ def get_data(muSpec,noiseSpec,dim):
     # Obtain the noise fields
     noise = get_noise(noiseSpec, dim)
 
-    print(noise.shape)
-
     # Obtain mu
     mu = get_mu(muSpec, dim)
     
@@ -252,14 +250,10 @@ def get_noise(noiseSpec, dim):
     if D==4:
         noise = noise[(radii+1)[0]:(dim+radii+1)[0],(radii+1)[1]:(dim+radii+1)[1],(radii+1)[2]:(dim+radii+1)[2],(radii+1)[3]:(dim+radii+1)[3]]
 
-    print('noise shape: ', noise.shape)
-
     # Heterogenous noise (ramp)
     if noiseSpec['type']=='heterogen':
 
         noise = noise*np.linspace(0.5,1.5,noise.shape[-1])
-
-    print('noise2 shape: ', noise.shape)
 
     return(noise)
 
