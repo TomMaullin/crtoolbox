@@ -1666,4 +1666,4 @@ def generateCfgs(OutDir, simNo):
 
 
 
-#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim11', 11)
+#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim12', 12)

@@ -435,7 +435,6 @@ def get_bdry_values_concat(field, bdry_locs):
 
 def get_bdry_weights_concat(bdry_vals_concat,c):
 
-
     # Get inner and outer boundary values in this dimension and
     # direction            
     inner_vals = bdry_vals_concat[...,0]
@@ -463,7 +462,7 @@ def get_bdry_weights_concat(bdry_vals_concat,c):
     bdry_weights_outer_concat[inf_locs]=0
 
     # Concatenate them
-    bdry_weights_concat = np.concatenate((bdry_weights_inner_concat,bdry_weights_outer_concat),axis=-1) 
+    bdry_weights_concat = np.concatenate((bdry_weights_outer_concat,bdry_weights_inner_concat),axis=-1) 
 
     # Return boundary values
     return(bdry_weights_concat)
@@ -516,86 +515,223 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
 
 def testfn():
 
-    data, mu = get_data({'type': 'ramp2D', 'a': 1, 'b': 3, 'orient': 'horizontal'}, np.array([100,50,50]), np.array([0,5,5]))
+    # -------------------------------------------------------------------
 
-    muhat = np.mean(data,axis=0).reshape(mu.shape)
+    data1, mu1 = get_data({'center': np.array([-20,0]), 'fwhm': np.array([5,5]),'mag': 1, 'r': 30, 'type': 'square2D'}, {'FWHM': [0, 3, 3], 'type': 'homogen'}, np.array([120,100,100]))
 
-    c=2
+    data2, mu2 = get_data({'center': np.array([-14,0]), 'fwhm': np.array([5,5]),'mag': 1, 'r': 30, 'type': 'square2D'}, {'FWHM': [0, 3, 3], 'type': 'heterogen'}, np.array([120,100,100]))
+
+    c = 2/3
+ 
+    # -------------------------------------------------------------------
+
+    muHat1 = np.mean(data1,axis=0).reshape(mu1.shape)
+
+    muHat2 = np.mean(data2,axis=0).reshape(mu2.shape)
+
+    # -------------------------------------------------------------------
+
+    sigma1 = np.std(data1,axis=0).reshape(mu1.shape)
+
+    sigma2 = np.std(data2,axis=0).reshape(mu2.shape)
+
+    tau = 1/np.sqrt(120)
+
+
+    # -------------------------------------------------------------------
+
+    # Get the statistic field which defined Achat^{+/-,1/2}
+    stat1 = ((muHat1-c)/(sigma1*tau)).reshape(1,(*muHat1.shape))
+    stat2 = ((muHat2-c)/(sigma2*tau)).reshape(1,(*muHat2.shape))
+
+    # Minimum for intersection
+    stat = np.minimum(stat1,stat2)
+    stat = stat.reshape(stat.shape[-2],stat.shape[-1])
+
+    # -------------------------------------------------------------------
+    # Get boolean maps for the boundary of Fc
+    Fc_bdry_maps = get_bdry_maps(np.minimum(mu1,mu2), c)
+
+    # Get coordinates for the boundary of Fc
+    Fc_bdry_locs = get_bdry_locs(Fc_bdry_maps)
+
+    # -------------------------------------------------------------------
+
+    # Obtain the values along the boundary for Fc
+    Fc_bdry_vals_concat = get_bdry_values_concat(np.minimum(mu1,mu2), Fc_bdry_locs)
+    #print('min mu vals concat: ', Fc_bdry_vals_concat)
+
+    # Obtain the weights along the boundary for Fc
+    Fc_bdry_weights_concat = get_bdry_weights_concat(Fc_bdry_vals_concat, c)
+    #print('min mu weights concat: ', Fc_bdry_weights_concat)
+
+    #print(stat.shape)
+
+    # Get the values along the outer and inner boundaries
+    stat_FcBdry1 = get_bdry_values_concat(stat, Fc_bdry_locs)
+    # #print('min stat vals concat: ', stat_FcBdry1)
+
 
     # plt.figure(0)
-    # plt.imshow(muhat[0,:,:])
+    # plt.hist(stat_FcBdry1.reshape(np.prod(stat_FcBdry1.shape)))#stat_FcBdry1.reshape(np.prod(stat_FcBdry.shape)))
 
-    # plt.figure(1)
-    # plt.imshow(muhat[0,:,:]>2)
+    #print('here2: ',stat_FcBdry1)
+
+    # Interpolate to get the values along the true boundary
+    stat_FcBdry1 = get_bdry_vals_interpolated_concat(stat_FcBdry1, Fc_bdry_weights_concat) # INCORRECT
+
+    # -------------------------------------------------------------------
+    
+
+    # Obtain the values along the boundary for Fc
+    Fc_bdry_vals = get_bdry_values(np.minimum(mu1,mu2), Fc_bdry_locs)
+    # print('min mu vals: ', Fc_bdry_vals)
+
+    # Obtain the weights along the boundary for Fc
+    Fc_bdry_weights = get_bdry_weights(Fc_bdry_vals, c)
+    # print('min mu weights: ', Fc_bdry_weights)
+    
+    # Get the values along the outer and inner boundaries
+    stat_FcBdry1_tmp = get_bdry_values(stat, Fc_bdry_locs)
+    # print('min stat vals: ', stat_FcBdry1)
+
+
+
+
+
+
+    # Directions we can interpolate in
+    directions = ['bottom', 'top']
+
+    # Boolean to tell if this is the first edge we are looking at.
+    first = True
+
+    # Loop through dimensions of field and get the boundary boolean maps.
+    for d in Fc_bdry_locs['dims']:
+
+        # Loop through all directions getting locations
+        for direction in directions:
+
+            stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp[d][direction]['outer']
+            stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp[d][direction]['inner']
+
+            stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp_concat_outer.reshape(1,stat_FcBdry1_tmp_concat_outer.shape[0])
+            stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp_concat_inner.reshape(1,stat_FcBdry1_tmp_concat_inner.shape[0])
+
+            if first:
+
+
+                stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
+
+                first = False
+
+            else:
+
+                stat_FcBdry1_tmp_concat_current = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
+                stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_current,stat_FcBdry1_tmp_concat),axis=1)
+
+
+    # print('here: ',stat_FcBdry1_tmp_concat.transpose())
+
+    # plt.figure(0)
+    # plt.hist(stat_FcBdry1_tmp_concat.reshape(np.prod(stat_FcBdry1_tmp_concat.shape)))#stat_FcBdry2.reshape(np.prod(stat_FcBdry2.shape)))
+    # plt.show()
+
+
+
+    # Interpolate to get the values along the true boundary
+    stat_FcBdry1_tmp = get_bdry_vals_interpolated(stat_FcBdry1_tmp, Fc_bdry_weights) # CORRECT
+
+    # print(stat_FcBdry1.shape)
+    # print(stat_FcBdry1_tmp.shape)
+
+    # # print(stat_FcBdry1)
+    # # print(stat_FcBdry1_tmp)
+
+    # # print(np.all(stat_FcBdry1==stat_FcBdry1_tmp))
 
     # plt.figure(2)
-    print('maps')
-    t1 = time.time()
-    bdry_maps = get_bdry_maps(muhat, c)
-    t2 = time.time()
-    print(t2-t1)
+    # plt.hist(stat_FcBdry1.reshape(np.prod(stat_FcBdry1.shape)))#stat_FcBdry2.reshape(np.prod(stat_FcBdry2.shape)))
 
-    print('locs')
-    t1 = time.time()
-    bdry_locs = get_bdry_locs(bdry_maps)
-    t2 = time.time()
-    print(t2-t1)
+    # plt.figure(3)
+    # plt.hist(stat_FcBdry1_tmp.reshape(np.prod(stat_FcBdry1_tmp.shape)))#stat_FcBdry2.reshape(np.prod(stat_FcBdry2.shape)))
+    # plt.show()
+    # # # plt.figure(0)
+    # # plt.imshow(muhat[0,:,:])
 
-    print('vals')
-    t1 = time.time()
-    bdry_vals=get_bdry_values(muhat, bdry_locs)
-    t2 = time.time()
-    print(t2-t1)
+    # # plt.figure(1)
+    # # plt.imshow(muhat[0,:,:]>2)
 
-    print('weights')
-    t1 = time.time()
-    bdry_weights=get_bdry_weights(bdry_vals,c)
-    t2 = time.time()
-    print(t2-t1)
+    # # plt.figure(2)
+    # print('maps')
+    # t1 = time.time()
+    # bdry_maps = get_bdry_maps(muhat, c)
+    # t2 = time.time()
+    # print(t2-t1)
 
-    t1 = time.time()
-    bdry_vals=get_bdry_values(muhat, bdry_locs)
-    t2 = time.time()
+    # print('locs')
+    # t1 = time.time()
+    # bdry_locs = get_bdry_locs(bdry_maps)
+    # t2 = time.time()
+    # print(t2-t1)
 
-    print('interp')
-    t1 = time.time()
-    bdry_interp=get_bdry_vals_interpolated(bdry_vals,bdry_weights)
-    t2 = time.time()
-    print(t2-t1)
+    # print('vals')
+    # t1 = time.time()
+    # bdry_vals=get_bdry_values(muhat, bdry_locs)
+    # t2 = time.time()
+    # print(t2-t1)
 
-    # print(bdry_maps)
+    # print('weights')
+    # t1 = time.time()
+    # bdry_weights=get_bdry_weights(bdry_vals,c)
+    # t2 = time.time()
+    # print(t2-t1)
 
-    # bdrys2 = get_bdry_maps(data, 2)
+    # t1 = time.time()
+    # bdry_vals=get_bdry_values(muhat, bdry_locs)
+    # t2 = time.time()
 
-    # print(bdrys2)
-    plt.figure(0)
-    plt.imshow(mu[0,:,:])
-    plt.colorbar()
+    # print('interp')
+    # t1 = time.time()
+    # bdry_interp=get_bdry_vals_interpolated(bdry_vals,bdry_weights)
+    # t2 = time.time()
+    # print(t2-t1)
+
+    # # print(bdry_maps)
+
+    # # bdrys2 = get_bdry_maps(data, 2)
+
+    # # print(bdrys2)
+    # plt.figure(0)
+    # plt.imshow(mu[0,:,:])
+    # plt.colorbar()
     
-    plt.figure(1)
-    plt.imshow(muhat[0,:,:])
-    plt.colorbar()
+    # plt.figure(1)
+    # plt.imshow(muhat[0,:,:])
+    # plt.colorbar()
     
-    plt.figure(2)
-    plt.imshow(data[8,:,:])
-    plt.colorbar()
+    # plt.figure(2)
+    # plt.imshow(data[8,:,:])
+    # plt.colorbar()
     
-    plt.figure(3)
-    plt.imshow(mu[0,:,:]>2)
+    # plt.figure(3)
+    # plt.imshow(mu[0,:,:]>2)
     
-    plt.figure(4)
-    plt.imshow(muhat[0,:,:]>2)
+    # plt.figure(4)
+    # plt.imshow(muhat[0,:,:]>2)
 
-    tmp = (bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0
+    # tmp = (bdry_maps[1]['top']['inner'][0,:,:]+bdry_maps[1]['bottom']['inner'][0,:,:]+bdry_maps[2]['top']['inner'][0,:,:]+bdry_maps[2]['bottom']['inner'][0,:,:])>0
     
-    plt.figure(5)
-    plt.imshow(tmp)
+    # plt.figure(5)
+    # plt.imshow(tmp)
 
-    tmp2=(bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0
-    plt.figure(6)
-    plt.imshow(tmp2)
+    # tmp2=(bdry_maps[1]['top']['outer'][0,:,:]+bdry_maps[1]['bottom']['outer'][0,:,:]+bdry_maps[2]['top']['outer'][0,:,:]+bdry_maps[2]['bottom']['outer'][0,:,:])>0
+    # plt.figure(6)
+    # plt.imshow(tmp2)
 
-    plt.figure(7)
-    plt.imshow(tmp+tmp2)
+    # plt.figure(7)
+    # plt.imshow(tmp+tmp2)
 
-    plt.show()
+    # plt.show()
+
+#testfn()
