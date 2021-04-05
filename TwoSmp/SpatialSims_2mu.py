@@ -77,6 +77,12 @@ def SpatialSims_2mu(ipath):
     # Reforemat FWHM for the noise in field 2
     noiseSpec2['FWHM'] = str2vec(noiseSpec2['FWHM']) 
 
+    # Covariance between noise fields
+    if 'noiseCov' in inputs:
+        noiseCov = inputs['noiseCov']
+    else:
+        noiseCov = None
+
     # Get number of bootstraps
     if 'nBoot' in inputs:
         nBoot = int(inputs['nBoot'])
@@ -156,8 +162,7 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
 
         # Obtain data
-        data1, mu1 = get_data(muSpec1, noiseSpec1, data_dim)
-        data2, mu2 = get_data(muSpec2, noiseSpec2, data_dim)
+        data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2, data_dim, noiseCov)
 
         # -------------------------------------------------------------------
         # Mean and variance estimates

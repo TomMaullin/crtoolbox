@@ -30,19 +30,26 @@ from matplotlib import pyplot as plt
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def get_data(muSpec,noiseSpec,dim):
+def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCov=None):
 
     # Obtain the noise fields
-    noise = get_noise(noiseSpec, dim)
+    noise1 = get_noise(noiseSpec1, dim)
+    noise2 = get_noise(noiseSpec2, dim)
+
+    # Correlate the data if needed
+    if noiseCov is not None:
+        noise1, noise2 = correlateData(noise1,noise2,noiseCov)
 
     # Obtain mu
-    mu = get_mu(muSpec, dim)
+    mu1 = get_mu(muSpec1, dim)
+    mu2 = get_mu(muSpec2, dim)
     
     # Create the data
-    data = mu + noise
+    data1 = mu1 + noise1
+    data2 = mu2 + noise2
 
     # Return the data and mu
-    return(data, mu)
+    return(data1, data2, mu1, mu2)
 
 
 # ===========================================================================
@@ -256,6 +263,29 @@ def get_noise(noiseSpec, dim):
         noise = noise*np.linspace(0.5,1.5,noise.shape[-1])
 
     return(noise)
+
+def correlateData(noise1,noise2,noiseCov):
+
+    # Reshape noises
+    noise1 = noise1.reshape(*noise1.shape,1)
+    noise2 = noise2.reshape(*noise2.shape,1)
+
+    # Combine them (for broadcasting covariance matrix multiplication)
+    noises = np.concatenate((noise1,noise2),axis=-1)
+    noises = noises.reshape(*noises.shape,1)
+
+    # Work out covariance matrix we need.
+    covMat = np.array([[1,0],[noiseCov, np.sqrt(1/noiseCov**2 -1)*noiseCov]])
+
+    # Correlate noises
+    new_noises = covMat @ noises
+
+    # Get back noise 1 and noise 2
+    new_noise1 = new_noises[...,0,0]
+    new_noise2 = new_noises[...,1,0]
+
+    # Return the noises
+    return(new_noise1,new_noise2)
 
 # Smoothing function
 def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
