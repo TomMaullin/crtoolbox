@@ -613,7 +613,7 @@ def joinAndPlot(OutDir, simNo):
 
 
     # Simulated over covariance range
-    if simNo in [18,19]:
+    if simNo in [17,18]:
 
         # Variable to check if this is the first file weve looked at
         first = True
