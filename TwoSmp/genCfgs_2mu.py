@@ -1957,7 +1957,7 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_centers = np.array([-20,0,20,28])
+        fg_covs = np.array([0.2,0.5,0.7])
 
         # Id for config file
         cfgId = 1
@@ -1978,7 +1978,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (center in fg_centers):
+                if (nSub in fg_nSubs) and (cov in fg_covs):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2073,7 +2073,7 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_centers = np.array([-20,0,20,28])
+        fg_covs = np.array([0.2,0.5,0.7])
 
         # Id for config file
         cfgId = 1
@@ -2094,7 +2094,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (center in fg_centers):
+                if (nSub in fg_nSubs) and (cov in fg_covs):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
