@@ -1966,7 +1966,7 @@ def generateCfgs(OutDir, simNo):
         for cov in noise_covs:
 
             # Add noise covariance
-            inputs['noiseCov'] = cov
+            inputs['noiseCov'] = str(cov)
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -2082,7 +2082,7 @@ def generateCfgs(OutDir, simNo):
         for cov in noise_covs:
 
             # Add noise covariance
-            inputs['noiseCov'] = cov
+            inputs['noiseCov'] = str(cov)
 
             # Loop through all nSub settings
             for nSub in nSubs:

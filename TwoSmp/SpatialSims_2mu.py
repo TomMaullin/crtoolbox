@@ -79,7 +79,7 @@ def SpatialSims_2mu(ipath):
 
     # Covariance between noise fields
     if 'noiseCov' in inputs:
-        noiseCov = inputs['noiseCov']
+        noiseCov = np.float(inputs['noiseCov'])
     else:
         noiseCov = None
 
