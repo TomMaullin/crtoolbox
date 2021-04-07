@@ -103,6 +103,8 @@ def get_mu(muSpec, dim):
             # Using tile make the ramp
             mu = np.tile(np.linspace(a,b,dim[-1])[::-1].reshape(dim[-1],1),dim[-2])
 
+        print(mu.shape)
+
     # Circular signal centered at 0 with radius 2.
     if muSpec['type']=='circle2D':
 
