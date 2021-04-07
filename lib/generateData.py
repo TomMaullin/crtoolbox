@@ -88,8 +88,8 @@ def get_mu(muSpec, dim):
     if muSpec['type']=='ramp2D':
 
         # Get a and b
-        a = muSpec['a']
-        b = muSpec['b']
+        a = np.float(muSpec['a'])
+        b = np.float(muSpec['b'])
 
         # Ramp increasing vertically 
         if muSpec['orient']=='horizontal':
