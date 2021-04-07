@@ -843,6 +843,8 @@ def joinAndPlot(OutDir, simNo):
                 cov_true_n = table_true_n[['cov']].values
                 p_true_n = table_true_n[['p='+('%.2f' % p)]].values
 
+                print(cov_est_n,p_est_n)
+
                 plt.plot(cov_est_n,p_est_n,color="red",label="Estimated boundary")
                 plt.plot(cov_true_n,p_true_n,color="blue",label="True boundary")
                 plt.hlines(p, np.min(cov_est_n), np.max(cov_est_n),linestyles='dashed',label="Expected")
