@@ -705,7 +705,7 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # Covariance between noise fields
-                cov = inputs['noiseCov']
+                cov = np.float(inputs['noiseCov'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table
@@ -1000,7 +1000,7 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # Gradient of ramps
-                grad = (inputs['mu2']['a'] - inputs['mu1']['a'])/2
+                grad = (np.float(inputs['mu1']['b']) - np.float(inputs['mu1']['a']))/2
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table

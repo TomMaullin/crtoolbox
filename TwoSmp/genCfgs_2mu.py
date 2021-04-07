@@ -2181,10 +2181,10 @@ def generateCfgs(OutDir, simNo):
             mu1['orient'] = 'horizontal'
 
             # Add mu1 a
-            mu1['a'] = 2-grad
+            mu1['a'] = '%.15f' % (2-grad)
 
             # Add mu1 b
-            mu1['b'] = 2+grad
+            mu1['b'] = '%.15f' % (2+grad)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -2196,10 +2196,10 @@ def generateCfgs(OutDir, simNo):
             mu2['orient'] = 'vertical'
 
             # Add mu2 a
-            mu2['a'] = 2-grad
+            mu2['a'] = '%.15f' % (2-grad)
 
             # Add mu2 b
-            mu2['b'] = 2+grad
+            mu2['b'] = '%.15f' % (2+grad)
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
