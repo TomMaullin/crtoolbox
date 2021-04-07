@@ -1107,7 +1107,7 @@ def SpatialSims_2mu(ipath):
         # Get stat along the Fc boundary
         # -------------------------------------------------------------------
 
-        # Take the minimum of the two statistics
+        # Take the minimum of the two statistics # NTS MODE 1 OR 2 WILL CURRENTLY BREAK HERE
         stat_FcBdry = np.concatenate((ming1g2_d1Fc_concat,ming1g2_d2Fc_concat,ming1g2_d12Fc_concat),axis=-1)#stat_FcBdry.reshape(stat_FcBdry.shape[-2],stat_FcBdry.shape[-1])
         stat_FcBdry = stat_FcBdry.reshape(stat_FcBdry.shape[-2],stat_FcBdry.shape[-1])
 
