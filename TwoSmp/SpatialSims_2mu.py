@@ -164,6 +164,8 @@ def SpatialSims_2mu(ipath):
         # Obtain data
         data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2, data_dim, noiseCov)
 
+        print('data shapes: ', data1.shape, data2.shape, mu1.shape, mu2.shape)
+
         # -------------------------------------------------------------------
         # Mean and variance estimates
         # -------------------------------------------------------------------
