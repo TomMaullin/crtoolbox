@@ -1978,7 +1978,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (corr in fg_corrs):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_corrs,corr)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2094,7 +2094,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (corr in fg_corrs):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_corrs,corr)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2215,7 +2215,7 @@ def generateCfgs(OutDir, simNo):
 
                 # Record if we want to save figures for this design or not
                 print(grad, fg_grads, grad in fg_grads)
-                if (nSub in fg_nSubs) and (grad in fg_grads):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_grads,grad)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2327,7 +2327,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (grad in fg_grads):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_grads,grad)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2444,7 +2444,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (mag in fg_mags):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2562,7 +2562,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (mag in fg_mags):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2582,4 +2582,4 @@ def generateCfgs(OutDir, simNo):
         # Delete fields which vary across simulation
         del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
-#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim15', 15)
+generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim19', 19)
