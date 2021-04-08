@@ -264,6 +264,10 @@ def get_noise(noiseSpec, dim):
 
         noise = noise*np.linspace(0.5,1.5,noise.shape[-1])
 
+    # Alter the magnitude of the noise
+    if 'mag' in noiseSpec:
+        noise = noise*np.float(noiseSpec['mag'])
+
     return(noise)
 
 def correlateData(noise1,noise2,noiseCorr):
