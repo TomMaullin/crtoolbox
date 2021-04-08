@@ -2166,7 +2166,7 @@ def generateCfgs(OutDir, simNo):
 
 
         # We will generate figures for these settings
-        fg_grads = np.array([-0.5,1,1.5])
+        fg_grads = np.array([0.5,1,1.5])
 
         # Id for config file
         cfgId = 1
@@ -2214,6 +2214,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
+                print(grad, fg_grads, grad in fg_grads)
                 if (nSub in fg_nSubs) and (grad in fg_grads):
 
                     # In this case we do want to save  figures
@@ -2223,6 +2224,8 @@ def generateCfgs(OutDir, simNo):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=0
+
+                print(inputs['figGen'])
 
                 # Save the yml
                 with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
@@ -2276,7 +2279,7 @@ def generateCfgs(OutDir, simNo):
 
 
         # We will generate figures for these settings
-        fg_grads = np.array([-0.5,1,1.5])/3
+        fg_grads = np.array([0.5,1,1.5])/3
 
         # Id for config file
         cfgId = 1
