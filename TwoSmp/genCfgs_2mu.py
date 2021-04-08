@@ -2582,4 +2582,4 @@ def generateCfgs(OutDir, simNo):
         # Delete fields which vary across simulation
         del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
-generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim19', 19)
+#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim19', 19)
