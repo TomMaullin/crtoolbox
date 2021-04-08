@@ -30,15 +30,15 @@ from matplotlib import pyplot as plt
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCov=None):
+def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCorr=None):
 
     # Obtain the noise fields
     noise1 = get_noise(noiseSpec1, dim)
     noise2 = get_noise(noiseSpec2, dim)
 
     # Correlate the data if needed
-    if noiseCov is not None:
-        noise1, noise2 = correlateData(noise1,noise2,noiseCov)
+    if noiseCorr is not None:
+        noise1, noise2 = correlateData(noise1,noise2,noiseCorr)
 
     # Obtain mu
     mu1 = get_mu(muSpec1, dim)
@@ -168,7 +168,7 @@ def get_mu(muSpec, dim):
 
 
     print('marker ', mu.shape)
-    
+
     # -----------------------------------------------------------------------
     # Give mu the correct dimensions to be broadcasted with the data we are
     # creating
@@ -266,7 +266,7 @@ def get_noise(noiseSpec, dim):
 
     return(noise)
 
-def correlateData(noise1,noise2,noiseCov):
+def correlateData(noise1,noise2,noiseCorr):
 
     # Reshape noises
     noise1 = noise1.reshape(*noise1.shape,1)
@@ -276,8 +276,11 @@ def correlateData(noise1,noise2,noiseCov):
     noises = np.concatenate((noise1,noise2),axis=-1)
     noises = noises.reshape(*noises.shape,1)
 
+    abs_noiseCorr = np.abs(noiseCorr)
+    sgn_noiseCorr = np.sign(noiseCorr)
+
     # Work out covariance matrix we need.
-    covMat = np.array([[1,0],[noiseCov, np.sqrt(1/noiseCov**2 -1)*noiseCov]])
+    covMat = np.array([[1,0],[abs_noiseCorr, np.sqrt(1/abs_noiseCorr**2 -1)*abs_noiseCorr]])
 
     # Correlate noises
     new_noises = covMat @ noises
@@ -285,6 +288,11 @@ def correlateData(noise1,noise2,noiseCov):
     # Get back noise 1 and noise 2
     new_noise1 = new_noises[...,0,0]
     new_noise2 = new_noises[...,1,0]
+
+    # Multiply one of the fields by -1 if need negative correlation
+    if (sgn_noiseCorr == -1):
+        new_noise2 = -new_noise2
+        print('-ve')
 
     # Return the noises
     return(new_noise1,new_noise2)

@@ -611,8 +611,7 @@ def joinAndPlot(OutDir, simNo):
                 # Clear figure
                 plt.clf()
 
-
-    # Simulated over covariance range
+    # Simulated over correlation range
     if simNo in [17,18]:
 
         # Variable to check if this is the first file weve looked at
@@ -704,29 +703,29 @@ def joinAndPlot(OutDir, simNo):
                 # Number of subjects
                 nSub = inputs['nSub']
 
-                # Covariance between noise fields
-                cov = np.float(inputs['noiseCov'])
+                # Correlation between noise fields
+                corr = np.float(inputs['noiseCorr'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table
                 # ------------------------------------------------------------------
                 # Line for table of estimated boundary results
-                tableLine_est = np.concatenate((np.array([[cfgId,nSub,cov]]),\
+                tableLine_est = np.concatenate((np.array([[cfgId,nSub,corr]]),\
                                                 covp_est.reshape(1,n_p)),\
                                                 axis=1)
 
                 # Line for table of true boundary results
-                tableLine_true = np.concatenate((np.array([[cfgId,nSub,cov]]),\
+                tableLine_true = np.concatenate((np.array([[cfgId,nSub,corr]]),\
                                                  covp_true.reshape(1,n_p)),\
                                                  axis=1)
 
                 # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,cov]]),\
+                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,corr]]),\
                                                       covp_est_intrp.reshape(1,n_p)),\
                                                       axis=1)
 
                 # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,cov]]),\
+                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,corr]]),\
                                                        covp_true_intrp.reshape(1,n_p)),\
                                                        axis=1)
 
@@ -817,7 +816,7 @@ def joinAndPlot(OutDir, simNo):
         # ----------------------------------------------------------------------
 
         # Column headers
-        colhdr = ['cfgID', 'n', 'cov']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+        colhdr = ['cfgID', 'n', 'corr']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
 
         # Assign column headers
         table_true_intrp.columns=colhdr
@@ -825,7 +824,7 @@ def joinAndPlot(OutDir, simNo):
 
         # List of n and p values
         n_values = np.unique(table_est_intrp['n'].values)
-        c_values = np.unique(table_est_intrp['cov'].values)
+        c_values = np.unique(table_est_intrp['corr'].values)
         p_values = np.linspace(0,1,21)
 
         # Loop through all values of n
@@ -834,26 +833,26 @@ def joinAndPlot(OutDir, simNo):
             # Loop through all values of p
             for p in p_values:
 
-                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('cov')
-                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('cov')
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('corr')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('corr')
 
-                # Covariances
-                cov_est_n = table_est_n[['cov']].values
+                # Correlations
+                corr_est_n = table_est_n[['corr']].values
                 p_est_n = table_est_n[['p='+('%.2f' % p)]].values
-                cov_true_n = table_true_n[['cov']].values
+                corr_true_n = table_true_n[['corr']].values
                 p_true_n = table_true_n[['p='+('%.2f' % p)]].values
 
-                print(cov_est_n,p_est_n)
+                print(corr_est_n,p_est_n)
 
-                plt.plot(cov_est_n,p_est_n,color="red",label="Estimated boundary")
-                plt.plot(cov_true_n,p_true_n,color="blue",label="True boundary")
-                plt.hlines(p, np.min(cov_est_n), np.max(cov_est_n),linestyles='dashed',label="Expected")
+                plt.plot(corr_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(corr_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(corr_est_n), np.max(corr_est_n),linestyles='dashed',label="Expected")
 
                 # Title
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("Covariance between noise fields")
+                plt.xlabel("Correlation between noise fields")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
@@ -863,21 +862,21 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'cov_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+                plt.savefig(os.path.join(fResDir, 'corr_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
 
                 # Clear figure
                 plt.clf()
 
-        # Loop through all values of fwhm2
+        # Loop through all values of correlation
         for c in c_values:
 
             # Loop through all values of p
             for p in p_values:
 
-                table_est_c = table_est_intrp[table_est_intrp['cov']==c].sort_values('n')
-                table_true_c = table_true_intrp[table_true_intrp['cov']==c].sort_values('n')
+                table_est_c = table_est_intrp[table_est_intrp['corr']==c].sort_values('n')
+                table_true_c = table_true_intrp[table_true_intrp['corr']==c].sort_values('n')
 
-                # n and p for this covariance
+                # n and p for this correlation
                 n_est_c = table_est_c[['n']].values
                 p_est_c = table_est_c[['p='+('%.2f' % p)]].values
                 n_true_c = table_true_c[['n']].values
@@ -888,7 +887,7 @@ def joinAndPlot(OutDir, simNo):
                 plt.hlines(p, np.min(n_est_c), np.max(n_est_c),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, noise covariance " + ('%.2f' % c) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, noise correlation " + ('%.2f' % c) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
@@ -901,10 +900,11 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_cov'+('%.2f' % c)+'.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_corr'+('%.2f' % c)+'.png'))
 
                 # Clear figure
                 plt.clf()
+
 
 
     # Simulated over gradient range

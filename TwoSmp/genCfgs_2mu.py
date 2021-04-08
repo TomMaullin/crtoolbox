@@ -1896,7 +1896,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==17:
 
         # These are our covariances
-        noise_covs = np.arange(0.1,1.1,0.1)
+        noise_corrs = np.arange(-1.0,1.1,0.1)
 
         # Add threshold c
         inputs['c'] = 2/3
@@ -1957,16 +1957,16 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_covs = np.array([0.2,0.5,0.7])
+        fg_corrs = np.array([-0.8,0,0.8])
 
         # Id for config file
         cfgId = 1
 
-        # Loop through all center settings
-        for cov in noise_covs:
+        # Loop through all correlation settings
+        for corr in noise_corrs:
 
-            # Add noise covariance
-            inputs['noiseCov'] = str(cov)
+            # Add noise correlation
+            inputs['noiseCorr'] = str(corr)
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -1978,7 +1978,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (cov in fg_covs):
+                if (nSub in fg_nSubs) and (corr in fg_corrs):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -1996,7 +1996,7 @@ def generateCfgs(OutDir, simNo):
                 cfgId = cfgId + 1
 
         # Delete fields which vary across simulation
-        del inputs['noiseCov'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del inputs['noiseCorr'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
     # ==========================================================================
@@ -2012,7 +2012,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==18:
 
         # These are our covariances
-        noise_covs = np.arange(0.1,1.1,0.1)
+        noise_corrs = np.arange(-1.0,1.1,0.1)
 
         # Add threshold c
         inputs['c'] = 2
@@ -2073,16 +2073,16 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_covs = np.array([0.2,0.5,0.7])
+        fg_corrs = np.array([-0.8,0,0.8])
 
         # Id for config file
         cfgId = 1
 
-        # Loop through all center settings
-        for cov in noise_covs:
+        # Loop through all correlation settings
+        for corr in noise_corrs:
 
-            # Add noise covariance
-            inputs['noiseCov'] = str(cov)
+            # Add noise correlation
+            inputs['noiseCorr'] = str(corr)
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -2094,7 +2094,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and (cov in fg_covs):
+                if (nSub in fg_nSubs) and (corr in fg_corrs):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2112,7 +2112,7 @@ def generateCfgs(OutDir, simNo):
                 cfgId = cfgId + 1
 
         # Delete fields which vary across simulation
-        del inputs['noiseCov'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del inputs['noiseCorr'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
     
 
     #--------------------------------------------------------------------------------------
