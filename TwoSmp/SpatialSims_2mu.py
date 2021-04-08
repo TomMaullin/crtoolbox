@@ -164,7 +164,7 @@ def SpatialSims_2mu(ipath):
         # Obtain data
         data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2, data_dim, noiseCov)
 
-        print('data shapes: ', data1.shape, data2.shape, mu1.shape, mu2.shape)
+        #print('data shapes: ', data1.shape, data2.shape, mu1.shape, mu2.shape)
 
         # -------------------------------------------------------------------
         # Mean and variance estimates
@@ -940,9 +940,26 @@ def SpatialSims_2mu(ipath):
         # Obtaining a from percentiles of the max distribution
         # -------------------------------------------------------------------
 
-        # Get the a estimates for the true boundaries and estimated boundaries
-        a_trueBdry = np.percentile(max_g_dFc, 100*p).reshape(nPvals,1,1,1)
-        a_estBdry = np.percentile(max_g_dFcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        # Drop the instances where the boundary length was zero
+        max_g_dFc = max_g_dFc[max_g_dFc!=0]
+        max_g_dFcHat = max_g_dFcHat[max_g_dFcHat!=0]
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g_dFc.shape) > 0):
+            # Get the a estimates for the true boundary
+            a_trueBdry = np.percentile(max_g_dFc, 100*p).reshape(nPvals,1,1,1)
+        else:
+            # Set to inf by default
+            a_trueBdry = np.Inf*np.ones((nPvals,1,1,1))
+
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g_dFcHat.shape) > 0):
+            # Get the a estimates for the estimated boundary
+            a_estBdry = np.percentile(max_g_dFcHat, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        else:
+            # Set to inf by default
+            a_estBdry = np.Inf*np.ones((nPvals,1,1,1))
 
         # Reformat them to an array form useful for boolean operation
         a_trueBdry = np.concatenate((-a_trueBdry,a_trueBdry),axis=1)
@@ -1027,6 +1044,21 @@ def SpatialSims_2mu(ipath):
         # set logic (checking if voxels existed in one set but not another, 
         # etc)
         # -------------------------------------------------------------------
+        #print(a_trueBdry)
+        # # FcHat plus (based on estimated bdry)
+        # plt.figure(0)
+        # plt.imshow(1*FcHat_pm_trueBdry[0,1,...])
+        # plt.colorbar()
+
+        # # FcHat minus (based on estimated bdry)
+        # plt.figure(1)
+        # plt.imshow(1*(~Fc[0,...]))
+        # plt.colorbar()
+        # plt.show()
+        # plt.clf()
+
+
+        #print('anys: ', np.any(FcHatp_sub_Fc_trueBdry,axis=(1,2)), np.any(Fc_sub_FcHatm_trueBdry,axis=(1,2)))
         # Record if we saw a violation in the true boundary based sets
         trueBdry_success[r,:] = 1-(np.any(FcHatp_sub_Fc_trueBdry,axis=(1,2)) | np.any(Fc_sub_FcHatm_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
 
@@ -1110,8 +1142,6 @@ def SpatialSims_2mu(ipath):
         # Take the minimum of the two statistics # NTS MODE 1 OR 2 WILL CURRENTLY BREAK HERE
         stat_FcBdry = np.concatenate((ming1g2_d1Fc_concat,ming1g2_d2Fc_concat,ming1g2_d12Fc_concat),axis=-1)#stat_FcBdry.reshape(stat_FcBdry.shape[-2],stat_FcBdry.shape[-1])
         stat_FcBdry = stat_FcBdry.reshape(stat_FcBdry.shape[-2],stat_FcBdry.shape[-1])
-
-
 
 
         # # ----------------------------------------------------------------------------------------
@@ -1231,8 +1261,10 @@ def SpatialSims_2mu(ipath):
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
 
-    print(coverage_trueBdry_intrp)
-    print(coverage_estBdry_intrp)
+    # print(coverage_trueBdry)
+    # print(coverage_estBdry)
+    # print(coverage_trueBdry_intrp)
+    # print(coverage_estBdry_intrp)
 
     # Make results folder
     if not os.path.exists(os.path.join(simDir, 'RawResults')):
@@ -1248,4 +1280,4 @@ def SpatialSims_2mu(ipath):
     t2overall = time.time()
     append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
 
-#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim12/sim12/cfgs/cfg77.yml')
+#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim15/sim15/cfgs/cfg578.yml')

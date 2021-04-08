@@ -2348,4 +2348,4 @@ def generateCfgs(OutDir, simNo):
         del inputs['mu1']['a'], inputs['mu1']['b'], inputs['mu2']['a'], inputs['mu2']['b'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
-#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim12', 12)
+#generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim15', 15)
