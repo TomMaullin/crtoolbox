@@ -1885,7 +1885,7 @@ def generateCfgs(OutDir, simNo):
 
     # ==========================================================================
     #
-    # Simulation 17: Varying correlation between fields (lower SNR)
+    # Simulation 17: Varying correlation between fields (higher SNR)
     #
     # --------------------------------------------------------------------------
     #
@@ -1894,122 +1894,6 @@ def generateCfgs(OutDir, simNo):
     #
     # ==========================================================================
     if simNo==17:
-
-        # These are our covariances
-        noise_corrs = np.arange(-1.0,1.1,0.1)
-
-        # Add threshold c
-        inputs['c'] = 2/3
-
-        # Add mode
-        inputs['mode'] = 3
-
-        # Add FWHM for noise
-        noise1['FWHM'] = '[0, 3, 3]'
-
-        # Add type for noise 1
-        noise1['type'] = 'homogen'
-
-        # Add FWHM  for noise 2
-        noise2['FWHM'] = '[0, 3, 3]'
-
-        # Add type for noise 2
-        noise2['type'] = 'homogen'
-
-        # Save noises
-        inputs['noise1'] = noise1
-        inputs['noise2'] = noise2
-
-        # Add mu1 type
-        mu1['type'] = 'square2D' 
-
-        # Add mu1 fwhm
-        mu1['fwhm'] = 'np.array([5,5])'
-
-        # Add mu1 radius
-        mu1['r'] = 20
-
-        # Add mu1 magnitude
-        mu1['mag'] = 1
-
-        # Add mu1 center
-        mu1['center'] = 'np.array([-20,0])'
-
-        # Add mu1 to inputs
-        inputs['mu1'] = mu1
-
-        # Add mu2 type
-        mu2['type'] = 'square2D' 
-
-        # Add mu2 fwhm
-        mu2['fwhm'] = 'np.array([5,5])'
-
-        # Add mu2 radius
-        mu2['r'] = 30
-
-        # Add mu2 magnitude
-        mu2['mag'] = 1
-
-        # Add mu2 center
-        mu2['center'] = 'np.array([20,0])'
-
-        # Add mu2 to inputs
-        inputs['mu2'] = mu2
-
-        # We will generate figures for these settings
-        fg_corrs = np.array([-0.8,0,0.8])
-
-        # Id for config file
-        cfgId = 1
-
-        # Loop through all correlation settings
-        for corr in noise_corrs:
-
-            # Add noise correlation
-            inputs['noiseCorr'] = str(corr)
-
-            # Loop through all nSub settings
-            for nSub in nSubs:
-
-                # Add nSub to inputs
-                inputs['nSub'] = int(nSub)
-
-                # Save cfg ID (handy to have around)
-                inputs['cfgId'] = int(cfgId)
-
-                # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_corrs,corr)):
-
-                    # In this case we do want to save  figures
-                    inputs['figGen']=1
-
-                else:
-
-                    # In this case we do want to save  figures
-                    inputs['figGen']=0
-
-                # Save the yml
-                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
-                    yaml.dump(inputs, outfile, default_flow_style=False)
-
-                # Incremement cfgID
-                cfgId = cfgId + 1
-
-        # Delete fields which vary across simulation
-        del inputs['noiseCorr'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-
-    # ==========================================================================
-    #
-    # Simulation 18: Varying correlation between fields (higher SNR)
-    #
-    # --------------------------------------------------------------------------
-    #
-    # In this simulation setting, we have two squares and we are varying the 
-    # covariance between the noise in each field. 
-    #
-    # ==========================================================================
-    if simNo==18:
 
         # These are our covariances
         noise_corrs = np.arange(-1.0,1.1,0.1)
@@ -2043,7 +1927,7 @@ def generateCfgs(OutDir, simNo):
         mu1['fwhm'] = 'np.array([5,5])'
 
         # Add mu1 radius
-        mu1['r'] = 20
+        mu1['r'] = 30
 
         # Add mu1 magnitude
         mu1['mag'] = 3
@@ -2125,6 +2009,122 @@ def generateCfgs(OutDir, simNo):
         yaml.dump(inputs, outfile, default_flow_style=False)
 
 
+    # ==========================================================================
+    #
+    # Simulation 18: Varying correlation between fields (lower SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we have two squares and we are varying the 
+    # covariance between the noise in each field. 
+    #
+    # ==========================================================================
+    if simNo==18:
+
+        # These are our covariances
+        noise_corrs = np.arange(-1.0,1.1,0.1)
+
+        # Add threshold c
+        inputs['c'] = 2/3
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 1
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 1
+
+        # Add mu2 center
+        mu2['center'] = 'np.array([20,0])'
+
+        # Add mu2 to inputs
+        inputs['mu2'] = mu2
+
+        # We will generate figures for these settings
+        fg_corrs = np.array([-0.8,0,0.8])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all correlation settings
+        for corr in noise_corrs:
+
+            # Add noise correlation
+            inputs['noiseCorr'] = str(corr)
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_corrs,corr)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['noiseCorr'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
 
     # ==========================================================================
     #
@@ -2143,7 +2143,7 @@ def generateCfgs(OutDir, simNo):
         grads = 3*np.arange(0.5,1.6,0.1)
 
         # Add threshold c
-        inputs['c'] = 2
+        inputs['c'] = 3*2
 
         # Add mode
         inputs['mode'] = 3
@@ -2538,7 +2538,7 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_mags = np.array([1,1.5,2])/3
+        fg_mags = np.array([1,1.5,2])
 
         # Id for config file
         cfgId = 1

@@ -1477,7 +1477,7 @@ def joinAndPlot(OutDir, simNo):
                 plt.hlines(p, np.min(n_est_m), np.max(n_est_m),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, gradient " + ('%.2f' % m) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, noise magnitude " + ('%.2f' % m) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
