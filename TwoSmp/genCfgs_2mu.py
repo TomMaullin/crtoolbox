@@ -1997,17 +1997,6 @@ def generateCfgs(OutDir, simNo):
 
         # Delete fields which vary across simulation
         del inputs['noiseCorr'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-    
-
-    #--------------------------------------------------------------------------------------
-    # Save the baseline configuration (Note: This must be the last file output as the bash
-    # script used for running simulations on the cluster will take this files existence as
-    # a sign to run the next stage of the simulations)
-    #--------------------------------------------------------------------------------------
-    # Save the yml
-    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
-        yaml.dump(inputs, outfile, default_flow_style=False)
-
 
     # ==========================================================================
     #
@@ -2581,5 +2570,16 @@ def generateCfgs(OutDir, simNo):
 
         # Delete fields which vary across simulation
         del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+    
+
+    #--------------------------------------------------------------------------------------
+    # Save the baseline configuration (Note: This must be the last file output as the bash
+    # script used for running simulations on the cluster will take this files existence as
+    # a sign to run the next stage of the simulations)
+    #--------------------------------------------------------------------------------------
+    # Save the yml
+    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
+
 
 #generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim19', 19)
