@@ -67,6 +67,9 @@ def SpatialSims_Mmu(ipath):
     # Get output directory
     OutDir = inputs['OutDir']
 
+    # ID for the configuration
+    cfgId = inputs['cfgId']
+    
     # Get number of subjects
     nSub = int(inputs['nSub'])
 
