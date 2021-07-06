@@ -69,7 +69,10 @@ def SpatialSims_Mmu(ipath):
 
     # Get number of subjects
     nSub = int(inputs['nSub'])
-    
+
+    # Get simulation number
+    simNo = int(inputs['simNo'])
+
     # Work out how many fields we have
     m = np.int(inputs['m'])
 
