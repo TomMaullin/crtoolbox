@@ -69,7 +69,7 @@ def SpatialSims_Mmu(ipath):
 
     # ID for the configuration
     cfgId = inputs['cfgId']
-    
+
     # Get number of subjects
     nSub = int(inputs['nSub'])
 
@@ -1119,7 +1119,3 @@ def SpatialSims_Mmu(ipath):
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
     append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
-
-    # Save the computation times
-    t2overall = time.time()
-    append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))

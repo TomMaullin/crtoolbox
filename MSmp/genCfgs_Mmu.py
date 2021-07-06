@@ -35,7 +35,7 @@ def circle_points(r, n):
         y = np.round(r * np.sin(t))
         circles.append(np.c_[x, y])
     return circles[0]
-    
+
 def generateCfgs(OutDir, simNo):
 
     # Make simulation directory
@@ -80,10 +80,10 @@ def generateCfgs(OutDir, simNo):
     inputs['tau'] = '1/np.sqrt(nSub)'
 
     # Add number of realizations
-    inputs['nReals'] = 50#0
+    inputs['nReals'] = 500
 
     # Add number of bootstraps
-    inputs['nBoot'] = 500#0
+    inputs['nBoot'] = 5000
 
     # Number of fields, m
     ms = np.arange(2,8)
