@@ -683,7 +683,7 @@ def SpatialSims_Mmu(ipath):
         # boundary
         for b in np.arange(nBoot):
 
-            print('Bootstrap: ', b)
+            # print('Bootstrap: ', b)
 
             # Obtain bootstrap variables
             boot_vars = 2*np.random.randint(0,2,boot_dim)-1
