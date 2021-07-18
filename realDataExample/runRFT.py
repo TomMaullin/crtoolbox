@@ -169,7 +169,7 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
     del nifti, fname, data_out, affine
 
 
-def runRealDat():
+def runRealDat(slice):
 
     # Output directory
     OutDir = '/well/nichols/users/inf852/RFT_Ttest/'
@@ -184,7 +184,7 @@ def runRealDat():
     taskList = ('BODY','FACE','PLACE','TOOL')
 
     # Slice number
-    slice = 50
+    slice = int(slice)
 
     # number of subjects
     nSub = len(IDs)
@@ -754,10 +754,10 @@ def runRealDat():
     for i, pVal in enumerate(p):
 
         # Add block to nifti image for FcHat plus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,0,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,0,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
         # Add block to nifti image for FcHat minus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,1,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,1,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
     # Add block to nifti image for mask
     addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
