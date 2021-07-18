@@ -246,7 +246,7 @@ def runRealDat():
 
     # Dimensions of bootstrap variables
     boot_dim = np.array([nSub, 1]) 
-    
+
     # Get number of bootstraps
     nBoot = 5000
 
@@ -296,7 +296,7 @@ def runRealDat():
         # Boundary locations for AcHati
         # -------------------------------------------------------------------
         # Get boolean maps for the boundary of AcHat
-        AcHat_bdry_map = get_bdry_maps(muHat, c)
+        AcHat_bdry_map = get_bdry_maps(muHat, c, mask=mask_concat)
 
         # Get coordinates for the boundary of AcHat
         AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map)
@@ -327,7 +327,7 @@ def runRealDat():
     # Boundary locations for FcHat
     # -------------------------------------------------------------------
     # Get boolean map for the boundary of FcHat
-    FcHat_bdry_map = get_bdry_maps(cap_muHat, c)
+    FcHat_bdry_map = get_bdry_maps(cap_muHat, c, mask=mask_concat)
 
     # Get coordinates for the boundary of FcHat
     FcHat_bdry_locs = get_bdry_locs(FcHat_bdry_map)

@@ -11,7 +11,7 @@ from lib.generateData import *
 # field - field to thresh
 # c - thresh
 # d - dimension along which we get bdry
-def get_bdry_map(field, c, d): 
+def get_bdry_map(field, c, d, mask=None): 
 
     # Get field dimensions
     dim = field.shape
@@ -65,6 +65,11 @@ def get_bdry_map(field, c, d):
     # The boundary "below" the excursion set in this dimension
     bottom_bdry = bdry_wo_bottom*shif_bdry_bottom
 
+    # If we have a mask we need to apply it
+    if mask is not None:
+        mask = mask.reshape(field.shape)
+        bottom_bdry = bottom_bdry*mask[np.ix_(*up_indices)]
+
     # Inner bottom bdry - add back on a bottom row
     bottom_bdry_inner = np.concatenate((bottom_bdry,np.zeros(pdim)),axis=d)
 
@@ -84,6 +89,11 @@ def get_bdry_map(field, c, d):
 
     # The boundary "above" the excursion set in this dimension
     top_bdry = bdry_wo_top*shif_bdry_top
+
+    # If we have a mask we need to apply it
+    if mask is not None:
+        mask = mask.reshape(field.shape)
+        top_bdry = top_bdry*mask[np.ix_(*up_indices)]
 
     # Inner top bdry - add back on a top row
     top_bdry_inner = np.concatenate((np.zeros(pdim),top_bdry),axis=d)
@@ -145,7 +155,7 @@ def get_bdry_maps(field, c):
     return(bdry_maps)
 
 
-def get_bdry_map_combined(field, c):
+def get_bdry_map_combined(field, c, mask=None):
 
     # Shape of field
     shape = np.array(field.shape)
@@ -164,7 +174,7 @@ def get_bdry_map_combined(field, c):
         if shape[d]>1:
 
             # Get boundaries
-            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d)
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask=mask)
 
             # Record d^th boundary
             if first:
@@ -488,6 +498,19 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
     return(bdry_interp_concat)
 
 
+def get_data_1field(muSpec,noiseSpec,dim):
+
+    # Obtain the noise fields
+    noise = get_noise(noiseSpec, dim)
+
+    # Obtain mu
+    mu = get_mu(muSpec, dim)
+    
+    # Create the data
+    data = mu + noise
+
+    # Return the data and mu
+    return(data,mu)
 
 
 
@@ -515,14 +538,79 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
 
 def testfn():
 
+    # ---------------------------------------------------------------
+    # Mus
+    # ---------------------------------------------------------------
+    # Create empty specifications
+    mus = {}
+
+    # Empty mu spec
+    mus['mu1'] = {}
+
+    # Add mu1 type
+    mus['mu1']['type'] = 'square2D' 
+
+    # Add mu1 fwhm
+    mus['mu1']['fwhm'] = np.array([5,5])
+
+    # Add mu1 radius
+    mus['mu1']['r'] = 30
+
+    # Add mu1 magnitude
+    mus['mu1']['mag'] = 1
+
+    # Add mu1 center 
+    mus['mu1']['center'] = np.array([-20,0])
+
+    # Empty mu spec
+    mus['mu2'] = {}
+
+    # Add mu2 type
+    mus['mu2']['type'] = 'circle2D' 
+
+    # Add mu2 fwhm
+    mus['mu2']['fwhm'] = np.array([5,5])
+
+    # Add mu2 radius
+    mus['mu2']['r'] = 50
+
+    # Add mu2 magnitude
+    mus['mu2']['mag'] = 2
+
+    # Add mu2 center 
+    mus['mu2']['center'] = np.array([20,0])
+
+    # ---------------------------------------------------------------
+    # Epsilons
+    # ---------------------------------------------------------------
+    # Create empty specifications
+    noises = {}
+
+    # Empty noise spec
+    noises['noise1'] = {}
+
+    # Add FWHM for noise
+    noises['noise1']['FWHM'] = np.array([0, 3, 3])
+
+    # Add type for noise 1
+    noises['noise1']['type'] = 'homogen'
+
+    # Empty noise spec
+    noises['noise2'] = {}
+
+    # Add FWHM for noise
+    noises['noise2']['FWHM'] = np.array([0, 3, 3])
+
+    # Add type for noise 1
+    noises['noise2']['type'] = 'homogen'
     # -------------------------------------------------------------------
 
-    data1, mu1 = get_data({'center': np.array([-20,0]), 'fwhm': np.array([5,5]),'mag': 1, 'r': 30, 'type': 'square2D'}, {'FWHM': [0, 3, 3], 'type': 'homogen'}, np.array([120,100,100]))
+    data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
 
-    data2, mu2 = get_data({'center': np.array([-14,0]), 'fwhm': np.array([5,5]),'mag': 1, 'r': 30, 'type': 'square2D'}, {'FWHM': [0, 3, 3], 'type': 'heterogen'}, np.array([120,100,100]))
+    data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
 
     c = 2/3
- 
+    
     # -------------------------------------------------------------------
 
     muHat1 = np.mean(data1,axis=0).reshape(mu1.shape)
@@ -535,114 +623,128 @@ def testfn():
 
     sigma2 = np.std(data2,axis=0).reshape(mu2.shape)
 
-    tau = 1/np.sqrt(120)
+    tau = 1/np.sqrt(80)
+
+    mask = mu2[0,:,:]>c
+ 
+    bdryImage = get_bdry_map_combined(muHat1, c, mask=mask)
+
+    plt.figure(0)
+    plt.imshow(bdryImage[0,:,:])
+
+    plt.figure(1)
+    plt.imshow(mask)
+
+    plt.figure(2)
+    plt.imshow(1*mask+1*bdryImage[0,:,:])
+
+    plt.show()
+
+    # # -------------------------------------------------------------------
+
+    # # Get the statistic field which defined Achat^{+/-,1/2}
+    # stat1 = ((muHat1-c)/(sigma1*tau)).reshape(1,(*muHat1.shape))
+    # stat2 = ((muHat2-c)/(sigma2*tau)).reshape(1,(*muHat2.shape))
+
+    # # Minimum for intersection
+    # stat = np.minimum(stat1,stat2)
+    # stat = stat.reshape(stat.shape[-2],stat.shape[-1])
+
+    # # -------------------------------------------------------------------
+    # # Get boolean maps for the boundary of Fc
+    # Fc_bdry_maps = get_bdry_maps(np.minimum(mu1,mu2), c)
+
+    # # Get coordinates for the boundary of Fc
+    # Fc_bdry_locs = get_bdry_locs(Fc_bdry_maps)
+
+    # # -------------------------------------------------------------------
+
+    # # Obtain the values along the boundary for Fc
+    # Fc_bdry_vals_concat = get_bdry_values_concat(np.minimum(mu1,mu2), Fc_bdry_locs)
+    # #print('min mu vals concat: ', Fc_bdry_vals_concat)
+
+    # # Obtain the weights along the boundary for Fc
+    # Fc_bdry_weights_concat = get_bdry_weights_concat(Fc_bdry_vals_concat, c)
+    # #print('min mu weights concat: ', Fc_bdry_weights_concat)
+
+    # #print(stat.shape)
+
+    # # Get the values along the outer and inner boundaries
+    # stat_FcBdry1 = get_bdry_values_concat(stat, Fc_bdry_locs)
+    # # #print('min stat vals concat: ', stat_FcBdry1)
 
 
-    # -------------------------------------------------------------------
+    # # plt.figure(0)
+    # # plt.hist(stat_FcBdry1.reshape(np.prod(stat_FcBdry1.shape)))#stat_FcBdry1.reshape(np.prod(stat_FcBdry.shape)))
 
-    # Get the statistic field which defined Achat^{+/-,1/2}
-    stat1 = ((muHat1-c)/(sigma1*tau)).reshape(1,(*muHat1.shape))
-    stat2 = ((muHat2-c)/(sigma2*tau)).reshape(1,(*muHat2.shape))
+    # #print('here2: ',stat_FcBdry1)
 
-    # Minimum for intersection
-    stat = np.minimum(stat1,stat2)
-    stat = stat.reshape(stat.shape[-2],stat.shape[-1])
+    # # Interpolate to get the values along the true boundary
+    # stat_FcBdry1 = get_bdry_vals_interpolated_concat(stat_FcBdry1, Fc_bdry_weights_concat) # INCORRECT
 
-    # -------------------------------------------------------------------
-    # Get boolean maps for the boundary of Fc
-    Fc_bdry_maps = get_bdry_maps(np.minimum(mu1,mu2), c)
-
-    # Get coordinates for the boundary of Fc
-    Fc_bdry_locs = get_bdry_locs(Fc_bdry_maps)
-
-    # -------------------------------------------------------------------
-
-    # Obtain the values along the boundary for Fc
-    Fc_bdry_vals_concat = get_bdry_values_concat(np.minimum(mu1,mu2), Fc_bdry_locs)
-    #print('min mu vals concat: ', Fc_bdry_vals_concat)
-
-    # Obtain the weights along the boundary for Fc
-    Fc_bdry_weights_concat = get_bdry_weights_concat(Fc_bdry_vals_concat, c)
-    #print('min mu weights concat: ', Fc_bdry_weights_concat)
-
-    #print(stat.shape)
-
-    # Get the values along the outer and inner boundaries
-    stat_FcBdry1 = get_bdry_values_concat(stat, Fc_bdry_locs)
-    # #print('min stat vals concat: ', stat_FcBdry1)
-
-
-    # plt.figure(0)
-    # plt.hist(stat_FcBdry1.reshape(np.prod(stat_FcBdry1.shape)))#stat_FcBdry1.reshape(np.prod(stat_FcBdry.shape)))
-
-    #print('here2: ',stat_FcBdry1)
-
-    # Interpolate to get the values along the true boundary
-    stat_FcBdry1 = get_bdry_vals_interpolated_concat(stat_FcBdry1, Fc_bdry_weights_concat) # INCORRECT
-
-    # -------------------------------------------------------------------
+    # # -------------------------------------------------------------------
     
 
-    # Obtain the values along the boundary for Fc
-    Fc_bdry_vals = get_bdry_values(np.minimum(mu1,mu2), Fc_bdry_locs)
-    # print('min mu vals: ', Fc_bdry_vals)
+    # # Obtain the values along the boundary for Fc
+    # Fc_bdry_vals = get_bdry_values(np.minimum(mu1,mu2), Fc_bdry_locs)
+    # # # print('min mu vals: ', Fc_bdry_vals)
 
-    # Obtain the weights along the boundary for Fc
-    Fc_bdry_weights = get_bdry_weights(Fc_bdry_vals, c)
-    # print('min mu weights: ', Fc_bdry_weights)
+    # # Obtain the weights along the boundary for Fc
+    # Fc_bdry_weights = get_bdry_weights(Fc_bdry_vals, c)
+    # # print('min mu weights: ', Fc_bdry_weights)
     
-    # Get the values along the outer and inner boundaries
-    stat_FcBdry1_tmp = get_bdry_values(stat, Fc_bdry_locs)
-    # print('min stat vals: ', stat_FcBdry1)
+    # # Get the values along the outer and inner boundaries
+    # stat_FcBdry1_tmp = get_bdry_values(stat, Fc_bdry_locs)
+    # # print('min stat vals: ', stat_FcBdry1)
 
 
 
 
 
 
-    # Directions we can interpolate in
-    directions = ['bottom', 'top']
+    # # Directions we can interpolate in
+    # directions = ['bottom', 'top']
 
-    # Boolean to tell if this is the first edge we are looking at.
-    first = True
+    # # Boolean to tell if this is the first edge we are looking at.
+    # first = True
 
-    # Loop through dimensions of field and get the boundary boolean maps.
-    for d in Fc_bdry_locs['dims']:
+    # # Loop through dimensions of field and get the boundary boolean maps.
+    # for d in Fc_bdry_locs['dims']:
 
-        # Loop through all directions getting locations
-        for direction in directions:
+    #     # Loop through all directions getting locations
+    #     for direction in directions:
 
-            stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp[d][direction]['outer']
-            stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp[d][direction]['inner']
+    #         stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp[d][direction]['outer']
+    #         stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp[d][direction]['inner']
 
-            stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp_concat_outer.reshape(1,stat_FcBdry1_tmp_concat_outer.shape[0])
-            stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp_concat_inner.reshape(1,stat_FcBdry1_tmp_concat_inner.shape[0])
+    #         stat_FcBdry1_tmp_concat_outer = stat_FcBdry1_tmp_concat_outer.reshape(1,stat_FcBdry1_tmp_concat_outer.shape[0])
+    #         stat_FcBdry1_tmp_concat_inner = stat_FcBdry1_tmp_concat_inner.reshape(1,stat_FcBdry1_tmp_concat_inner.shape[0])
 
-            if first:
-
-
-                stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
-
-                first = False
-
-            else:
-
-                stat_FcBdry1_tmp_concat_current = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
-                stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_current,stat_FcBdry1_tmp_concat),axis=1)
+    #         if first:
 
 
-    # print('here: ',stat_FcBdry1_tmp_concat.transpose())
+    #             stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
 
-    # plt.figure(0)
-    # plt.hist(stat_FcBdry1_tmp_concat.reshape(np.prod(stat_FcBdry1_tmp_concat.shape)))#stat_FcBdry2.reshape(np.prod(stat_FcBdry2.shape)))
-    # plt.show()
+    #             first = False
+
+    #         else:
+
+    #             stat_FcBdry1_tmp_concat_current = np.concatenate((stat_FcBdry1_tmp_concat_outer,stat_FcBdry1_tmp_concat_inner),axis=0)
+    #             stat_FcBdry1_tmp_concat = np.concatenate((stat_FcBdry1_tmp_concat_current,stat_FcBdry1_tmp_concat),axis=1)
+
+
+    # # print('here: ',stat_FcBdry1_tmp_concat.transpose())
+
+    # # plt.figure(0)
+    # # plt.hist(stat_FcBdry1_tmp_concat.reshape(np.prod(stat_FcBdry1_tmp_concat.shape)))#stat_FcBdry2.reshape(np.prod(stat_FcBdry2.shape)))
+    # # plt.show()
 
 
 
-    # Interpolate to get the values along the true boundary
-    stat_FcBdry1_tmp = get_bdry_vals_interpolated(stat_FcBdry1_tmp, Fc_bdry_weights) # CORRECT
+    # # Interpolate to get the values along the true boundary
+    # stat_FcBdry1_tmp = get_bdry_vals_interpolated(stat_FcBdry1_tmp, Fc_bdry_weights) # CORRECT
 
-    # print(stat_FcBdry1.shape)
+    # # print(stat_FcBdry1.shape)
     # print(stat_FcBdry1_tmp.shape)
 
     # # print(stat_FcBdry1)
