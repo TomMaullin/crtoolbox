@@ -104,13 +104,13 @@ def get_bdry_map(field, c, d, mask=None):
     top_bdry_outer = np.concatenate((top_bdry,np.zeros(pdim)),axis=d)
 
     plt.figure(0)
-    plt.imshow(1*mask+2*top_bdry_inner[0,:,:]+3*top_bdry_outer[0,:,:]+4*bottom_bdry_inner[0,:,:]+5*bottom_bdry_outer[0,:,:])
+    plt.imshow(1*mask+2*top_bdry_inner+3*top_bdry_outer+4*bottom_bdry_inner+5*bottom_bdry_outer)
     plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp.png')
     plt.figure(1)
     plt.imshow(1*mask)
     plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp2.png')
     plt.figure(2)
-    plt.imshow(2*top_bdry_inner[0,:,:]+3*top_bdry_outer[0,:,:]+4*bottom_bdry_inner[0,:,:]+5*bottom_bdry_outer[0,:,:])
+    plt.imshow(2*top_bdry_inner+3*top_bdry_outer+4*bottom_bdry_inner+5*bottom_bdry_outer)
     plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp3.png')
 
 
