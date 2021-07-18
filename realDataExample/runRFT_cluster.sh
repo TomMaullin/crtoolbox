@@ -13,6 +13,12 @@ CONFSETS_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 . $CONFSETS_PATH/parse_yaml.sh
 
 # -----------------------------------------------------------------------
+# Get number of slices
+# -----------------------------------------------------------------------
+nSlices=$(fslinfo /well/nichols/users/inf852/RFT_Ttest/COPE_diff_BODY_123117.nii | grep -m 1 dim2 | awk '{print $2}')
+echo $nSlices
+
+# -----------------------------------------------------------------------
 # Run a slice
 # -----------------------------------------------------------------------
 echo "Running slice..."

@@ -254,7 +254,7 @@ def runRealDat():
         # -------------------------------------------------------------------
         # Obtain mu estimate
         muHat = np.mean(data, axis=0).reshape((1,data.shape[-2],data.shape[-1]))
-        
+
         # Save muHats
         if i == 0:
             muHats = np.array(muHat)
@@ -312,18 +312,6 @@ def runRealDat():
 
     # Delete maps as we no longer need them
     del FcHat_bdry_map
-
-    # -------------------------------------------------------------------
-    # Interpolation weights for FcHat boundary (Array version)
-    # -------------------------------------------------------------------
-    # Obtain the values along the boundary for FcHat
-    FcHat_bdry_vals_concat = get_bdry_values_concat(cap_mu, FcHat_bdry_locs)
-
-    # Obtain the weights along the boundary for FcHat
-    FcHat_bdry_weights_concat = get_bdry_weights_concat(FcHat_bdry_vals_concat, c)
-
-    # Delete values as we no longer need them
-    del FcHat_bdry_vals_concat
 
     # Empty dicts to store muHat
     muHat_dFcHat = {}
