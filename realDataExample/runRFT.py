@@ -698,7 +698,7 @@ def runRealDat():
         a_estBdry = np.percentile(min_supg_dFcHat['max'], 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
     else:
         # Set to inf by default
-        a_estBdry = np.Inf*np.ones((nPvals,1,1,1))
+        a_estBdry = np.Inf*np.ones((nPvals,1,1))
 
     # Reformat them to an array form useful for boolean operation
     a_estBdry = np.concatenate((-a_estBdry,a_estBdry),axis=1)
@@ -707,33 +707,33 @@ def runRealDat():
     # Get FcHat^{+/-}
     # -------------------------------------------------------------------
 
+    # Mask muhats and sigmas
+    muHat_masked = muHats[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
+    sigma_masked = sigmas[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
+
     # Get the statistic field which defined Achat^{+/-,i}
-    g = ((muHats-c)/(sigmas*tau))
+    g_masked = ((muHats_masked-c)/(sigmas_masked*tau))
 
     # Take minimum over i
-    stat = np.amin(g,axis=0)
-    stat = stat.reshape(stat.shape[-2],stat.shape[-1])
-
-    # Obtain FcHat^+ and FcHat^- based on a from the true boundary. This variable
-    # has axes corresponding to [pvalue, plus/minus, field dimensions]
-    FcHat_pm_trueBdry = stat >= a_trueBdry
+    stat_masked = np.amin(g_masked,axis=0)
+    stat_masked = stat_masked.reshape(stat_masked.shape[-1])
 
     # Obtain FcHat^+ and FcHat^- based on a from the estimated boundary. This variable
     # has axes corresponding to [pvalue, plus/minus, field dimensions]
-    FcHat_pm_estBdry = stat >= a_estBdry
+    FcHat_pm_estBdry_masked = stat_masked >= a_estBdry
 
     # -------------------------------------------------------------------
     # Get FcHat
     # -------------------------------------------------------------------
-    FcHat_estBdry = stat >= 0
+    FcHat_estBdry_masked = stat_masked >= 0
 
     # -------------------------------------------------------------------
-    # Output
+    # Unmask in volume and Output
     # -------------------------------------------------------------------
 
     # Get a mask representing where the slice is
     fullmask = np.zeros(nifdim)
-    fullmask[:,slice,:]=np.ones(fullmask[:,slice,:].shape)
+    fullmask[:,slice,:] = mask_concat.reshape(fullmask[:,slice,:].shape)
 
     # Block indices
     blockInds = np.where(fullmask.reshape(np.prod(nifdim)))
@@ -752,3 +752,7 @@ def runRealDat():
 
         # Add block to nifti image for FcHat minus
         addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry[i,1,...].reshape(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+
+    # Add block to nifti image for mask
+    addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+
