@@ -70,7 +70,7 @@ def get_bdry_map(field, c, d, mask=None):
 
         print('applying mask')
         mask = mask.reshape(field.shape)
-        bottom_bdry = bottom_bdry*mask[np.ix_(*up_indices)]
+        bottom_bdry = bottom_bdry*mask[np.ix_(*down_indices)]
 
     # Inner bottom bdry - add back on a bottom row
     bottom_bdry_inner = np.concatenate((bottom_bdry,np.zeros(pdim)),axis=d)
