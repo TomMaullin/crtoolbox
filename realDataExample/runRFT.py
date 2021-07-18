@@ -192,6 +192,12 @@ def runRealDat():
     # NIFTI dimensions (taken from a random nifti)
     nifdim = nib.load(os.path.join(OutDir, 'MASK_diff_BODY_' + str(IDs[0]) + '.nii')).shape
 
+    # NIFTI affine (taken from a random nifti)
+    nifaff = nib.load(os.path.join(OutDir, 'MASK_diff_BODY_' + str(IDs[0]) + '.nii')).affine
+
+    # NIFTI dimensions (taken from a random nifti)
+    nifhdr = nib.load(os.path.join(OutDir, 'MASK_diff_BODY_' + str(IDs[0]) + '.nii')).header
+
     # Loop through images getting slice
     for j, task in enumerate(taskList): 
 
@@ -742,17 +748,17 @@ def runRealDat():
     vps = nifdim[-3]*nifdim[-1]
 
     # Add block to nifti image for FcHat
-    addBlockToNifti(os.path.join(OutDir, 'FcHat.nii'), FcHat.reshape(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+    addBlockToNifti(os.path.join(OutDir, 'FcHat.nii'), FcHat.reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
     # Loop through adding to plus/minus
     for i, pVal in enumerate(p):
 
         # Add block to nifti image for FcHat plus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry[i,0,...].reshape(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry[i,0,...].reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
         # Add block to nifti image for FcHat minus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry[i,1,...].reshape(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry[i,1,...].reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
     # Add block to nifti image for mask
-    addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(vps), blockInds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+    addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
