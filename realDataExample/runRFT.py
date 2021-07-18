@@ -3,6 +3,9 @@ import pandas as pd
 import nibabel as nib
 import os
 import glob
+from lib.generateData import *
+from lib.boundary import *
+from lib.fileio import *
 np.seterr(all='raise')
 
 # ============================================================================
