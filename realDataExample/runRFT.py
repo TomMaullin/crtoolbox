@@ -168,7 +168,7 @@ def runRealDat():
     nSub = len(IDs)
 
     # NIFTI dimensions (taken from a random nifti)
-    nifdim = nib.load(os.path.join(OutDir, 'MASK_diff_BODY_1.nii')).shape
+    nifdim = nib.load(os.path.join(OutDir, 'MASK_diff_BODY_' + str(IDs[0]) + '.nii')).shape
 
     # Loop through images getting slice
     for j, task in enumerate(taskList): 
@@ -203,7 +203,7 @@ def runRealDat():
                 print(np.any(np.isnan(mask_concat)))
                 mask_concat = mask_concat*mask
                 print('after')
-                
+
             print(task)
             print(i)
         # ----------------------------------------------------------------
