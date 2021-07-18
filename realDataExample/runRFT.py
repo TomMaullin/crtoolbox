@@ -251,7 +251,7 @@ def runRealDat():
     nBoot = 5000
 
     # Get p-values
-    p = [0.8,0.9,0.95]
+    p = np.array([0.8,0.9,0.95])
 
     # Get the number of p-values we're looking at
     nPvals = len(p)
