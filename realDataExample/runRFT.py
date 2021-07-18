@@ -745,7 +745,7 @@ def runRealDat():
     blockInds = np.where(fullmask.reshape(np.prod(nifdim)))
 
     # Number of voxels in mask
-    v = np.sum(fullmask)
+    v = int(np.sum(fullmask))
 
     # Add block to nifti image for FcHat
     addBlockToNifti(os.path.join(OutDir, 'FcHat.nii'), FcHat_estBdry_masked.reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
