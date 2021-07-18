@@ -104,7 +104,7 @@ def get_bdry_map(field, c, d, mask=None):
     return(bottom_bdry_inner, bottom_bdry_outer, top_bdry_inner, top_bdry_outer)
 
 
-def get_bdry_maps(field, c):
+def get_bdry_maps(field, c, mask=None):
 
     # Shape of field
     shape = np.array(field.shape)
@@ -123,7 +123,7 @@ def get_bdry_maps(field, c):
         if shape[d]>1:
 
             # Get boundaries
-            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d)
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask=mask)
 
             # Record d^th boundary
             bdry_maps[d] = dict()
