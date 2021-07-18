@@ -708,8 +708,8 @@ def runRealDat():
     # -------------------------------------------------------------------
 
     # Mask muhats and sigmas
-    muHat_masked = muHats[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
-    sigma_masked = sigmas[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
+    muHats_masked = muHats[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
+    sigmas_masked = sigmas[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
 
     # Get the statistic field which defined Achat^{+/-,i}
     g_masked = ((muHats_masked-c)/(sigmas_masked*tau))
