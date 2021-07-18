@@ -347,15 +347,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu1 center 
         mus['mu1']['center'] = np.array([-20,0])
 
-        # Empty noise spec
-        noises['noise1'] = {}
-
-        # Add FWHM for noise
-        noises['noise1']['FWHM'] = np.array([0, 3, 3])
-
-        # Add type for noise 1
-        noises['noise1']['type'] = 'homogen'
-
         # Empty mu spec
         mus['mu2'] = {}
 
@@ -374,15 +365,6 @@ def generateCfgs(OutDir, simNo):
         # Add mu2 center 
         mus['mu2']['center'] = np.array([20,0])
 
-        # Empty noise spec
-        noises['noise2'] = {}
-
-        # Add FWHM for noise
-        noises['noise2']['FWHM'] = np.array([0, 3, 3])
-
-        # Add type for noise 1
-        noises['noise2']['type'] = 'homogen'
-
         # Empty mu spec
         mus['mu3'] = {}
 
@@ -400,6 +382,30 @@ def generateCfgs(OutDir, simNo):
 
         # Add mu3 center 
         mus['mu3']['center'] = np.array([0,-20])
+
+        # ---------------------------------------------------------------
+        # Epsilons
+        # ---------------------------------------------------------------
+        # Create empty specifications
+        noises = {}
+
+        # Empty noise spec
+        noises['noise1'] = {}
+
+        # Add FWHM for noise
+        noises['noise1']['FWHM'] = np.array([0, 3, 3])
+
+        # Add type for noise 1
+        noises['noise1']['type'] = 'homogen'
+
+        # Empty noise spec
+        noises['noise2'] = {}
+
+        # Add FWHM for noise
+        noises['noise2']['FWHM'] = np.array([0, 3, 3])
+
+        # Add type for noise 1
+        noises['noise2']['type'] = 'homogen'
 
         # Empty noise spec
         noises['noise3'] = {}
