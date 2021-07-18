@@ -319,6 +319,9 @@ def generateCfgs(OutDir, simNo):
 
         # Add threshold c
         inputs['c'] = 1
+
+        # Add m
+        inputs['m'] = 3
         
         # Id for config file
         cfgId = 1
