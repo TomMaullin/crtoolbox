@@ -313,6 +313,9 @@ def runRealDat():
     # Delete maps as we no longer need them
     del FcHat_bdry_map
 
+    # Empty dict to store residuals
+    resids_dFcHat = {}
+
     # Empty dicts to store muHat
     muHat_dFcHat = {}
 
