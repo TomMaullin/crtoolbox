@@ -336,7 +336,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu1']['type'] = 'square2D' 
 
         # Add mu1 fwhm
-        mus['mu1']['fwhm'] = np.array([5,5])
+        mus['mu1']['fwhm'] = 'np.array([5,5])'
 
         # Add mu1 radius
         mus['mu1']['r'] = 30
@@ -345,7 +345,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu1']['mag'] = 3
 
         # Add mu1 center 
-        mus['mu1']['center'] = np.array([-20,0])
+        mus['mu1']['center'] = 'np.array([-20,0])'
 
         # Empty mu spec
         mus['mu2'] = {}
@@ -354,7 +354,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu2']['type'] = 'square2D' 
 
         # Add mu2 fwhm
-        mus['mu2']['fwhm'] = np.array([5,5])
+        mus['mu2']['fwhm'] = 'np.array([5,5])'
 
         # Add mu2 radius
         mus['mu2']['r'] = 30
@@ -363,7 +363,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu2']['mag'] = 3
 
         # Add mu2 center 
-        mus['mu2']['center'] = np.array([20,0])
+        mus['mu2']['center'] = 'np.array([20,0])'
 
         # Empty mu spec
         mus['mu3'] = {}
@@ -372,7 +372,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu3']['type'] = 'square2D' 
 
         # Add mu3 fwhm
-        mus['mu3']['fwhm'] = np.array([5,5])
+        mus['mu3']['fwhm'] = 'np.array([5,5])'
 
         # Add mu3 radius
         mus['mu3']['r'] = 10
@@ -381,7 +381,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu3']['mag'] = 3
 
         # Add mu3 center 
-        mus['mu3']['center'] = np.array([0,-20])
+        mus['mu3']['center'] = 'np.array([0,-20])'
 
         # ---------------------------------------------------------------
         # Epsilons
@@ -393,7 +393,7 @@ def generateCfgs(OutDir, simNo):
         noises['noise1'] = {}
 
         # Add FWHM for noise
-        noises['noise1']['FWHM'] = np.array([0, 3, 3])
+        noises['noise1']['FWHM'] = '[0, 3, 3]'
 
         # Add type for noise 1
         noises['noise1']['type'] = 'homogen'
@@ -402,7 +402,7 @@ def generateCfgs(OutDir, simNo):
         noises['noise2'] = {}
 
         # Add FWHM for noise
-        noises['noise2']['FWHM'] = np.array([0, 3, 3])
+        noises['noise2']['FWHM'] = '[0, 3, 3]'
 
         # Add type for noise 1
         noises['noise2']['type'] = 'homogen'
@@ -411,7 +411,7 @@ def generateCfgs(OutDir, simNo):
         noises['noise3'] = {}
 
         # Add FWHM for noise
-        noises['noise3']['FWHM'] = np.array([0, 3, 3])
+        noises['noise3']['FWHM'] = '[0, 3, 3]'
 
         # Add type for noise 1
         noises['noise3']['type'] = 'homogen'
