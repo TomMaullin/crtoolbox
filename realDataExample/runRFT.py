@@ -26,7 +26,7 @@ def powerset(s):
         # Yeild makes a generator obect
         # zip(masks,s) is pairing each element of s with a power of 2
         yield np.array([ss for mask, ss in zip(masks, s) if i & mask])
-        
+
 # ============================================================================
 #
 # The below function adds a block of voxels to a pre-existing NIFTI or creates
@@ -244,6 +244,9 @@ def runRealDat():
     # Get data shape
     data_dim = datas.shape
 
+    # Dimensions of bootstrap variables
+    boot_dim = np.array([nSub, 1]) 
+    
     # Get number of bootstraps
     nBoot = 5000
 
