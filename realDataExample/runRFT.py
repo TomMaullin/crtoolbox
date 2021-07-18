@@ -323,7 +323,7 @@ def runRealDat():
         # Residuals along dFcHat
         # -------------------------------------------------------------------
 
-`       # Empty resids
+        # Empty resids
         resid = np.zeros(datas[i,...].shape,dtype=np.float64)
 
         # Get masked sigmai and muHati (to prevent dividing by zero during 
