@@ -744,21 +744,21 @@ def runRealDat():
     # Block indices
     blockInds = np.where(fullmask.reshape(np.prod(nifdim)))
 
-    # Number of voxels per slice
-    vps = nifdim[-3]*nifdim[-1]
+    # Number of voxels in mask
+    v = np.sum(fullmask)
 
     # Add block to nifti image for FcHat
-    addBlockToNifti(os.path.join(OutDir, 'FcHat.nii'), FcHat_estBdry_masked.reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+    addBlockToNifti(os.path.join(OutDir, 'FcHat.nii'), FcHat_estBdry_masked.reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
     # Loop through adding to plus/minus
     for i, pVal in enumerate(p):
 
         # Add block to nifti image for FcHat plus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,0,...].reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatPlus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,0,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
         # Add block to nifti image for FcHat minus
-        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,1,...].reshape(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+        addBlockToNifti(os.path.join(OutDir, 'FcHatMinus_' + str(pVal) + '.nii'), FcHat_pm_estBdry_masked[i,1,...].reshape(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
     # Add block to nifti image for mask
-    addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(vps), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
+    addBlockToNifti(os.path.join(OutDir, 'mask.nii'), np.ones(v), blockInds,volInd=0,dim=nifdim,aff=nifaff,hdr=nifhdr)
 
