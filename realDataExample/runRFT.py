@@ -295,6 +295,7 @@ def runRealDat():
         # -------------------------------------------------------------------
         # Boundary locations for AcHati
         # -------------------------------------------------------------------
+        print('Achat bit')
         # Get boolean maps for the boundary of AcHat
         AcHat_bdry_map = get_bdry_maps(muHat, c, mask=mask_concat)
 
@@ -326,6 +327,7 @@ def runRealDat():
     # -------------------------------------------------------------------
     # Boundary locations for FcHat
     # -------------------------------------------------------------------
+    print('Fchat bit')
     # Get boolean map for the boundary of FcHat
     FcHat_bdry_map = get_bdry_maps(cap_muHat, c, mask=mask_concat)
 

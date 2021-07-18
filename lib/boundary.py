@@ -67,6 +67,8 @@ def get_bdry_map(field, c, d, mask=None):
 
     # If we have a mask we need to apply it
     if mask is not None:
+
+        print('applying mask')
         mask = mask.reshape(field.shape)
         bottom_bdry = bottom_bdry*mask[np.ix_(*up_indices)]
 
@@ -123,7 +125,7 @@ def get_bdry_maps(field, c, mask=None):
         if shape[d]>1:
 
             # Get boundaries
-            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask=mask)
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask)
 
             # Record d^th boundary
             bdry_maps[d] = dict()
@@ -174,7 +176,7 @@ def get_bdry_map_combined(field, c, mask=None):
         if shape[d]>1:
 
             # Get boundaries
-            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask=mask)
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask)
 
             # Record d^th boundary
             if first:
@@ -627,7 +629,7 @@ def testfn():
 
     mask = mu2[0,:,:]>c
  
-    bdryImage = get_bdry_map_combined(muHat1, c, mask=mask)
+    bdryImage = get_bdry_map_combined(muHat1, c, mask)
 
     plt.figure(0)
     plt.imshow(bdryImage[0,:,:])
