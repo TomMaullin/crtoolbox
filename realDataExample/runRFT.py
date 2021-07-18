@@ -238,7 +238,7 @@ def runRealDat():
     tau = 1/np.sqrt(nSub)
 
     # Get threshold
-    c = 3.5
+    c = 2
 
     # Get number of fields
     m = len(taskList)
@@ -323,8 +323,19 @@ def runRealDat():
         # Residuals along dFcHat
         # -------------------------------------------------------------------
 
-        # Obtain residuals
-        resid = (datas[i,...]-muHats[i,...])/sigmas[i,...] # NEED DATA TO BE SAVED FIRST
+`       # Empty resids
+        resid = np.zeros(datas[i,...].shape,dtype=np.float64)
+
+        # Get masked sigmai and muHati (to prevent dividing by zero during 
+        # resid calculation)
+        muHati_masked = muHats[i:(i+1),...][np.where(mask_concat)]
+        sigmai_masked = sigmas[i:(i+1),...][np.where(mask_concat)]
+
+        # Get masked data
+        datai_masked = datas[i,:,...][:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
+
+        # Calculate residuals
+        resid[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]] = (datai_masked - muHati_masked)/sigmai_masked
 
         # Residuals along FcHat boundary
         resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
