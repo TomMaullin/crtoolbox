@@ -208,7 +208,7 @@ def runRealDat(slice):
             file = os.path.join(OutDir, 'COPE_diff_' + str(task) + '_' + str(IDs[i]) + '.nii')
 
             # Get data
-            data = nib.load(file).get_data()[:,slice,:]
+            data = nib.load(file).get_data()[:,:,slice]
             data = data.reshape((1,*data.shape))
 
             # Concatenate files
@@ -219,7 +219,7 @@ def runRealDat(slice):
 
             # Mask
             mask = os.path.join(OutDir, 'MASK_diff_' + str(task) + '_' + str(IDs[i]) + '.nii')
-            mask = nib.load(mask).get_data()[:,slice,:]
+            mask = nib.load(mask).get_data()[:,:,slice]
             mask = mask.reshape((1,*mask.shape))
 
             # Combine masks
@@ -739,7 +739,7 @@ def runRealDat(slice):
 
     # Get a mask representing where the slice is
     fullmask = np.zeros(nifdim)
-    fullmask[:,slice,:] = mask_concat.reshape(fullmask[:,slice,:].shape)
+    fullmask[:,:,slice] = mask_concat.reshape(fullmask[:,:,slice].shape)
 
     # Block indices
     blockInds = np.where(fullmask.reshape(np.prod(nifdim)))

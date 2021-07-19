@@ -12,12 +12,12 @@ CONFSETS_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 # -----------------------------------------------------------------------
 # Get number of slices
 # -----------------------------------------------------------------------
-nSlices=$(fslinfo /well/nichols/users/inf852/RFT_Ttest/COPE_diff_BODY_123117.nii | grep -m 1 dim2 | awk '{print $2}')
+nSlices=$(fslinfo /well/nichols/users/inf852/RFT_Ttest/COPE_diff_BODY_123117.nii | grep -m 1 dim3 | awk '{print $2}')
 echo $nSlices
 
 # Loop through all slices
 sliceNo=0
-while [ "$sliceNo" -le "$nSlices" ]; do
+while [ "$sliceNo" -lt "$nSlices" ]; do
 
 
 	# -----------------------------------------------------------------------
