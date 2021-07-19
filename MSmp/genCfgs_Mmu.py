@@ -80,7 +80,7 @@ def generateCfgs(OutDir, simNo):
     inputs['tau'] = '1/np.sqrt(nSub)'
 
     # Add number of realizations
-    inputs['nReals'] = 500
+    inputs['nReals'] = 2500
 
     # Add number of bootstraps
     inputs['nBoot'] = 5000
@@ -220,7 +220,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==2:
     
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
         
         # Id for config file
         cfgId = 1
@@ -253,7 +253,7 @@ def generateCfgs(OutDir, simNo):
                 mus['mu'+str(i+1)]['r'] = 40
 
                 # Mu magnitude
-                mus['mu'+str(i+1)]['mag'] = 1
+                mus['mu'+str(i+1)]['mag'] = 1/4
 
                 # Get some evenly spaced center points
                 centers = circle_points(np.array([spacing_r]),np.array([m]))

@@ -9,9 +9,6 @@ RealPath() {
 
 CONFSETS_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 
-# include parse_yaml function
-. $CONFSETS_PATH/parse_yaml.sh
-
 # -----------------------------------------------------------------------
 # Get number of slices
 # -----------------------------------------------------------------------

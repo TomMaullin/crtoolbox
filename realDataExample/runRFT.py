@@ -266,7 +266,7 @@ def runRealDat(slice):
     tau = 1/np.sqrt(nSub)
 
     # Get threshold
-    c = 2
+    c = 25
 
     # Get number of fields
     m = len(taskList)
