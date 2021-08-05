@@ -186,7 +186,7 @@ def generateCfgs(OutDir, simNo):
         inputs['c'] = 1/6
 
         # Add mode
-        inputs['mode'] = 1
+        inputs['mode'] = 3
 
         # Add FWHM for noise
         noise1['FWHM'] = '[0, 3, 3]'
