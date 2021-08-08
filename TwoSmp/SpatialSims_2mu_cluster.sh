@@ -23,7 +23,7 @@ CONFSETS_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 echo "Generating configurations..."
 
 # Submit config generation job
-fsl_sub -l $CONFSETS_PATH/results/sim$simNo/log/ -N genCfgs -q long.qc bash $CONFSETS_PATH/genCfgs_2mu.sh \
+fsl_sub -l $CONFSETS_PATH/results/sim$simNo/log/ -N genCfgs bash $CONFSETS_PATH/genCfgs_2mu.sh \
 $CONFSETS_PATH/results $simNo > \
 /tmp/$$ && cfgGenID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
@@ -44,7 +44,7 @@ for cfg in $CONFSETS_PATH/results/sim$simNo/cfgs/cfg*.yml; do
 	eval $(parse_yaml $cfg "config_")
 
 	# Submit the job
-	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/sim$simNo/log/ -N cfg$config_cfgId -q long.qc \
+	fsl_sub -j $cfgGenID -l $CONFSETS_PATH/results/sim$simNo/log/ -N cfg$config_cfgId -q long.qf \
 	bash $CONFSETS_PATH/SpatialSims_2mu.sh $cfg \
 	> /tmp/$$ && simInstancesID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$simInstancesID
 
@@ -57,7 +57,7 @@ done
 echo "Submitting concatenation job..."
 
 # Submit the job
-fsl_sub -j $simInstancesID -l $CONFSETS_PATH/results/sim$simNo/log/ -N concat -q long.qc \
+fsl_sub -j $simInstancesID -l $CONFSETS_PATH/results/sim$simNo/log/ -N concat \
 bash $CONFSETS_PATH/join_and_plot_2mu.sh $CONFSETS_PATH/results $simNo > \
 /tmp/$$ && concatID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
