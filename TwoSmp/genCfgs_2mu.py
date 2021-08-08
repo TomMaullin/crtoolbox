@@ -35,7 +35,7 @@ def generateCfgs(OutDir, simNo):
     inputs['tau'] = '1/np.sqrt(nSub)'
 
     # Add number of realizations
-    inputs['nReals'] = 500
+    inputs['nReals'] = 2500
 
     # Add number of bootstraps
     inputs['nBoot'] = 5000
@@ -72,7 +72,7 @@ def generateCfgs(OutDir, simNo):
         inputs['c'] = 2
 
         # Add mode
-        inputs['mode'] = 1
+        inputs['mode'] = 3
 
         # Add FWHM for noise
         noise1['FWHM'] = '[0, 3, 3]'
@@ -183,10 +183,10 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
-        inputs['mode'] = 1
+        inputs['mode'] = 3
 
         # Add FWHM for noise
         noise1['FWHM'] = '[0, 3, 3]'
@@ -214,7 +214,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -232,7 +232,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -411,7 +411,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 1
@@ -442,7 +442,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -460,7 +460,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -638,7 +638,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 2
@@ -669,7 +669,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -687,7 +687,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -866,7 +866,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -897,7 +897,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -915,7 +915,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1096,7 +1096,7 @@ def generateCfgs(OutDir, simNo):
         FWHM2s = np.linspace(1,6,26)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -1123,7 +1123,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center
         mu1['center'] = 'np.array([-20,0])'
@@ -1141,7 +1141,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # Add mu2 center
         mu2['center'] = 'np.array([0,0])'
@@ -1328,7 +1328,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -1359,7 +1359,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1377,7 +1377,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1558,7 +1558,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -1589,7 +1589,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1607,7 +1607,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1786,7 +1786,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -1817,7 +1817,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 20
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1835,7 +1835,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -2014,7 +2014,7 @@ def generateCfgs(OutDir, simNo):
         noise_corrs = np.arange(-1.0,1.1,0.1)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -2045,7 +2045,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center
         mu1['center'] = 'np.array([-20,0])'
@@ -2063,7 +2063,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # Add mu2 center
         mu2['center'] = 'np.array([20,0])'
@@ -2470,7 +2470,7 @@ def generateCfgs(OutDir, simNo):
         mags = np.arange(1,3.2,0.2)
 
         # Add threshold c
-        inputs['c'] = 2/3
+        inputs['c'] = 1/6
 
         # Add mode
         inputs['mode'] = 3
@@ -2500,7 +2500,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1
+        mu1['mag'] = 1/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -2518,7 +2518,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1
+        mu2['mag'] = 1/4
 
         # Add mu2 center
         mu2['center']= 'np.array([20,0])'
