@@ -244,6 +244,11 @@ def runRealDat(slice):
             datas = np.concatenate((datas,data_concat.reshape(1,*(data_concat.shape))),axis=0)
 
 
+    # WIP mask
+    mask = '/well/win/software/packages/fsl/6.0.3/data/standard/MNI152_T1_2mm_brain_mask.nii.gz'
+    mask = = nib.load(mask).get_data()[:,:,slice]
+    mask_concat = mask.reshape((1,*mask.shape))
+
     # Apply mask to data
     datas = datas*mask_concat
 
