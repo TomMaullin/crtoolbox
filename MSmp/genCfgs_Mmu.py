@@ -318,7 +318,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==3:
 
         # Add threshold c
-        inputs['c'] = 1
+        inputs['c'] = 2
 
         # Add m
         inputs['m'] = 3
@@ -382,6 +382,144 @@ def generateCfgs(OutDir, simNo):
 
         # Add mu3 magnitude
         mus['mu3']['mag'] = 3
+
+        # Add mu3 center 
+        mus['mu3']['center'] = 'np.array([0,-20])'
+
+        # ---------------------------------------------------------------
+        # Epsilons
+        # ---------------------------------------------------------------
+        # Create empty specifications
+        noises = {}
+
+        # Empty noise spec
+        noises['noise1'] = {}
+
+        # Add FWHM for noise
+        noises['noise1']['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noises['noise1']['type'] = 'homogen'
+
+        # Empty noise spec
+        noises['noise2'] = {}
+
+        # Add FWHM for noise
+        noises['noise2']['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noises['noise2']['type'] = 'homogen'
+
+        # Empty noise spec
+        noises['noise3'] = {}
+
+        # Add FWHM for noise
+        noises['noise3']['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noises['noise3']['type'] = 'homogen'
+
+        # Save mus and noises
+        inputs['mus']=mus
+        inputs['noises']=noises
+
+        # Loop through all nSub settings
+        for nSub in nSubs:
+
+            # Add nSub to inputs
+            inputs['nSub'] = int(nSub)
+
+            # Save cfg ID (handy to have around)
+            inputs['cfgId'] = int(cfgId)
+
+            # Record if we want to save figures for this design or not
+            if (nSub in fg_nSubs):
+
+                # In this case we do want to save  figures
+                inputs['figGen']=1
+
+            else:
+
+                # In this case we do want to save  figures
+                inputs['figGen']=0
+
+            # Save the yml
+            with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                yaml.dump(inputs, outfile, default_flow_style=False)
+
+            # Incremement cfgID
+            cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['cfgId'], inputs['nSub']
+
+    if simNo==4:
+
+        # Add threshold c
+        inputs['c'] = 1/6
+
+        # Add m
+        inputs['m'] = 3
+        
+        # Id for config file
+        cfgId = 1
+
+        # ---------------------------------------------------------------
+        # Mus
+        # ---------------------------------------------------------------
+        # Create empty specifications
+        mus = {}
+
+        # Empty mu spec
+        mus['mu1'] = {}
+
+        # Add mu1 type
+        mus['mu1']['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mus['mu1']['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mus['mu1']['r'] = 30
+
+        # Add mu1 magnitude
+        mus['mu1']['mag'] = 1/4
+
+        # Add mu1 center 
+        mus['mu1']['center'] = 'np.array([-20,0])'
+
+        # Empty mu spec
+        mus['mu2'] = {}
+
+        # Add mu2 type
+        mus['mu2']['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mus['mu2']['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mus['mu2']['r'] = 30
+
+        # Add mu2 magnitude
+        mus['mu2']['mag'] = 1/4
+
+        # Add mu2 center 
+        mus['mu2']['center'] = 'np.array([20,0])'
+
+        # Empty mu spec
+        mus['mu3'] = {}
+
+        # Add mu3 type
+        mus['mu3']['type'] = 'square2D' 
+
+        # Add mu3 fwhm
+        mus['mu3']['fwhm'] = 'np.array([5,5])'
+
+        # Add mu3 radius
+        mus['mu3']['r'] = 10
+
+        # Add mu3 magnitude
+        mus['mu3']['mag'] = 1/4
 
         # Add mu3 center 
         mus['mu3']['center'] = 'np.array([0,-20])'
