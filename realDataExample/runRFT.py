@@ -328,6 +328,19 @@ def runRealDat(slice):
         # Delete values as we no longer need them
         del AcHat_bdry_vals_concat
 
+
+    # -------------------------------------------------------------------
+    # Drop voxels with zero sigma values
+    # -------------------------------------------------------------------
+    for i in np.arange(m):
+
+        # -------------------------------------------------------------------
+        # Mask_concat update
+        # -------------------------------------------------------------------
+
+        # Empty resids
+        mask_concat = mask_concat*(sigmas[i:(i+1),...] != 0)
+
     # -------------------------------------------------------------------
     # Get minimum field
     # -------------------------------------------------------------------
@@ -364,19 +377,16 @@ def runRealDat(slice):
         # Empty resids
         resid = np.zeros(datas[i,...].shape,dtype=np.float64)
 
-        # Create temporary mask where sigma is non-zero
-        tmp_mask = (sigmas[i:(i+1),...] != 0)
-
         # Get masked sigmai and muHati (to prevent dividing by zero during 
         # resid calculation)
-        muHati_masked = muHats[i:(i+1),...][np.where(tmp_mask)]
-        sigmai_masked = sigmas[i:(i+1),...][np.where(tmp_mask)]
+        muHati_masked = muHats[i:(i+1),...][np.where(mask_concat)]
+        sigmai_masked = sigmas[i:(i+1),...][np.where(mask_concat)]
 
         # Get masked data
-        datai_masked = datas[i,:,...][:,np.where(tmp_mask)[-2],np.where(tmp_mask)[-1]]
+        datai_masked = datas[i,:,...][:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]]
 
         # Calculate residuals
-        resid[:,np.where(tmp_mask)[-2],np.where(tmp_mask)[-1]] = (datai_masked - muHati_masked)/sigmai_masked
+        resid[:,np.where(mask_concat)[-2],np.where(mask_concat)[-1]] = (datai_masked - muHati_masked)/sigmai_masked
 
         # Residuals along FcHat boundary
         resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
