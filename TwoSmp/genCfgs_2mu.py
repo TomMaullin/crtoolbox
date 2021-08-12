@@ -183,7 +183,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -214,7 +214,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -232,7 +232,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -411,7 +411,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 1
@@ -442,7 +442,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -460,7 +460,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -638,7 +638,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 2
@@ -669,7 +669,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -687,7 +687,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -866,7 +866,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -897,7 +897,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -915,7 +915,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1096,7 +1096,7 @@ def generateCfgs(OutDir, simNo):
         FWHM2s = np.linspace(1,6,26)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -1123,7 +1123,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center
         mu1['center'] = 'np.array([-20,0])'
@@ -1141,7 +1141,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # Add mu2 center
         mu2['center'] = 'np.array([0,0])'
@@ -1328,7 +1328,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -1359,7 +1359,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1377,7 +1377,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1558,7 +1558,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -1589,7 +1589,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1607,7 +1607,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -1786,7 +1786,7 @@ def generateCfgs(OutDir, simNo):
         centers = np.arange(-20,32,2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -1817,7 +1817,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 20
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -1835,7 +1835,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # We will generate figures for these settings
         fg_centers = np.array([-20,0,20,28])
@@ -2014,7 +2014,7 @@ def generateCfgs(OutDir, simNo):
         noise_corrs = np.arange(-1.0,1.1,0.1)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -2045,7 +2045,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center
         mu1['center'] = 'np.array([-20,0])'
@@ -2063,7 +2063,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # Add mu2 center
         mu2['center'] = 'np.array([20,0])'
@@ -2129,119 +2129,6 @@ def generateCfgs(OutDir, simNo):
     if simNo==19:
 
         # These are our ramp gradients
-        grads = 3*np.arange(0.5,1.6,0.1)
-
-        # Add threshold c
-        inputs['c'] = 3*2
-
-        # Add mode
-        inputs['mode'] = 3
-
-        # Add FWHM for noise
-        noise1['FWHM'] = '[0, 3, 3]'
-
-        # Add type for noise 1
-        noise1['type'] = 'homogen'
-
-        # Add FWHM  for noise 2
-        noise2['FWHM'] = '[0, 3, 3]'
-
-        # Add type for noise 2
-        noise2['type'] = 'homogen'
-
-        # Save noises
-        inputs['noise1'] = noise1
-        inputs['noise2'] = noise2
-
-
-        # We will generate figures for these settings
-        fg_grads = 3*np.array([0.5,1,1.5])
-
-        # Id for config file
-        cfgId = 1
-
-        # Loop through all center settings
-        for grad in grads:
-
-            # Add mu1 type
-            mu1['type'] = 'ramp2D'
-
-            # Add mu1 fwhm
-            mu1['orient'] = 'horizontal'
-
-            # Add mu1 a
-            mu1['a'] = '%.15f' % (3*2-grad)
-
-            # Add mu1 b
-            mu1['b'] = '%.15f' % (3*2+grad)
-
-            # Add mu1 to inputs
-            inputs['mu1'] = mu1
-
-            # Add mu2 type
-            mu2['type'] = 'ramp2D'
-
-            # Add mu2 fwhm
-            mu2['orient'] = 'vertical'
-
-            # Add mu2 a
-            mu2['a'] = '%.15f' % (3*2-grad)
-
-            # Add mu2 b
-            mu2['b'] = '%.15f' % (3*2+grad)
-
-            # Add mu2 to inputs
-            inputs['mu2'] = mu2
-
-            # Loop through all nSub settings
-            for nSub in nSubs:
-
-                # Add nSub to inputs
-                inputs['nSub'] = int(nSub)
-
-                # Save cfg ID (handy to have around)
-                inputs['cfgId'] = int(cfgId)
-
-                # Record if we want to save figures for this design or not
-                print(grad, fg_grads, grad in fg_grads)
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_grads,grad)):
-
-                    # In this case we do want to save  figures
-                    inputs['figGen']=1
-
-                else:
-
-                    # In this case we do want to save  figures
-                    inputs['figGen']=0
-
-                print(inputs['figGen'])
-
-                # Save the yml
-                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
-                    yaml.dump(inputs, outfile, default_flow_style=False)
-
-                # Incremement cfgID
-                cfgId = cfgId + 1
-
-        # Delete fields which vary across simulation
-        del inputs['mu1']['a'], inputs['mu1']['b'], inputs['mu2']['a'], inputs['mu2']['b'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
-
-
-    # ==========================================================================
-    #
-    # Simulation 20: Ramps moving closer (but lower fwhm)
-    #
-    # --------------------------------------------------------------------------
-    #
-    # In this simulation setting, we are interested in moving two ramps close
-    # to one another. We vary the ramps slopes and, as usual, the number of
-    # subjects. This differs from the previous setting in terms of smoothing
-    # and fwhm.
-    #
-    # ==========================================================================
-    if simNo==20:
-
-        # These are our ramp gradients
         grads = np.arange(0.5,1.6,0.1)
 
         # Add threshold c
@@ -2302,6 +2189,119 @@ def generateCfgs(OutDir, simNo):
 
             # Add mu2 b
             mu2['b'] = '%.15f' % (2+grad)
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                print(grad, fg_grads, grad in fg_grads)
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_grads,grad)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                print(inputs['figGen'])
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['a'], inputs['mu1']['b'], inputs['mu2']['a'], inputs['mu2']['b'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+    # ==========================================================================
+    #
+    # Simulation 20: Ramps moving closer (but lower fwhm)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two ramps close
+    # to one another. We vary the ramps slopes and, as usual, the number of
+    # subjects. This differs from the previous setting in terms of smoothing
+    # and fwhm.
+    #
+    # ==========================================================================
+    if simNo==20:
+
+        # These are our ramp gradients
+        grads = np.arange(0.5,1.6,0.1)/4
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+
+        # We will generate figures for these settings
+        fg_grads = np.array([0.5,1,1.5])/4
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for grad in grads:
+
+            # Add mu1 type
+            mu1['type'] = 'ramp2D'
+
+            # Add mu1 fwhm
+            mu1['orient'] = 'horizontal'
+
+            # Add mu1 a
+            mu1['a'] = '%.15f' % (1/2-grad)
+
+            # Add mu1 b
+            mu1['b'] = '%.15f' % (1/2+grad)
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 type
+            mu2['type'] = 'ramp2D'
+
+            # Add mu2 fwhm
+            mu2['orient'] = 'vertical'
+
+            # Add mu2 a
+            mu2['a'] = '%.15f' % (1/2-grad)
+
+            # Add mu2 b
+            mu2['b'] = '%.15f' % (1/2+grad)
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
@@ -2470,7 +2470,7 @@ def generateCfgs(OutDir, simNo):
         mags = np.arange(1,3.2,0.2)
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add mode
         inputs['mode'] = 3
@@ -2500,7 +2500,7 @@ def generateCfgs(OutDir, simNo):
         mu1['r'] = 30
 
         # Add mu1 magnitude
-        mu1['mag'] = 1/4
+        mu1['mag'] = 3/4
 
         # Add mu1 center (we only vary mu2)
         mu1['center'] = 'np.array([-20,0])'
@@ -2518,7 +2518,7 @@ def generateCfgs(OutDir, simNo):
         mu2['r'] = 30
 
         # Add mu2 magnitude
-        mu2['mag'] = 1/4
+        mu2['mag'] = 3/4
 
         # Add mu2 center
         mu2['center']= 'np.array([20,0])'
