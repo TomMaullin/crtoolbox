@@ -2,7 +2,9 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from lib.generateData import *
+from lib.fileio import *
 
 
 # TODO:
@@ -542,6 +544,17 @@ def get_data_1field(muSpec,noiseSpec,dim):
 
 
 
+# Even circle points function, taken from:
+# https://stackoverflow.com/questions/33510979/generator-of-evenly-spaced-points-in-a-circle-in-python
+def circle_points(r, n):
+    circles = []
+    for r, n in zip(r, n):
+        t = np.linspace(0, 2*np.pi, n, endpoint=False)
+        x = np.round(r * np.cos(t))
+        y = np.round(r * np.sin(t))
+        circles.append(np.c_[x, y])
+    return circles[0]
+
 
 
 
@@ -550,108 +563,800 @@ def get_data_1field(muSpec,noiseSpec,dim):
 
 
 def testfn():
-
-    # ---------------------------------------------------------------
-    # Mus
-    # ---------------------------------------------------------------
-    # Create empty specifications
-    mus = {}
-
-    # Empty mu spec
-    mus['mu1'] = {}
-
-    # Add mu1 type
-    mus['mu1']['type'] = 'square2D' 
-
-    # Add mu1 fwhm
-    mus['mu1']['fwhm'] = np.array([5,5])
-
-    # Add mu1 radius
-    mus['mu1']['r'] = 30
-
-    # Add mu1 magnitude
-    mus['mu1']['mag'] = 1
-
-    # Add mu1 center 
-    mus['mu1']['center'] = np.array([-20,0])
-
-    # Empty mu spec
-    mus['mu2'] = {}
-
-    # Add mu2 type
-    mus['mu2']['type'] = 'circle2D' 
-
-    # Add mu2 fwhm
-    mus['mu2']['fwhm'] = np.array([5,5])
-
-    # Add mu2 radius
-    mus['mu2']['r'] = 50
-
-    # Add mu2 magnitude
-    mus['mu2']['mag'] = 2
-
-    # Add mu2 center 
-    mus['mu2']['center'] = np.array([20,0])
-
-    # ---------------------------------------------------------------
-    # Epsilons
-    # ---------------------------------------------------------------
-    # Create empty specifications
-    noises = {}
-
-    # Empty noise spec
-    noises['noise1'] = {}
-
-    # Add FWHM for noise
-    noises['noise1']['FWHM'] = np.array([0, 3, 3])
-
-    # Add type for noise 1
-    noises['noise1']['type'] = 'homogen'
-
-    # Empty noise spec
-    noises['noise2'] = {}
-
-    # Add FWHM for noise
-    noises['noise2']['FWHM'] = np.array([0, 3, 3])
-
-    # Add type for noise 1
-    noises['noise2']['type'] = 'homogen'
-    # -------------------------------------------------------------------
-
-    data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
-
-    data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
-
-    c = 2/3
     
+    # Set simulation number
+    simNo = 17
+
+    # Threshold
+    c = 2
+
+    # Output directory
+    outdir = '/home/tommaullin/Documents/ConfRes'
+
+    # Check if simulation directory exists, if not make it
+    if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo))):
+        os.mkdir(os.path.join(outdir, 'sim' + str(simNo)))
+
+    # ----------------------------------------------------------------------------
+    # Simulation 1 and 2
+    # ----------------------------------------------------------------------------
+    if simNo in [1,2]:
+
+        # Set M
+        m = 2
+
+        # Check if figures directory exists, if not make it
+        if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample')):
+            os.mkdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample'))
+
+        # Create mu1 and mu2 specification
+        mu1 = {}
+        mu2 = {}
+
+        # Create noise1 and noise2 specification
+        noise1 = {}
+        noise2 = {}
+
+        # Add FWHM for noise
+        noise1['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = np.array([5,5])
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center
+        mu1['center'] = np.array([-15,0])
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = np.array([5,5])
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # Add mu2 center 
+        mu2['center'] = np.array([15,0])
+
+        # Get fields 1 and 2
+        data1, mu1 = get_data_1field(mu1, noise1, np.array([80,100,100]))
+        data2, mu2 = get_data_1field(mu2, noise2, np.array([80,100,100]))
+
+        # Get masks for fields 1 and 2
+        mask1 = 1*(mu1[0,:,:]>c)
+        mask2 = 1*(mu2[0,:,:]>c)
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+
+        # Get masks for fields 1 and 2
+        boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+        boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+
+        # Get minimum field
+        minfield = np.minimum(mu1,mu2)
+
+        # Combined set
+        maskAll = 1*(minfield[0,:,:]>c)
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+        # Combined boundary
+        boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Simulation 3 and 4
+    # ----------------------------------------------------------------------------
+    if simNo in [3,4]:
+
+        # Set M
+        m = 2
+
+        # Check if figures directory exists, if not make it
+        if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample')):
+            os.mkdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample'))
+
+        # Create mu1 and mu2 specification
+        mu1 = {}
+        mu2 = {}
+
+        # Create noise1 and noise2 specification
+        noise1 = {}
+        noise2 = {}
+
+        # Add FWHM for noise
+        noise1['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = np.array([5,5])
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = np.array([-15,0])
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = np.array([5,5])
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # Add mu2 center 
+        mu2['center'] = np.array([15,0])
+
+        # Get fields 1 and 2
+        data1, mu1 = get_data_1field(mu1, noise1, np.array([80,100,100]))
+        data2, mu2 = get_data_1field(mu2, noise2, np.array([80,100,100]))
+
+        # Get masks for fields 1 and 2
+        mask1 = 1*(mu1[0,:,:]>c)
+        mask2 = 1*(mu2[0,:,:]>c)
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+
+        # Get masks for fields 1 and 2
+        boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+        boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+
+        # Get minimum field
+        minfield = np.minimum(mu1,mu2)
+
+        # Combined set
+        maskAll = 1*(minfield[0,:,:]>c)
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+        # Combined boundary
+        boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Simulation 11 and 12
+    # ----------------------------------------------------------------------------
+    if simNo in [11,12]:
+
+        # Set M
+        m = 2
+
+        # Check if figures directory exists, if not make it
+        if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample')):
+            os.mkdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample'))
+
+        # Create mu1 and mu2 specification
+        mu1 = {}
+        mu2 = {}
+
+        # Create noise1 and noise2 specification
+        noise1 = {}
+        noise2 = {}
+
+        # Gradient
+        grad = 1
+
+        # Add FWHM for noise
+        noise1['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add mu1 type
+        mu1['type'] = 'ramp2D'
+
+        # Add mu1 fwhm
+        mu1['orient'] = 'horizontal'
+
+        # Add mu1 a
+        mu1['a'] = '%.15f' % (2-grad)
+
+        # Add mu1 b
+        mu1['b'] = '%.15f' % (2+grad)
+
+        # Add mu2 type
+        mu2['type'] = 'ramp2D'
+
+        # Add mu2 fwhm
+        mu2['orient'] = 'vertical'
+
+        # Add mu2 a
+        mu2['a'] = '%.15f' % (2-grad)
+
+        # Add mu2 b
+        mu2['b'] = '%.15f' % (2+grad)
+
+        # Get fields 1 and 2
+        data1, mu1 = get_data_1field(mu1, noise1, np.array([80,100,100]))
+        data2, mu2 = get_data_1field(mu2, noise2, np.array([80,100,100]))
+
+        # Get masks for fields 1 and 2
+        mask1 = 1*(mu1[0,:,:]>c)
+        mask2 = 1*(mu2[0,:,:]>c)
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+
+        # Get masks for fields 1 and 2
+        boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+        boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+
+        # Get minimum field
+        minfield = np.minimum(mu1,mu2)
+
+        # Combined set
+        maskAll = 1*(minfield[0,:,:]>c)
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+        # Combined boundary
+        boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Simulation 15 and 16
+    # ----------------------------------------------------------------------------
+    if simNo in [15,16]:
+
+        # Number of fields, m
+        ms = np.arange(2,6)
+
+        # Loop through all m values
+        for m in ms:
+
+            # ---------------------------------------------------------------
+            # Mus
+            # ---------------------------------------------------------------
+            # Create empty specifications
+            mus = {}
+
+            # Loop through mus, adding each field in turn
+            for i in np.arange(m):
+
+                # Check if figures directory exists, if not make it
+                if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample')):
+                    os.mkdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample'))
+
+                # New empty dict
+                mus['mu'+str(i+1)]={}
+
+                # Mu type
+                mus['mu'+str(i+1)]['type'] = 'circle2D' 
+
+                # Mu FWHM
+                mus['mu'+str(i+1)]['fwhm'] = np.array([5,5])
+
+                # Mu r
+                mus['mu'+str(i+1)]['r'] = 40
+
+                # Mu magnitude
+                mus['mu'+str(i+1)]['mag'] = 3
+
+                # Get some evenly spaced center points
+                centers = circle_points(np.array([25]),np.array([m]))
+
+                # Mu center
+                mus['mu'+str(i+1)]['center'] = centers[i,:]
+
+            # ---------------------------------------------------------------
+            # Epsilons
+            # ---------------------------------------------------------------
+            # Create empty specifications
+            noises = {}
+
+            # Loop through noises, adding each field in turn
+            for i in np.arange(m):
+
+                # New empty dict
+                noises['noise'+str(i+1)]={}
+
+                # Add FWHM
+                noises['noise'+str(i+1)]['FWHM'] = [0, 3, 3]
+
+                # Add type
+                noises['noise'+str(i+1)]['type'] = 'homogen'
+
+            # ---------------------------------------------------------------
+            # Save images
+            # ---------------------------------------------------------------
+            if m == 2:
+
+                # Get fields 1 and 2
+                data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
+                data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
+
+                # Get masks for fields 1 and 2
+                mask1 = 1*(mu1[0,:,:]>c)
+                mask2 = 1*(mu2[0,:,:]>c)
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+
+                # Get masks for fields 1 and 2
+                boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+                boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+
+                # Get minimum field
+                minfield = np.minimum(mu1,mu2)
+
+                # Combined set
+                maskAll = 1*(minfield[0,:,:]>c)
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+                # Combined boundary
+                boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+            if m == 3:
+
+                # Get fields 1 and 2
+                data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
+                data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
+                data3, mu3 = get_data_1field(mus['mu3'], noises['noise3'], np.array([80,100,100]))
+
+                # Get masks for fields 1 and 2
+                mask1 = 1*(mu1[0,:,:]>c)
+                mask2 = 1*(mu2[0,:,:]>c)
+                mask3 = 1*(mu3[0,:,:]>c)
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask3.csv'),mask3,remove=True)
+
+                # Get masks for fields 1 and 2
+                boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+                boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+                boundary3 = 1*get_bdry_map_combined(mu3, c)[0,:,:]
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry3.csv'),boundary3,remove=True)
+
+                # Get minimum field
+                minfield = np.minimum(np.minimum(mu1,mu2),mu3)
+
+                # Combined set
+                maskAll = 1*(minfield[0,:,:]>c)
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+                # Combined boundary
+                boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+            if m == 4:
+
+                # Get fields 1 and 2
+                data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
+                data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
+                data3, mu3 = get_data_1field(mus['mu3'], noises['noise3'], np.array([80,100,100]))
+                data4, mu4 = get_data_1field(mus['mu4'], noises['noise4'], np.array([80,100,100]))
+
+                # Get masks for fields 1 and 2
+                mask1 = 1*(mu1[0,:,:]>c)
+                mask2 = 1*(mu2[0,:,:]>c)
+                mask3 = 1*(mu3[0,:,:]>c)
+                mask4 = 1*(mu4[0,:,:]>c)
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask3.csv'),mask3,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask4.csv'),mask4,remove=True)
+
+                # Get masks for fields 1 and 2
+                boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+                boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+                boundary3 = 1*get_bdry_map_combined(mu3, c)[0,:,:]
+                boundary4 = 1*get_bdry_map_combined(mu4, c)[0,:,:]
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry3.csv'),boundary3,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry4.csv'),boundary4,remove=True)
+
+                # Get minimum field
+                minfield = np.minimum(np.minimum(np.minimum(mu1,mu2),mu3),mu4)
+
+                # Combined set
+                maskAll = 1*(minfield[0,:,:]>c)
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+                # Combined boundary
+                boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+            if m == 5:
+
+                # Get fields 1 and 2
+                data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
+                data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
+                data3, mu3 = get_data_1field(mus['mu3'], noises['noise3'], np.array([80,100,100]))
+                data4, mu4 = get_data_1field(mus['mu4'], noises['noise4'], np.array([80,100,100]))
+                data5, mu5 = get_data_1field(mus['mu5'], noises['noise5'], np.array([80,100,100]))
+
+                # Get masks for fields 1 and 2
+                mask1 = 1*(mu1[0,:,:]>c)
+                mask2 = 1*(mu2[0,:,:]>c)
+                mask3 = 1*(mu3[0,:,:]>c)
+                mask4 = 1*(mu4[0,:,:]>c)
+                mask5 = 1*(mu5[0,:,:]>c)
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask3.csv'),mask3,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask4.csv'),mask4,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask5.csv'),mask5,remove=True)
+
+                # Get masks for fields 1 and 2
+                boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+                boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+                boundary3 = 1*get_bdry_map_combined(mu3, c)[0,:,:]
+                boundary4 = 1*get_bdry_map_combined(mu4, c)[0,:,:]
+                boundary5 = 1*get_bdry_map_combined(mu5, c)[0,:,:]
+
+                # Save to files
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry3.csv'),boundary3,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry4.csv'),boundary4,remove=True)
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry5.csv'),boundary5,remove=True)
+
+                # Get minimum field
+                minfield = np.minimum(np.minimum(np.minimum(np.minimum(mu1,mu2),mu3),mu4),mu5)
+
+                # Combined set
+                maskAll = 1*(minfield[0,:,:]>c)
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+                # Combined boundary
+                boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+                # Save to file
+                append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Simulation 17 and 18
+    # ----------------------------------------------------------------------------
+    if simNo in [17,18]:
+
+        # Set M
+        m = 3
+
+        # Check if figures directory exists, if not make it
+        if not os.path.isdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample')):
+            os.mkdir(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample'))
+
+        # Create mu specification
+        mus = {}
+
+        # Create noise specification
+        noises = {}
+
+        # Empty mu spec
+        mus['mu1'] = {}
+
+        # Add mu1 type
+        mus['mu1']['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mus['mu1']['fwhm'] = np.array([5,5])
+
+        # Add mu1 radius
+        mus['mu1']['r'] = 30
+
+        # Add mu1 magnitude
+        mus['mu1']['mag'] = 3
+
+        # Add mu1 center 
+        mus['mu1']['center'] = np.array([-20,0])
+
+        # Empty mu spec
+        mus['mu2'] = {}
+
+        # Add mu2 type
+        mus['mu2']['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mus['mu2']['fwhm'] = np.array([5,5])
+
+        # Add mu2 radius
+        mus['mu2']['r'] = 30
+
+        # Add mu2 magnitude
+        mus['mu2']['mag'] = 3
+
+        # Add mu2 center 
+        mus['mu2']['center'] = np.array([20,0])
+
+        # Empty mu spec
+        mus['mu3'] = {}
+
+        # Add mu3 type
+        mus['mu3']['type'] = 'square2D' 
+
+        # Add mu3 fwhm
+        mus['mu3']['fwhm'] = np.array([5,5])
+
+        # Add mu3 radius
+        mus['mu3']['r'] = 10
+
+        # Add mu3 magnitude
+        mus['mu3']['mag'] = 3
+
+        # Add mu3 center 
+        mus['mu3']['center'] = np.array([0,-20])
+
+        # ---------------------------------------------------------------
+        # Epsilons
+        # ---------------------------------------------------------------
+        # Create empty specifications
+        noises = {}
+
+        # Empty noise spec
+        noises['noise1'] = {}
+
+        # Add FWHM for noise
+        noises['noise1']['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noises['noise1']['type'] = 'homogen'
+
+        # Empty noise spec
+        noises['noise2'] = {}
+
+        # Add FWHM for noise
+        noises['noise2']['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noises['noise2']['type'] = 'homogen'
+
+        # Empty noise spec
+        noises['noise3'] = {}
+
+        # Add FWHM for noise
+        noises['noise3']['FWHM'] = [0, 3, 3]
+
+        # Add type for noise 1
+        noises['noise3']['type'] = 'homogen'
+
+
+        # Get fields 1 and 2
+        data1, mu1 = get_data_1field(mus['mu1'], noises['noise1'], np.array([80,100,100]))
+        data2, mu2 = get_data_1field(mus['mu2'], noises['noise2'], np.array([80,100,100]))
+        data3, mu3 = get_data_1field(mus['mu3'], noises['noise3'], np.array([80,100,100]))
+
+        # Get masks for fields 1 and 2
+        mask1 = 1*(mu1[0,:,:]>c)
+        mask2 = 1*(mu2[0,:,:]>c)
+        mask3 = 1*(mu3[0,:,:]>c)
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask1.csv'),mask1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask2.csv'),mask2,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'mask3.csv'),mask3,remove=True)
+
+        # Get masks for fields 1 and 2
+        boundary1 = 1*get_bdry_map_combined(mu1, c)[0,:,:]
+        boundary2 = 1*get_bdry_map_combined(mu2, c)[0,:,:]
+        boundary3 = 1*get_bdry_map_combined(mu3, c)[0,:,:]
+
+        # Save to files
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry1.csv'),boundary1,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry2.csv'),boundary2,remove=True)
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdry3.csv'),boundary3,remove=True)
+
+        # Get minimum field
+        minfield = np.minimum(np.minimum(mu1,mu2),mu3)
+
+        # Combined set
+        maskAll = 1*(minfield[0,:,:]>c)
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'maskall.csv'),maskAll,remove=True)
+
+        # Combined boundary
+        boundaryAll = 1*get_bdry_map_combined(minfield, c)[0,:,:]
+
+        # Save to file
+        append_to_file(os.path.join(outdir, 'sim' + str(simNo), str(m) + 'sample', 'bdryall.csv'),boundaryAll,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Homogeneous noise
+    # ----------------------------------------------------------------------------
+    
+    # Check if figures directory exists, if not make it
+    if not os.path.isdir(os.path.join(outdir, 'homogen_noise')):
+        os.mkdir(os.path.join(outdir, 'homogen_noise'))
+
+    # Create noise specification
+    noise = {}
+
+    # Add FWHM for noise
+    noise['FWHM'] = [0, 3, 3]
+
+    # Add type for noise 
+    noise['type'] = 'homogen'
+
+    # Get some noise
+    noise = get_noise(noise, np.array([80,100,100]))[0,:,:]
+
+    # Save to files
+    append_to_file(os.path.join(outdir, 'homogen_noise', 'data.csv'),noise,remove=True)
+
+    # ----------------------------------------------------------------------------
+    # Heterogeneous noise
+    # ----------------------------------------------------------------------------
+    
+    # Check if figures directory exists, if not make it
+    if not os.path.isdir(os.path.join(outdir, 'heterogen_noise')):
+        os.mkdir(os.path.join(outdir, 'heterogen_noise'))
+
+    # Create noise specification
+    noise = {}
+
+    # Add FWHM for noise
+    noise['FWHM'] = [0, 3, 3]
+
+    # Add type for noise 
+    noise['type'] = 'heterogen'
+
+    # Get some noise
+    noise = get_noise(noise, np.array([80,100,100]))[0,:,:]
+
+    # Save to files
+    append_to_file(os.path.join(outdir, 'heterogen_noise', 'data.csv'),noise,remove=True)
+
+    # -------------------------------------------------------------------
+    # Color code:
+    # -------------------------------------------------------------------
+    # color = colornumber = combination of fields
+    #
+    # white = 0 = none
+    # blue = 1 = 1
+    # red = 2 = 2
+    # orange = 3 = 3
+    # green = 4 = 4
+    # yellow = 5 = 5
+    # purple = 6 = 1 + 2
+    # sienna1 = 7 = 1 + 3
+    # turquoise = 8 = 1 + 4
+    # seagreen = 9 = 1 + 5
+    # coral = 10 = 2 + 3
+    # moccasin = 11 = 2 + 4
+    # salmon = 12 = 2 + 5
+    # rosybrown = 13 = 3 + 4
+    # goldenrod = 14 = 3 + 5
+    # khaki = 15 = 4 + 5
+    # brown = 16 = all
     # -------------------------------------------------------------------
 
-    muHat1 = np.mean(data1,axis=0).reshape(mu1.shape)
 
-    muHat2 = np.mean(data2,axis=0).reshape(mu2.shape)
+    # c = mcolors.ColorConverter().to_rgb
+    # rvb = make_colormap([c('red'), c('orange'), c('yellow'), c('green'), c('blue'), c('violet'),c('red'), c('orange'), c('yellow'), c('green'), c('blue'), c('violet'),c('red'), c('orange'), c('yellow')])
 
-    # -------------------------------------------------------------------
+    # plt.figure(0)
+    # plt.imshow(demo_im,cmap=plt.get_cmap('tab20'))
+    # plt.figure(1)
+    # plt.imshow(demo_im,cmap=plt.get_cmap('tab20b'))
+    # plt.figure(0)
+    # plt.imshow(demo_im,cmap=plt.get_cmap('tab20c'))
 
-    sigma1 = np.std(data1,axis=0).reshape(mu1.shape)
+    # plt.show()
 
-    sigma2 = np.std(data2,axis=0).reshape(mu2.shape)
 
-    tau = 1/np.sqrt(80)
 
-    mask = mu2[0,:,:]>c
+
+
+
+    # mask = mu2[0,:,:]>c
  
-    bdryImage = get_bdry_map_combined(muHat1, c, mask)
+    # bdryImage = get_bdry_map_combined(muHat1, c, mask)
 
-    plt.figure(0)
-    plt.imshow(bdryImage[0,:,:])
+    # plt.figure(0)
+    # plt.imshow(bdryImage[0,:,:])
 
-    plt.figure(1)
-    plt.imshow(mask)
+    # plt.figure(1)
+    # plt.imshow(mask)
 
-    plt.figure(2)
-    plt.imshow(1*mask+1*bdryImage[0,:,:])
+    # plt.figure(2)
+    # plt.imshow(1*mask+1*bdryImage[0,:,:])
 
-    plt.show()
+    # plt.show()
 
     # # -------------------------------------------------------------------
 

@@ -32,7 +32,7 @@ import numpy as np
 # - `data`: The data we wish to append to the file.
 #
 # ============================================================================
-def append_to_file(fname, data):
+def append_to_file(fname, data, remove=False):
 
     # Check if file is in use
     fileLocked = True
@@ -48,6 +48,15 @@ def append_to_file(fname, data):
 
         	# File is still locked
             fileLocked = True
+
+    # Check if we are removing the file
+    if remove:
+
+        # Check if it exists
+        if os.path.isfile(fname):
+
+            # Remove it
+            os.remove(fname)
 
     # Check whether the file exists already
     if not os.path.isfile(fname):
