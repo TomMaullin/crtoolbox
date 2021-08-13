@@ -1365,7 +1365,7 @@ def testfn():
     # stat2 = ((muHat2-c)/(sigma2*tau)).reshape(1,(*muHat2.shape))
 
     # # Minimum for intersection
-    # stat = np.minimum(stat1,stat2)
+    # stat = np.minimum(stat1,stat2) 
     # stat = stat.reshape(stat.shape[-2],stat.shape[-1])
 
     # # -------------------------------------------------------------------
