@@ -16,7 +16,7 @@ sim1_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim1_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim1_data <- sim1_data[c("n","Distance","0.95")]
+sim1_data <- sim1_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim1_data$n))
@@ -27,17 +27,16 @@ d <- sort(unique(sim1_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = d, y = rep(0.95,length(d)))
-uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+midline <- data.frame( x = d, y = rep(p,length(d)))
+uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -52,7 +51,7 @@ tmp <- tmp[order(tmp$Distance),]
 xmin <- 0
 xmax <- 50
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -74,8 +73,8 @@ tmp$n <- as.factor(tmp$n)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -83,7 +82,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 current_plot_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(0,50) + ylim(0.9,1) + 
   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -105,7 +104,7 @@ sim1_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim1_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim1_data <- sim1_data[c("n","Distance","0.95")]
+sim1_data <- sim1_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim1_data$n))
@@ -116,17 +115,16 @@ d <- sort(unique(sim1_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = n, y = rep(0.95,length(n)))
-uppline <- data.frame( x = n, y = rep(0.95+bin_conf,length(n)))
-lowline <- data.frame( x = n, y = rep(0.95-bin_conf,length(n)))
+midline <- data.frame( x = n, y = rep(p,length(n)))
+uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -141,7 +139,7 @@ tmp <- tmp[order(tmp$n),]
 xmin <- 0
 xmax <- 500
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -163,8 +161,8 @@ tmp$Distance <- as.factor(tmp$Distance)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -172,7 +170,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 current_plot_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Distance`, color=`Distance`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(40,500) + ylim(0.9,1) + 
   scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
   geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -200,7 +198,7 @@ grid.arrange(current_plot_n_vs_cov, current_plot_d_vs_cov, ncol=2)
 # names(sim1_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # # Reduce data
-# sim1_data <- sim1_data[c("n","Distance","0.95")]
+# sim1_data <- sim1_data[c("n","Distance",toString(p))]
 
 # # Sort the unique n
 # n <- sort(unique(sim1_data$n))
@@ -211,17 +209,17 @@ grid.arrange(current_plot_n_vs_cov, current_plot_d_vs_cov, ncol=2)
 # reduced_d <- c(0,10,20,30,40,50)
 
 # # Relevant parameters
-# alpha <- 0.95
+# p <- 0.95
 # p <- 0.95
 # nReals <- 2500
 
 # # Binomial confidence line
-# bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+# bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # # Lines for band
-# midline <- data.frame( x = d, y = rep(0.95,length(d)))
-# uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-# lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+# midline <- data.frame( x = d, y = rep(p,length(d)))
+# uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+# lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # # -------------------------------------------------------
 # # Reformat data
@@ -236,7 +234,7 @@ grid.arrange(current_plot_n_vs_cov, current_plot_d_vs_cov, ncol=2)
 # xmin <- 0
 # xmax <- 50
 
-# ymin <- 0.9
+# ymin <- 1-2*(1-p)
 # ymax <- 1
   
 # # Loop through and add the remaining n
@@ -258,8 +256,8 @@ grid.arrange(current_plot_n_vs_cov, current_plot_d_vs_cov, ncol=2)
 
 # # Save line parameters 
 # tmp$truep <- 0.95
-# tmp$lowp <- 0.95-bin_conf
-# tmp$uppp <- 0.95+bin_conf
+# tmp$lowp <- p-bin_conf
+# tmp$uppp <- p+bin_conf
 
 # # -------------------------------------------------------
 # # Make plot
@@ -267,7 +265,7 @@ grid.arrange(current_plot_n_vs_cov, current_plot_d_vs_cov, ncol=2)
 
 # # Create plot
 # current_plot <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-#   geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+#   geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
 #   xlim(0,50) + ylim(0.9,1) + 
 #   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
 #   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -296,7 +294,7 @@ sim7_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim7_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim7_data <- sim7_data[c("n","Distance","0.95")]
+sim7_data <- sim7_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim7_data$n))
@@ -307,17 +305,16 @@ d <- sort(unique(sim7_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = d, y = rep(0.95,length(d)))
-uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+midline <- data.frame( x = d, y = rep(p,length(d)))
+uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -332,7 +329,7 @@ tmp <- tmp[order(tmp$Distance),]
 xmin <- 0
 xmax <- 50
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -354,8 +351,8 @@ tmp$n <- as.factor(tmp$n)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -363,7 +360,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim7_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(0,50) + ylim(0.9,1) + 
   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -385,7 +382,7 @@ sim7_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim7_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim7_data <- sim7_data[c("n","Distance","0.95")]
+sim7_data <- sim7_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim7_data$n))
@@ -396,17 +393,16 @@ d <- sort(unique(sim7_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = n, y = rep(0.95,length(n)))
-uppline <- data.frame( x = n, y = rep(0.95+bin_conf,length(n)))
-lowline <- data.frame( x = n, y = rep(0.95-bin_conf,length(n)))
+midline <- data.frame( x = n, y = rep(p,length(n)))
+uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -421,7 +417,7 @@ tmp <- tmp[order(tmp$n),]
 xmin <- 0
 xmax <- 500
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -443,8 +439,8 @@ tmp$Distance <- as.factor(tmp$Distance)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -452,7 +448,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim7_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Distance`, color=`Distance`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(40,500) + ylim(0.9,1) + 
   scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
   geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -473,7 +469,7 @@ sim8_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim8_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim8_data <- sim8_data[c("n","Distance","0.95")]
+sim8_data <- sim8_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim8_data$n))
@@ -484,17 +480,16 @@ d <- sort(unique(sim8_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = d, y = rep(0.95,length(d)))
-uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+midline <- data.frame( x = d, y = rep(p,length(d)))
+uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -509,7 +504,7 @@ tmp <- tmp[order(tmp$Distance),]
 xmin <- 0
 xmax <- 50
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -531,8 +526,8 @@ tmp$n <- as.factor(tmp$n)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -540,7 +535,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim8_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(0,50) + ylim(0.9,1) + 
   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -562,7 +557,7 @@ sim8_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/
 names(sim8_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim8_data <- sim8_data[c("n","Distance","0.95")]
+sim8_data <- sim8_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim8_data$n))
@@ -573,17 +568,16 @@ d <- sort(unique(sim8_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = n, y = rep(0.95,length(n)))
-uppline <- data.frame( x = n, y = rep(0.95+bin_conf,length(n)))
-lowline <- data.frame( x = n, y = rep(0.95-bin_conf,length(n)))
+midline <- data.frame( x = n, y = rep(p,length(n)))
+uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -598,7 +592,7 @@ tmp <- tmp[order(tmp$n),]
 xmin <- 0
 xmax <- 500
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -620,8 +614,8 @@ tmp$Distance <- as.factor(tmp$Distance)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -629,7 +623,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim8_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Distance`, color=`Distance`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(40,500) + ylim(0.9,1) + 
   scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
   geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -659,7 +653,7 @@ sim11_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp
 names(sim11_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim11_data <- sim11_data[c("n","Distance","0.95")]
+sim11_data <- sim11_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim11_data$n))
@@ -670,17 +664,16 @@ d <- sort(unique(sim11_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = d, y = rep(0.95,length(d)))
-uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+midline <- data.frame( x = d, y = rep(p,length(d)))
+uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -695,7 +688,7 @@ tmp <- tmp[order(tmp$Distance),]
 xmin <- 0
 xmax <- 50
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -717,8 +710,8 @@ tmp$n <- as.factor(tmp$n)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -726,7 +719,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim11_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(0,50) + ylim(0.9,1) + 
   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -748,7 +741,7 @@ sim11_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp
 names(sim11_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim11_data <- sim11_data[c("n","Distance","0.95")]
+sim11_data <- sim11_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim11_data$n))
@@ -759,17 +752,16 @@ d <- sort(unique(sim11_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = n, y = rep(0.95,length(n)))
-uppline <- data.frame( x = n, y = rep(0.95+bin_conf,length(n)))
-lowline <- data.frame( x = n, y = rep(0.95-bin_conf,length(n)))
+midline <- data.frame( x = n, y = rep(p,length(n)))
+uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -784,7 +776,7 @@ tmp <- tmp[order(tmp$n),]
 xmin <- 0
 xmax <- 500
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -806,8 +798,8 @@ tmp$Distance <- as.factor(tmp$Distance)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -815,7 +807,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim11_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Distance`, color=`Distance`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(40,500) + ylim(0.9,1) + 
   scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
   geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -836,7 +828,7 @@ sim12_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp
 names(sim12_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim12_data <- sim12_data[c("n","Distance","0.95")]
+sim12_data <- sim12_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim12_data$n))
@@ -847,17 +839,16 @@ d <- sort(unique(sim12_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = d, y = rep(0.95,length(d)))
-uppline <- data.frame( x = d, y = rep(0.95+bin_conf,length(d)))
-lowline <- data.frame( x = d, y = rep(0.95-bin_conf,length(d)))
+midline <- data.frame( x = d, y = rep(p,length(d)))
+uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -872,7 +863,7 @@ tmp <- tmp[order(tmp$Distance),]
 xmin <- 0
 xmax <- 50
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -894,8 +885,8 @@ tmp$n <- as.factor(tmp$n)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -903,7 +894,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim12_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`0.95`, group=`n`, color=`n`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(0,50) + ylim(0.9,1) + 
   scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
   geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
@@ -925,7 +916,7 @@ sim12_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp
 names(sim12_data) <- c('cfgId','n', 'Distance','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
 
 # Reduce data
-sim12_data <- sim12_data[c("n","Distance","0.95")]
+sim12_data <- sim12_data[c("n","Distance",toString(p))]
 
 # Sort the unique n
 n <- sort(unique(sim12_data$n))
@@ -936,17 +927,16 @@ d <- sort(unique(sim12_data$Distance))
 reduced_d <- c(0,20,40)
 
 # Relevant parameters
-alpha <- 0.95
 p <- 0.95
 nReals <- 2500
 
 # Binomial confidence line
-bin_conf <- qnorm(alpha)*sqrt(p*(1-p)/nReals)
+bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
 
 # Lines for band
-midline <- data.frame( x = n, y = rep(0.95,length(n)))
-uppline <- data.frame( x = n, y = rep(0.95+bin_conf,length(n)))
-lowline <- data.frame( x = n, y = rep(0.95-bin_conf,length(n)))
+midline <- data.frame( x = n, y = rep(p,length(n)))
+uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
 
 # -------------------------------------------------------
 # Reformat data
@@ -961,7 +951,7 @@ tmp <- tmp[order(tmp$n),]
 xmin <- 0
 xmax <- 500
 
-ymin <- 0.9
+ymin <- 1-2*(1-p)
 ymax <- 1
   
 # Loop through and add the remaining n
@@ -983,8 +973,8 @@ tmp$Distance <- as.factor(tmp$Distance)
 
 # Save line parameters 
 tmp$truep <- 0.95
-tmp$lowp <- 0.95-bin_conf
-tmp$uppp <- 0.95+bin_conf
+tmp$lowp <- p-bin_conf
+tmp$uppp <- p+bin_conf
 
 # -------------------------------------------------------
 # Make plot
@@ -992,7 +982,7 @@ tmp$uppp <- 0.95+bin_conf
 
 # Create plot
 sim12_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Distance`, color=`Distance`)) + 
-  geom_ribbon(aes(ymin=0.95-bin_conf, ymax=0.95+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+  geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
   xlim(40,500) + ylim(0.9,1) + 
   scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
   geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +

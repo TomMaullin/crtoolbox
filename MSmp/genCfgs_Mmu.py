@@ -220,7 +220,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==2:
     
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
         
         # Id for config file
         cfgId = 1
@@ -253,7 +253,7 @@ def generateCfgs(OutDir, simNo):
                 mus['mu'+str(i+1)]['r'] = 40
 
                 # Mu magnitude
-                mus['mu'+str(i+1)]['mag'] = 1/4
+                mus['mu'+str(i+1)]['mag'] = 3/4
 
                 # Get some evenly spaced center points
                 centers = circle_points(np.array([spacing_r]),np.array([m]))
@@ -456,7 +456,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==4:
 
         # Add threshold c
-        inputs['c'] = 1/6
+        inputs['c'] = 1/2
 
         # Add m
         inputs['m'] = 3
@@ -483,7 +483,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu1']['r'] = 30
 
         # Add mu1 magnitude
-        mus['mu1']['mag'] = 1/4
+        mus['mu1']['mag'] = 3/4
 
         # Add mu1 center 
         mus['mu1']['center'] = 'np.array([-20,0])'
@@ -501,7 +501,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu2']['r'] = 30
 
         # Add mu2 magnitude
-        mus['mu2']['mag'] = 1/4
+        mus['mu2']['mag'] = 3/4
 
         # Add mu2 center 
         mus['mu2']['center'] = 'np.array([20,0])'
@@ -519,7 +519,7 @@ def generateCfgs(OutDir, simNo):
         mus['mu3']['r'] = 10
 
         # Add mu3 magnitude
-        mus['mu3']['mag'] = 1/4
+        mus['mu3']['mag'] = 3/4
 
         # Add mu3 center 
         mus['mu3']['center'] = 'np.array([0,-20])'
