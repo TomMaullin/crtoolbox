@@ -326,7 +326,7 @@ def joinAndPlot(OutDir, simNo):
     # for settings involving higher order boundaries
     #
     # ==========================================================================
-    if simNo in [3]:
+    if simNo in [3,4]:
 
         # Variable to check if this is the first file weve looked at
         first = True

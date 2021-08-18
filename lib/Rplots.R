@@ -3,7 +3,7 @@ library("ggplot2")
 require(gridExtra)
 
 # Simulations we're looking at
-simNumbers = '21-22'
+simNumbers = '19-20'
 
 # Relevant parameters
 p <- 0.95
@@ -1760,6 +1760,366 @@ if (simNumbers=='17-18'){
   png(filename = '/home/tommaullin/Documents/ConfRes/FinalSims/sim9and10.png', width = 1800, height = 1000,
       units = "px", pointsize = 12, bg = "white", res = 120)
   grid.arrange(sim18_n_vs_cov, sim18_corr_vs_cov, sim17_n_vs_cov, sim17_corr_vs_cov, ncol=2, nrow=2)
+  dev.off()
+
+}
+
+if (simNumbers=='19-20'){
+  # ====================================================================================================
+  # Simulation 19: Varying Signal Gradient, Ramp signal (High SNR)
+  # ====================================================================================================
+  # Plot: Gradient vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim19_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim19/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim19_data) <- c('cfgId','n', 'Gradient','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim19_data <- sim19_data[c("n","Gradient",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim19_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Gradients
+  grad <- sort(unique(sim19_data$Gradient))
+  reduced_grad <- c(2,4,6)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = grad, y = rep(p,length(grad)))
+  uppline <- data.frame( x = grad, y = rep(p+bin_conf,length(grad)))
+  lowline <- data.frame( x = grad, y = rep(p-bin_conf,length(grad)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Gradients due to casting issues
+  sim19_data['Gradient'] <- round(sim19_data['Gradient'],digits=3)
+
+  # Reduce to just for some n
+  tmp <- sim19_data[(sim19_data$n==reduced_n[1]),]
+
+  # sort by Gradient
+  tmp <- tmp[order(tmp$Gradient),]
+
+  xmin <- 0
+  xmax <- 50
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (n in reduced_n[2:length(reduced_n)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim19_data[(sim19_data$n==n),]
+    
+    # sort by Gradient
+    tmp2 <- tmp2[order(tmp2$Gradient),]
+    
+    # sort by Gradient
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$n <- as.factor(tmp$n)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim19_grad_vs_cov <- ggplot(tmp, aes(x=`Gradient`,y=`0.95`, group=`n`, color=`n`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(2,6) + ylim(0.9,1) + 
+    scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+    geom_line(aes(x=`Gradient`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`Gradient`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`Gradient`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 12: Varying Signal Gradient, Ramp Signal (High SNR)', subtitle = 'Gradient vs Observed Coverage', x = 'Gradient (per 50 voxels)', y = 'Observed Coverage')
+
+
+  # ====================================================================================================
+  # Simulation 19: Varying Signal Gradient, Ramp signal (High SNR)
+  # ====================================================================================================
+  # Plot: Number of observations vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim19_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim19/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim19_data) <- c('cfgId','n', 'Gradient','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim19_data <- sim19_data[c("n","Gradient",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim19_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Gradients
+  grad <- sort(unique(sim19_data$Gradient))
+  reduced_grad <- c(2,4,6)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Gradients due to casting issues
+  sim19_data['Gradient'] <- round(sim19_data['Gradient'],digits=3)
+
+  # Reduce to just for some n
+  tmp <- sim19_data[(sim19_data$Gradient==reduced_grad[1]),]
+
+  # sort by Gradient
+  tmp <- tmp[order(tmp$n),]
+
+  xmin <- 0
+  xmax <- 500
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (grad in reduced_grad[2:length(reduced_grad)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim19_data[(sim19_data$Gradient==grad),]
+    
+    # sort by Gradient
+    tmp2 <- tmp2[order(tmp2$n),]
+    
+    # sort by Gradient
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$Gradient <- as.factor(tmp$Gradient)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim19_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Gradient`, color=`Gradient`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(40,500) + ylim(0.9,1) + 
+    scale_color_manual(values = c('2' = 'salmon','4' = 'darkorchid','6' = 'slategray'), name = 'Gradient') +
+    geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`n`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`n`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 12: Varying Signal Gradient, Ramp Signal (High SNR)', subtitle = 'Number of Observations vs Observed Coverage', x = 'Number of Observations', y = 'Observed Coverage')
+
+  # ====================================================================================================
+  # Simulation 20: Varying Signal Gradient, Ramp signal (Low SNR)
+  # ====================================================================================================
+  # Plot: Gradient vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim20_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim20/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim20_data) <- c('cfgId','n', 'Gradient','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim20_data <- sim20_data[c("n","Gradient",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim20_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Gradients
+  grad <- sort(unique(sim20_data$Gradient))
+  reduced_grad <- c(2,4,6)/4
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = grad, y = rep(p,length(grad)))
+  uppline <- data.frame( x = grad, y = rep(p+bin_conf,length(grad)))
+  lowline <- data.frame( x = grad, y = rep(p-bin_conf,length(grad)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Gradients due to casting issues
+  sim20_data['Gradient'] <- round(sim20_data['Gradient'],digits=3)
+
+  # Reduce to just for some n
+  tmp <- sim20_data[(sim20_data$n==reduced_n[1]),]
+
+  # sort by Gradient
+  tmp <- tmp[order(tmp$Gradient),]
+
+  xmin <- 0
+  xmax <- 50
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (n in reduced_n[2:length(reduced_n)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim20_data[(sim20_data$n==n),]
+    
+    # sort by Gradient
+    tmp2 <- tmp2[order(tmp2$Gradient),]
+    
+    # sort by Gradient
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$n <- as.factor(tmp$n)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim20_grad_vs_cov <- ggplot(tmp, aes(x=`Gradient`,y=`0.95`, group=`n`, color=`n`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(0.5,1.5) + ylim(0.9,1) + 
+    scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+    geom_line(aes(x=`Gradient`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`Gradient`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`Gradient`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 11: Varying Signal Gradient, Ramp Signal (Low SNR)', subtitle = 'Gradient vs Observed Coverage', x = 'Gradient (per 50 voxels)', y = 'Observed Coverage')
+
+
+  # ====================================================================================================
+  # Simulation 20: Varying Signal Gradient, Ramp signal (Low SNR)
+  # ====================================================================================================
+  # Plot: Number of observations vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim20_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim20/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim20_data) <- c('cfgId','n', 'Gradient','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim20_data <- sim20_data[c("n","Gradient",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim20_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Gradients
+  grad <- sort(unique(sim20_data$Gradient))
+  reduced_grad <- c(2,4,6)/4
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Gradients due to casting issues
+  sim20_data['Gradient'] <- round(sim20_data['Gradient'],digits=3)
+
+  # Reduce to just for some n
+  tmp <- sim20_data[(sim20_data$Gradient==reduced_grad[1]),]
+
+  # sort by Gradient
+  tmp <- tmp[order(tmp$n),]
+
+  xmin <- 0
+  xmax <- 500
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (grad in reduced_grad[2:length(reduced_grad)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim20_data[(sim20_data$Gradient==grad),]
+    
+    # sort by Gradient
+    tmp2 <- tmp2[order(tmp2$n),]
+    
+    # sort by Gradient
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$Gradient <- as.factor(tmp$Gradient)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim20_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`Gradient`, color=`Gradient`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(40,500) + ylim(0.9,1) + 
+    scale_color_manual(values = c('0.5' = 'salmon','1' = 'darkorchid','1.5' = 'slategray'), name = 'Gradient') +
+    geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`n`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`n`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 11: Varying Signal Gradient, Ramp Signal (Low SNR)', subtitle = 'Number of Observations vs Observed Coverage', x = 'Number of Observations', y = 'Observed Coverage')
+
+
+
+  # ====================================================================================================
+  # Combine Sim 19 and 20 plots
+  # ====================================================================================================
+  
+  png(filename = '/home/tommaullin/Documents/ConfRes/FinalSims/sim11and12.png', width = 1800, height = 1000,
+      units = "px", pointsize = 12, bg = "white", res = 120)
+  grid.arrange(sim20_n_vs_cov, sim20_grad_vs_cov, sim19_n_vs_cov, sim19_grad_vs_cov, ncol=2, nrow=2)
   dev.off()
 
 }
