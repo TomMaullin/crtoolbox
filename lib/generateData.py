@@ -166,9 +166,6 @@ def get_mu(muSpec, dim):
         # Recrop to original dimensions again
         mu = mu[...,r:adjdim[-2]-r,r:adjdim[-1]-r]
 
-
-    print('marker ', mu.shape)
-
     # -----------------------------------------------------------------------
     # Give mu the correct dimensions to be broadcasted with the data we are
     # creating

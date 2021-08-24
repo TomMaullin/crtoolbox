@@ -3,7 +3,7 @@ library("ggplot2")
 require(gridExtra)
 
 # Simulations we're looking at
-simNumbers = '19-20'
+simNumbers = 'M1-M2'
 
 # Relevant parameters
 p <- 0.95
@@ -2480,6 +2480,473 @@ if (simNumbers=='21-22'){
   png(filename = '/home/tommaullin/Documents/ConfRes/FinalSims/sim13and14.png', width = 1800, height = 1000,
       units = "px", pointsize = 12, bg = "white", res = 120)
   grid.arrange(sim22_n_vs_cov, sim22_corr_vs_cov, sim21_n_vs_cov, sim21_corr_vs_cov, ncol=2, nrow=2)
+  dev.off()
+
+}
+
+if (simNumbers=='M1-M2'){
+  # ====================================================================================================
+  # Simulation 1: Varying Number of Study Conditions (High SNR)
+  # ====================================================================================================
+  # Plot: Number of Study Conditions vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim1_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim1/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim1_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim1_data <- sim1_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim1_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Ms
+  M <- sort(unique(sim1_data$M))
+  reduced_M <- c(2,3,4,5)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = M, y = rep(p,length(M)))
+  uppline <- data.frame( x = M, y = rep(p+bin_conf,length(M)))
+  lowline <- data.frame( x = M, y = rep(p-bin_conf,length(M)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Ms due to casting issues
+  sim1_data['M'] <- round(sim1_data['M'],digits=2)
+
+  # Reduce to just for some n
+  tmp <- sim1_data[(sim1_data$n==reduced_n[1]),]
+
+  # sort by M
+  tmp <- tmp[order(tmp$M),]
+
+  xmin <- 0
+  xmax <- 50
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (n in reduced_n[2:length(reduced_n)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim1_data[(sim1_data$n==n),]
+    
+    # sort by M
+    tmp2 <- tmp2[order(tmp2$M),]
+    
+    # sort by M
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$n <- as.factor(tmp$n)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim1_m_vs_cov <- ggplot(tmp, aes(x=`M`,y=`0.95`, group=`n`, color=`n`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(2,5) + ylim(0.9,1) + 
+    scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+    geom_line(aes(x=`M`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`M`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`M`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 16: Varying Number of Study Conditions (High SNR)', subtitle = 'Number of Study Conditions vs Observed Coverage', x = 'Number of Study Conditions (M)', y = 'Observed Coverage')
+
+
+  # ====================================================================================================
+  # Simulation 1: Varying Number of Study Conditions (High SNR)
+  # ====================================================================================================
+  # Plot: Number of observations vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim1_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim1/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim1_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim1_data <- sim1_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim1_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Ms
+  M <- sort(unique(sim1_data$M))
+  reduced_M <- c(2,3,4,5)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Ms due to casting issues
+  sim1_data['M'] <- round(sim1_data['M'],digits=2)
+
+  # Reduce to just for some n
+  tmp <- sim1_data[(sim1_data$M==reduced_M[1]),]
+
+  # sort by M
+  tmp <- tmp[order(tmp$n),]
+
+  xmin <- 0
+  xmax <- 500
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (M in reduced_M[2:length(reduced_M)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim1_data[(sim1_data$M==M),]
+    
+    # sort by M
+    tmp2 <- tmp2[order(tmp2$n),]
+    
+    # sort by M
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$M <- as.factor(tmp$M)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim1_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`M`, color=`M`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(40,500) + ylim(0.9,1) + 
+    scale_color_manual(values = c('2' = 'indianred1', '3' = 'orange', '4' = 'darkorchid', '5' = 'slategray'), name = 'M') +
+    geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`n`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`n`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 16: Varying Number of Study Conditions (High SNR)', subtitle = 'Number of Observations vs Observed Coverage', x = 'Number of Observations', y = 'Observed Coverage')
+
+  # ====================================================================================================
+  # Simulation 2: Varying Number of Study Conditions (Low SNR)
+  # ====================================================================================================
+  # Plot: Number of Study Conditions vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim2_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim2/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim2_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim2_data <- sim2_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim2_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Ms
+  M <- sort(unique(sim2_data$M))
+  reduced_M <- c(2,3,4,5)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = M, y = rep(p,length(M)))
+  uppline <- data.frame( x = M, y = rep(p+bin_conf,length(M)))
+  lowline <- data.frame( x = M, y = rep(p-bin_conf,length(M)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Ms due to casting issues
+  sim2_data['M'] <- round(sim2_data['M'],digits=2)
+
+  # Reduce to just for some n
+  tmp <- sim2_data[(sim2_data$n==reduced_n[1]),]
+
+  # sort by M
+  tmp <- tmp[order(tmp$M),]
+
+  xmin <- 0
+  xmax <- 50
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (n in reduced_n[2:length(reduced_n)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim2_data[(sim2_data$n==n),]
+    
+    # sort by M
+    tmp2 <- tmp2[order(tmp2$M),]
+    
+    # sort by M
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$n <- as.factor(tmp$n)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim2_m_vs_cov <- ggplot(tmp, aes(x=`M`,y=`0.95`, group=`n`, color=`n`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(2,5) + ylim(0.9,1) + 
+    scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+    geom_line(aes(x=`M`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`M`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`M`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 15: Varying Number of Study Conditions (Low SNR)', subtitle = 'Number of Study Conditions vs Observed Coverage', x = 'Number of Study Conditions (M)', y = 'Observed Coverage')
+
+
+  # ====================================================================================================
+  # Simulation 2: Varying Number of Study Conditions (Low SNR)
+  # ====================================================================================================
+  # Plot: Number of observations vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim2_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim2/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim2_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim2_data <- sim2_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim2_data$n))
+  reduced_n <-c(100,300,500)
+
+  # Sort the unique Ms
+  M <- sort(unique(sim2_data$M))
+  reduced_M <- c(2,3,4,5)
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Need to round the Ms due to casting issues
+  sim2_data['M'] <- round(sim2_data['M'],digits=2)
+
+  # Reduce to just for some n
+  tmp <- sim2_data[(sim2_data$M==reduced_M[1]),]
+
+  # sort by M
+  tmp <- tmp[order(tmp$n),]
+
+  xmin <- 0
+  xmax <- 500
+
+  ymin <- 1-2*(1-p)
+  ymax <- 1
+    
+  # Loop through and add the remaining n
+  for (M in reduced_M[2:length(reduced_M)]){
+    
+    # Reduce to just for some n
+    tmp2 <- sim2_data[(sim2_data$M==M),]
+    
+    # sort by M
+    tmp2 <- tmp2[order(tmp2$n),]
+    
+    # sort by M
+    tmp <- rbind(tmp,tmp2)
+    
+  }
+
+  # Save n
+  tmp$M <- as.factor(tmp$M)
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim2_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`0.95`, group=`M`, color=`M`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(40,500) + ylim(0.9,1) + 
+    scale_color_manual(values = c('2' = 'indianred1', '3' = 'orange', '4' = 'darkorchid', '5' = 'slategray'), name = 'M') +
+    geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`n`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`n`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulation 15: Varying Number of Study Conditions (Low SNR)', subtitle = 'Number of Observations vs Observed Coverage', x = 'Number of Observations', y = 'Observed Coverage')
+
+
+
+  # ====================================================================================================
+  # Combine Sim M1 and M2 plots
+  # ====================================================================================================
+  
+  png(filename = '/home/tommaullin/Documents/ConfRes/FinalSims/sim15and16.png', width = 1800, height = 1000,
+      units = "px", pointsize = 12, bg = "white", res = 120)
+  grid.arrange(sim2_n_vs_cov, sim2_m_vs_cov, sim1_n_vs_cov, sim1_m_vs_cov, ncol=2, nrow=2)
+  dev.off()
+
+}
+
+if (simNumbers=='M3-M4'){
+
+  # ====================================================================================================
+  # Simulation 3/4: Nested Squares (High SNR)
+  # ====================================================================================================
+  # Plot: Number of observations vs coverage
+  # ----------------------------------------------------------------------------------------------------
+
+  # Read in data
+  sim3_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim3/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim3_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim3_data <- sim3_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim3_data$n))
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Save copy
+  tmp <- sim3_data
+
+  # Save line parameters 
+  tmp$truep <- p
+  tmp$lowp <- p-bin_conf
+  tmp$uppp <- p+bin_conf
+  tmp$Sim <- 'High SNR'
+
+  # Read in data
+  sim4_data <- read.csv(file = '/home/tommaullin/Documents/ConfRes/FinalSims/Msmp/Sim4/FullResults/estBdry_intrp.csv',sep=',', header=FALSE)
+
+  # Name data
+  names(sim4_data) <- c('cfgId','n', 'M','0.00','0.05','0.10','0.15','0.20','0.25','0.30','0.35','0.40','0.45','0.50','0.55','0.60','0.65','0.70','0.75','0.80','0.85','0.90','0.95','1.00')
+
+  # Reduce data
+  sim4_data <- sim4_data[c("n","M",toString(p))]
+
+  # Sort the unique n
+  n <- sort(unique(sim4_data$n))
+
+  # Binomial confidence line
+  bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+
+  # Lines for band
+  midline <- data.frame( x = n, y = rep(p,length(n)))
+  uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+  lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+
+  # -------------------------------------------------------
+  # Reformat data
+  # -------------------------------------------------------
+
+  # Save copy
+  tmp2 <- sim4_data
+
+  # Save line parameters 
+  tmp2$truep <- p
+  tmp2$lowp <- p-bin_conf
+  tmp2$uppp <- p+bin_conf
+  tmp2$Sim <- 'Low SNR'
+
+  # Combine data for each simulation
+  finaldata <- rbind(tmp,tmp2)
+
+  # Change to factor
+  finaldata$Sim <- as.factor(finaldata$Sim)
+
+  # -------------------------------------------------------
+  # Make plot
+  # -------------------------------------------------------
+
+  # Create plot
+  sim34_n_vs_cov <- ggplot(finaldata, aes(x=`n`,y=`0.95`, group=`Sim`, color=`Sim`)) + 
+    geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+    xlim(40,500) + ylim(0.9,1) + 
+    scale_color_manual(values = c('Low SNR' = 'salmon','High SNR' = 'darkorchid'), name = 'Simulation') +
+    geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+    geom_line(aes(x=`n`,y=`lowp`),linetype="dashed",color="gray65",size=0.1) +
+    geom_line(aes(x=`n`,y=`uppp`),linetype="dashed",color="gray65",size=0.1) +
+    labs(title = 'Simulations 17 and 18: Nested Squares', subtitle = 'Number of Observations vs Observed Coverage', x = 'Number of Observations', y = 'Observed Coverage')
+
+
+
+  # ====================================================================================================
+  # Combine Sim 3 and 4 plots
+  # ====================================================================================================
+  
+  png(filename = '/home/tommaullin/Documents/ConfRes/FinalSims/sim17and18.png', width = 900, height = 500,
+      units = "px", pointsize = 12, bg = "white", res = 120)
+  grid.arrange(sim34_n_vs_cov, ncol=1, nrow=1)
   dev.off()
 
 }
