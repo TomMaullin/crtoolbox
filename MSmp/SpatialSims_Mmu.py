@@ -171,7 +171,7 @@ def SpatialSims_Mmu(ipath):
     estBdry_success_intrp = np.zeros((nReals,nPvals))
 
     # Initialize for saving times
-    times = np.zeros((nReals,nPvals))
+    times = np.zeros((nReals,1))
 
     # Loop through realizations
     for r in np.arange(nReals):
