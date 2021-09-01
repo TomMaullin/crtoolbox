@@ -2129,7 +2129,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==19:
 
         # These are our ramp gradients
-        grads = 4*np.arange(0.5,1.6,0.1)
+        grads = 4*np.arange(0,3.6,0.1)
 
         # Add threshold c
         inputs['c'] = 2
@@ -2155,7 +2155,7 @@ def generateCfgs(OutDir, simNo):
 
 
         # We will generate figures for these settings
-        fg_grads = 4*np.array([0.5,1,1.5])
+        fg_grads = 4*np.array([0,1,2,3])
 
         # Id for config file
         cfgId = 1
@@ -2242,7 +2242,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==20:
 
         # These are our ramp gradients
-        grads = np.arange(0.5,1.6,0.1)
+        grads = np.arange(-0.5,3.6,0.1)
 
         # Add threshold c
         inputs['c'] = 1/2
@@ -2268,7 +2268,7 @@ def generateCfgs(OutDir, simNo):
 
 
         # We will generate figures for these settings
-        fg_grads = np.array([0.5,1,1.5])
+        fg_grads = np.array([0,1,2,3])
 
         # Id for config file
         cfgId = 1
