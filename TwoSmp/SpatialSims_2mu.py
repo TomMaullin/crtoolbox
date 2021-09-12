@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 from lib.generateData import *
 from lib.boundary import *
@@ -152,6 +153,9 @@ def SpatialSims_2mu(ipath):
     # condition violations.
     trueBdry_success_intrp = np.zeros((nReals,nPvals))
     estBdry_success_intrp = np.zeros((nReals,nPvals))
+
+    # Initialize for saving times
+    times = np.zeros((nReals,1))
 
     # Loop through realizations
     for r in np.arange(nReals):
@@ -985,6 +989,13 @@ def SpatialSims_2mu(ipath):
         # has axes corresponding to [pvalue, plus/minus, field dimensions]
         FcHat_pm_estBdry = stat >= a_estBdry
 
+
+        # End timer (we have the confidence sets now)
+        t2 = time.time()
+
+        # Save time 
+        times[r,:] = t2-t1
+        
         # -------------------------------------------------------------------
         # Images
         # -------------------------------------------------------------------
@@ -1275,6 +1286,7 @@ def SpatialSims_2mu(ipath):
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
     append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'times.csv'), times) # Times for bootstrap
 
     # Save the computation times
     t2overall = time.time()

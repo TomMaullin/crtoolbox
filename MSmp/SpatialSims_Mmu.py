@@ -178,9 +178,6 @@ def SpatialSims_Mmu(ipath):
 
         print('Realization: ', r)
 
-        # Start timer
-        t1 = time.time()
-
         # Make a structure to hold the true and estimated boundary locations
         true_bdry_locs = {}
         est_bdry_locs = {}
