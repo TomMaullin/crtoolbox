@@ -175,7 +175,7 @@ def joinAndPlot(OutDir, simNo):
                 # ------------------------------------------------------------------
                 # Get computation times
                 # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
 
                 # If this is the first cfg we've looked at, intialize the results tables
                 if first:
@@ -211,7 +211,7 @@ def joinAndPlot(OutDir, simNo):
             os.mkdir(fResDir)
 
         # # Save times table
-        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
@@ -469,7 +469,7 @@ def joinAndPlot(OutDir, simNo):
                 # ------------------------------------------------------------------
                 # Get computation times
                 # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
 
                 # If this is the first cfg we've looked at, intialize the results tables
                 if first:
@@ -505,7 +505,7 @@ def joinAndPlot(OutDir, simNo):
             os.mkdir(fResDir)
 
         # # Save times table
-        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
@@ -761,7 +761,7 @@ def joinAndPlot(OutDir, simNo):
                 # ------------------------------------------------------------------
                 # Get computation times
                 # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
 
                 # If this is the first cfg we've looked at, intialize the results tables
                 if first:
@@ -797,7 +797,7 @@ def joinAndPlot(OutDir, simNo):
             os.mkdir(fResDir)
 
         # # Save times table
-        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
@@ -1057,7 +1057,7 @@ def joinAndPlot(OutDir, simNo):
                 # ------------------------------------------------------------------
                 # Get computation times
                 # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
 
                 # If this is the first cfg we've looked at, intialize the results tables
                 if first:
@@ -1093,7 +1093,7 @@ def joinAndPlot(OutDir, simNo):
             os.mkdir(fResDir)
 
         # # Save times table
-        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
@@ -1351,7 +1351,7 @@ def joinAndPlot(OutDir, simNo):
                 # ------------------------------------------------------------------
                 # Get computation times
                 # ------------------------------------------------------------------
-                tableLine_time = pd.read_csv(os.path.join(resDir,'computationTime.csv'), header=None, index_col=None)
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
 
                 # If this is the first cfg we've looked at, intialize the results tables
                 if first:
@@ -1386,8 +1386,8 @@ def joinAndPlot(OutDir, simNo):
         if not os.path.exists(fResDir):
             os.mkdir(fResDir)
 
-        # # Save times table
-        # append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+        # Save times table
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
 
         # Save estimated boundary results table
         append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
