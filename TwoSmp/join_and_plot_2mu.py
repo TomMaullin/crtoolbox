@@ -181,12 +181,12 @@ def joinAndPlot(OutDir, simNo):
                 if first:
 
                     # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                    table_time = pd.DataFrame(tableLine_time).mean()
 
                 else:
 
                     # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
 
                 # ------------------------------------------------------------------
                 # Delete files
@@ -475,12 +475,12 @@ def joinAndPlot(OutDir, simNo):
                 if first:
 
                     # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                    table_time = pd.DataFrame(tableLine_time).mean()
 
                 else:
 
                     # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
 
                 # ------------------------------------------------------------------
                 # Delete files
@@ -767,12 +767,12 @@ def joinAndPlot(OutDir, simNo):
                 if first:
 
                     # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                    table_time = pd.DataFrame(tableLine_time).mean()
 
                 else:
 
                     # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
 
                 # ------------------------------------------------------------------
                 # Delete files
@@ -1063,12 +1063,12 @@ def joinAndPlot(OutDir, simNo):
                 if first:
 
                     # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                    table_time = pd.DataFrame(tableLine_time).mean()
 
                 else:
 
                     # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
 
                 # ------------------------------------------------------------------
                 # Delete files
@@ -1357,12 +1357,12 @@ def joinAndPlot(OutDir, simNo):
                 if first:
 
                     # Initialize time table
-                    table_time = pd.DataFrame(tableLine_time)
+                    table_time = pd.DataFrame(tableLine_time).mean()
 
                 else:
 
                     # Append to existing time table
-                    table_time = table_time.append(pd.DataFrame(tableLine_time))
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
 
                 # ------------------------------------------------------------------
                 # Delete files
