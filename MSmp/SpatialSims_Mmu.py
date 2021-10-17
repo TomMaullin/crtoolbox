@@ -1119,8 +1119,6 @@ def SpatialSims_Mmu(ipath):
     # Coverage probabilities
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
-    
-    print('coverage_estBdry_intrp: ', coverage_estBdry_intrp)
 
     # Make results folder
     if not os.path.exists(os.path.join(simDir, 'RawResults')):
