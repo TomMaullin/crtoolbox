@@ -914,6 +914,9 @@ def SpatialSims_Mmu(ipath):
                     # Update the minimum value we've seen
                     min_supg_dFcHat['max'][b] = np.maximum(min_supg_dFcHat['max'][b],min_supg_dFcHat[np.array2string(alpha)][b])
 
+        # End timer (we have the confidence sets now)
+        t2 = time.time()
+
         # -------------------------------------------------------------------
         # Obtaining a from percentiles of the max distribution
         # -------------------------------------------------------------------
@@ -961,9 +964,6 @@ def SpatialSims_Mmu(ipath):
         # Obtain FcHat^+ and FcHat^- based on a from the estimated boundary. This variable
         # has axes corresponding to [pvalue, plus/minus, field dimensions]
         FcHat_pm_estBdry = stat >= a_estBdry
-
-        # End timer (we have the confidence sets now)
-        t2 = time.time()
 
         # Save time 
         times[r,:] = t2-t1
@@ -1119,6 +1119,8 @@ def SpatialSims_Mmu(ipath):
     # Coverage probabilities
     coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
     coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
+    
+    print('coverage_estBdry_intrp: ', coverage_estBdry_intrp)
 
     # Make results folder
     if not os.path.exists(os.path.join(simDir, 'RawResults')):

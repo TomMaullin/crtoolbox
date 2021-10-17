@@ -80,10 +80,10 @@ def generateCfgs(OutDir, simNo):
     inputs['tau'] = '1/np.sqrt(nSub)'
 
     # Add number of realizations
-    inputs['nReals'] = 2500
+    inputs['nReals'] = 25
 
     # Add number of bootstraps
-    inputs['nBoot'] = 5000
+    inputs['nBoot'] = 50
 
     # Number of fields, m
     ms = np.arange(2,6)
