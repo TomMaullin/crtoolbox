@@ -374,7 +374,7 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
                 # Increment j
                 j = j + 1
               
-        if phis:
+        if j > 0:
 
             # Create the D_nz dimensional grid
             grids = np.meshgrid(*phis);
