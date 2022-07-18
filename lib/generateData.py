@@ -373,23 +373,25 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
 
                 # Increment j
                 j = j + 1
-                
-        # Create the D_nz dimensional grid
-        grids = np.meshgrid(*phis);
+              
+        if phis:
 
-        # Initialize empty product grid
-        product_grid = np.ones(grids[0].shape)
+            # Create the D_nz dimensional grid
+            grids = np.meshgrid(*phis);
 
-        # Loop through axes and take products
-        for j in np.arange(D_nz):
+            # Initialize empty product grid
+            product_grid = np.ones(grids[0].shape)
 
-            product_grid = grids[j]*product_grid
+            # Loop through axes and take products
+            for j in np.arange(D_nz):
 
-        # Get the normalizing constant by summing over grid
-        ss = np.sum(product_grid**2)
+                product_grid = grids[j]*product_grid
 
-        # Rescale noise
-        data = data/np.sqrt(ss)
+            # Get the normalizing constant by summing over grid
+            ss = np.sum(product_grid**2)
+
+            # Rescale noise
+            data = data/np.sqrt(ss)
 
     elif scaling=='max':
 
