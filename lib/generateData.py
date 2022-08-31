@@ -344,7 +344,7 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         sigma2 = sigma*sigma
 
         # Calculate kernel radii
-        radii = np.int16(trunc*sigma + 0.5)
+        radii = np.array(2*np.round_(trunc*sigma) + 1,dtype=int)
 
         # Initialize array for phi values (has to be object as dimensions can 
         # vary in length)
