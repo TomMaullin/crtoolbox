@@ -233,7 +233,7 @@ def get_noise(noiseSpec, dim):
     sigma = fwhm / np.sqrt(8 * np.log(2))
 
     # Calculate kernel radii
-    radii = 2*np.round(trunc*sigma) + 1
+    radii = 2*np.round_(trunc*sigma) + 1
 
     # Work out padded dimensions
     pdim = dim + 2*(radii+1)
