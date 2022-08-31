@@ -236,7 +236,7 @@ def get_noise(noiseSpec, dim):
     radii = 2*np.round_(trunc*sigma) + 1
 
     # Work out padded dimensions
-    pdim = dim + 2*(radii+1)
+    pdim = np.array(dim + 2*(radii+1),dtype=int)
 
     # Generate unsmoothed random normal data for noise
     noise = np.random.randn(*pdim)
