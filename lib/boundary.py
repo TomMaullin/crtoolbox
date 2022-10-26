@@ -6,13 +6,29 @@ import matplotlib.colors as mcolors
 from generateData import *
 from fileio import *
 
-
-# TODO:
-# - cleanup
-
-# field - field to thresh
-# c - thresh
-# d - dimension along which we get bdry
+# ============================================================================
+# 
+# The below function takes in a field image, a threshold c, and a dimension,
+#
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  image, a threshold c, and a dimension,
+#  - mask
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - four images
+#
+# ============================================================================
 def get_bdry_map(field, c, d, mask=None): 
 
     # Get field dimensions
@@ -105,20 +121,32 @@ def get_bdry_map(field, c, d, mask=None):
     # Outer top bdry - add back on a bottom row
     top_bdry_outer = np.concatenate((top_bdry,np.zeros(pdim)),axis=d)
 
-    # plt.figure(0)
-    # plt.imshow(1*mask+2*top_bdry_inner+3*top_bdry_outer+4*bottom_bdry_inner+5*bottom_bdry_outer)
-    # plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp.png')
-    # plt.figure(1)
-    # plt.imshow(1*mask)
-    # plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp2.png')
-    # plt.figure(2)
-    # plt.imshow(2*top_bdry_inner+3*top_bdry_outer+4*bottom_bdry_inner+5*bottom_bdry_outer)
-    # plt.savefig('/well/nichols/users/inf852/ConfSets2/tmp3.png')
-
-
     return(bottom_bdry_inner, bottom_bdry_outer, top_bdry_inner, top_bdry_outer)
 
 
+# ============================================================================
+# 
+# The below function takes in a field image, a threshold c
+#
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  image, a threshold c, 
+#  - mask
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - dictionary [dimension][top/bottom][outer/inner]
+#
+# ============================================================================
 def get_bdry_maps(field, c, mask=None):
 
     # Shape of field
@@ -170,6 +198,29 @@ def get_bdry_maps(field, c, mask=None):
     return(bdry_maps)
 
 
+# ============================================================================
+# 
+# The below function takes in a field image, a threshold c
+#
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  image, a threshold c, 
+#  - mask
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - image of all the boundaries
+#
+# ============================================================================
 def get_bdry_map_combined(field, c, mask=None):
 
     # Shape of field
@@ -208,6 +259,28 @@ def get_bdry_map_combined(field, c, mask=None):
     # Return the boundary
     return(bdry_map>0)
 
+# ============================================================================
+# 
+# The below function takes in a field image, a threshold c
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  image, a threshold c, 
+#  - mask
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - locations of pixels 
+#
+# ============================================================================
 def get_bdry_locs(bdry_maps):
 
     # Make an empty dictionary to store boundaries
@@ -258,6 +331,28 @@ def get_bdry_locs(bdry_maps):
     return(bdry_locs)
 
 
+# ============================================================================
+# 
+# The below function takes in a field image, boundary locations
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  field image, boundary locations
+#  - boundary locations dictionary
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - values of the field at the pixels 
+#
+# ============================================================================
 def get_bdry_values(field, bdry_locs):
 
     # New dictionary to store boundary values
@@ -296,6 +391,28 @@ def get_bdry_values(field, bdry_locs):
     # Return boundary values
     return(bdry_vals)
 
+# ============================================================================
+# 
+# The below function takes in a field image, boundary locations
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  field image, boundary locations
+#  - boundary locations dictionary
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - weights for use in interpolation (c.f. Bowring)
+#
+# ============================================================================
 def get_bdry_weights(bdry_vals,c):
 
     # New dictionary to store weights for interpolation along boundary
@@ -346,6 +463,29 @@ def get_bdry_weights(bdry_vals,c):
 
 
 
+# ============================================================================
+# 
+# The below function takes in a bdry_vals, bdry_weights
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  -  field image, boundary locations
+#  - boundary locations dictionary
+#  - dictform
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - interpolated
+#
+# ============================================================================
 def get_bdry_vals_interpolated(bdry_vals,bdry_weights,dictform=False):
 
     # New dictionary to store weights for interpolation along boundary
@@ -513,19 +653,6 @@ def get_bdry_vals_interpolated_concat(bdry_vals_concat,bdry_weights_concat):
     return(bdry_interp_concat)
 
 
-def get_data_1field(muSpec,noiseSpec,dim):
-
-    # Obtain the noise fields
-    noise = get_noise(noiseSpec, dim)
-
-    # Obtain mu
-    mu = get_mu(muSpec, dim)
-    
-    # Create the data
-    data = mu + noise
-
-    # Return the data and mu
-    return(data,mu)
 
 
 
@@ -534,26 +661,6 @@ def get_data_1field(muSpec,noiseSpec,dim):
 
 
 
-
-
-
-
-
-
-
-
-
-
-# Even circle points function, taken from:
-# https://stackoverflow.com/questions/33510979/generator-of-evenly-spaced-points-in-a-circle-in-python
-def circle_points(r, n):
-    circles = []
-    for r, n in zip(r, n):
-        t = np.linspace(0, 2*np.pi, n, endpoint=False)
-        x = np.round(r * np.cos(t))
-        y = np.round(r * np.sin(t))
-        circles.append(np.c_[x, y])
-    return circles[0]
 
 
 
