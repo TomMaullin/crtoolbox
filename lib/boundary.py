@@ -8,8 +8,9 @@ from fileio import *
 
 # ============================================================================
 # 
-# The below function takes in a field image, a threshold c, and a dimension,
-#
+# Given a field, threshold and dimension, the below function derives pairs of
+# neighbouring pixels which lie inside and outside of the excursion set given
+# by {pixels in field: field at pixel > c}.
 #
 # ----------------------------------------------------------------------------
 #
@@ -17,8 +18,22 @@ from fileio import *
 #
 # ----------------------------------------------------------------------------
 #
-#  -  image, a threshold c, and a dimension,
-#  - mask
+#  - field: An image of a field  from which we wish to obtain an image of the
+#           boundary of the excursion set (for example, if we want the boundary 
+#           set {pixels : mean at pixel = c}, then `field' should be an image
+#           of the mean.
+#  - c: The value c with which to threshold the field (e.g. we are interested
+#       in the set {pixels : field at pixel = c}.
+#  - d: The dimension along which to derive boundary values (for example, in 
+#       2D if dimension = 0, this function will return horizontal pairs of
+#       neighbouring pixels which lie inside and outside the boundary
+#       respectively, whereas if dimension = 1, the returned pairs will be
+#       vertical). Note: d is zero indexed.
+#  - mask: A binary image showing pixels which should be ignored during
+#          computation, or ``masked out". For example, if we are interested in
+#          fMRI BOLD signal over the brain, the mask might be only the pixels
+#          which lie inside the brain, as our signal is meaningless for pixels
+#          outside this region.
 #
 # ----------------------------------------------------------------------------
 #
@@ -26,7 +41,42 @@ from fileio import *
 #
 # ----------------------------------------------------------------------------
 #
-#  - four images
+#  - Four binary images 1-0 images of;
+#    - bottom_bdry_inner: The pixels which lie inside the excursion set at the
+#                         `bottom' in dimension d (e.g. the points labelled `3'
+#                         in the below image).
+#    - bottom_bdry_outer: The pixels which lie outside the excursion set at the
+#                         `bottom' in dimension d (e.g. the points labelled `4'
+#                         in the below image).
+#    - top_bdry_inner: The pixels which lie inside the excursion set at the
+#                      `top' in dimension d (e.g. the points labelled `2' in 
+#                      the below image).
+#    - top_bdry_outer: The pixels which lie outside the excursion set at the
+#                      `top' in dimension d (e.g. the points labelled `1' in 
+#                      the below image).
+#      _______________________________________________________________
+#     |                                                               |    
+#     |               11111111111111111111111                         |   | 
+#     |            111222222222222222222222221                        |   |  
+#     |           1222                       21                       |   |
+#     |           2                           2111                    |   |
+#     |          1                             2221                   |   |
+#     |          2                                21                  |   |
+#     |         |                                  21                 |   |
+#     |         \                                   2|                |   |  d
+#     |          |               A_c                 |                |   |
+#     |          |3                                  |                |   |
+#     |           43                                 3                |   |
+#     |            43                               34                |   |
+#     |             43                             34                 |   |
+#     |              43                           34                  |   |
+#     |               433                      3334                   |   |
+#     |                443                    3444                    |  \|/
+#     |                  4333333333333333333334                       |   V
+#     |                   44444444444444444444                        |
+#     |_______________________________________________________________|   
+#      Fig A. An image of the boundary values returned along dimension d for
+#      an excursion set, A_c.
 #
 # ============================================================================
 def get_bdry_map(field, c, d, mask=None): 
@@ -123,11 +173,11 @@ def get_bdry_map(field, c, d, mask=None):
 
     return(bottom_bdry_inner, bottom_bdry_outer, top_bdry_inner, top_bdry_outer)
 
-
 # ============================================================================
 # 
-# The below function takes in a field image, a threshold c
-#
+# Given a field and a threshold, the below function returns all pairs of 
+# neighbouring pixels which lie inside and outside of the excursion set given
+# by {pixels in field: field at pixel > c}, respectively.
 #
 # ----------------------------------------------------------------------------
 #
@@ -135,8 +185,17 @@ def get_bdry_map(field, c, d, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  -  image, a threshold c, 
-#  - mask
+#  - field: An image of a field  from which we wish to obtain an image of the
+#           boundary of the excursion set (for example, if we want the boundary 
+#           set {pixels : mean at pixel = c}, then `field' should be an image
+#           of the mean.
+#  - c: The value c with which to threshold the field (e.g. we are interested
+#       in the set {pixels : field at pixel = c}.
+#  - mask: A binary image showing pixels which should be ignored during
+#          computation, or ``masked out". For example, if we are interested in
+#          fMRI BOLD signal over the brain, the mask might be only the pixels
+#          which lie inside the brain, as our signal is meaningless for pixels
+#          outside this region.
 #
 # ----------------------------------------------------------------------------
 #
@@ -144,7 +203,15 @@ def get_bdry_map(field, c, d, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  - dictionary [dimension][top/bottom][outer/inner]
+#  - A dictionary of boundary maps. For each dimension (e.g. if the image is 
+#    2D, for the first and second dimension) the dictionary contains another 
+#    dictionary consisting of voxel pairs. The format of the dictionary for
+#    each dimension is identical to the output of `get_bdry_map` (see above
+#    documentation). For example
+#       
+#        output[d]['bottom']['inner'] returns the pixels which lie inside the
+#        excursion set at the `bottom' in dimension d (c.f. Fig A. in the
+#        documentation of `get_bdry_maps')
 #
 # ============================================================================
 def get_bdry_maps(field, c, mask=None):
@@ -200,8 +267,10 @@ def get_bdry_maps(field, c, mask=None):
 
 # ============================================================================
 # 
-# The below function takes in a field image, a threshold c
-#
+# Given a field and a threshold, the below function returns a binary image of 
+# all pixels identified as neighbouring the boundary of the excursion set 
+# {pixels : field at pixel = c} (this function is useful for debugging and
+# visualising).
 #
 # ----------------------------------------------------------------------------
 #
@@ -209,8 +278,17 @@ def get_bdry_maps(field, c, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  -  image, a threshold c, 
-#  - mask
+#  - field: An image of a field  from which we wish to obtain an image of the
+#           boundary of the excursion set (for example, if we want the boundary 
+#           set {pixels : mean at pixel = c}, then `field' should be an image
+#           of the mean.
+#  - c: The value c with which to threshold the field (e.g. we are interested
+#       in the set {pixels : field at pixel = c}.
+#  - mask: A binary image showing pixels which should be ignored during
+#          computation, or ``masked out". For example, if we are interested in
+#          fMRI BOLD signal over the brain, the mask might be only the pixels
+#          which lie inside the brain, as our signal is meaningless for pixels
+#          outside this region.
 #
 # ----------------------------------------------------------------------------
 #
@@ -218,7 +296,8 @@ def get_bdry_maps(field, c, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  - image of all the boundaries
+#  - A binary 1-0 image of all pixels identified as neighbouring the boundary
+#    of the excursion set {pixels : field at pixel = c}
 #
 # ============================================================================
 def get_bdry_map_combined(field, c, mask=None):
@@ -261,7 +340,9 @@ def get_bdry_map_combined(field, c, mask=None):
 
 # ============================================================================
 # 
-# The below function takes in a field image, a threshold c
+# Given a field and a threshold, the below function returns the locations of
+# all pairs of neighbouring pixels which lie inside and outside of the
+# excursion set given by {pixels in field: field at pixel > c}, respectively.
 #
 # ----------------------------------------------------------------------------
 #
@@ -269,8 +350,17 @@ def get_bdry_map_combined(field, c, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  -  image, a threshold c, 
-#  - mask
+#  - bdry_maps: The dictionary of boundary maps returned by `get_bdry_maps`.
+#               For each dimension (e.g. if the image is 2D, for the first and
+#               second dimension) bdry_maps contains another dictionary
+#               consisting of voxel pairs. The format of the dictionary for
+#               each dimension is identical to the output of `get_bdry_map`
+#               (see above documentation). For example:
+#                   
+#               bdry_maps[d]['bottom']['inner'] gives a binary image of the
+#               pixels which lie inside the excursion set at the `bottom' in
+#               dimension d (c.f. Fig A. in the documentation of
+#               `get_bdry_maps')
 #
 # ----------------------------------------------------------------------------
 #
@@ -278,7 +368,15 @@ def get_bdry_map_combined(field, c, mask=None):
 #
 # ----------------------------------------------------------------------------
 #
-#  - locations of pixels 
+#  - A dictionary of voxel locations. For each dimension (e.g. if the image is 
+#    2D, for the first and second dimension) the dictionary contains another 
+#    dictionary consisting of locations (or indices) of voxels pairs. The
+#    format of the dictionary for each dimension is designed to mirror that of 
+#    the input. For example
+#       
+#        output[d]['bottom']['inner'] returns the locations of the pixels which
+#        lie inside the excursion set at the `bottom' in dimension d (c.f.
+#        Fig A. in the documentation of `get_bdry_maps')
 #
 # ============================================================================
 def get_bdry_locs(bdry_maps):
@@ -333,7 +431,8 @@ def get_bdry_locs(bdry_maps):
 
 # ============================================================================
 # 
-# The below function takes in a field image, boundary locations
+# Given a field and a dictionary of boundary locations, the below function 
+# returns values of that field at the given boundary locations.
 #
 # ----------------------------------------------------------------------------
 #
@@ -341,8 +440,19 @@ def get_bdry_locs(bdry_maps):
 #
 # ----------------------------------------------------------------------------
 #
-#  -  field image, boundary locations
-#  - boundary locations dictionary
+#  - field: An image of a field  from which we wish to obtain an image of the
+#           boundary of the excursion set (for example, if we want the boundary 
+#           set {pixels : mean at pixel = c}, then `field' should be an image
+#           of the mean.
+#  - bdry_locs: A dictionary of voxel locations output by `get_bdry_locs`.
+#               For each dimension (e.g. if the image is 2D, for the first and
+#               second dimension) the dictionary contains another dictionary
+#               consisting of locations (or indices) of voxels pairs. For
+#               example:
+#                    output[d]['bottom']['inner'] returns the locations of 
+#                    the pixels which lie inside the excursion set at the 
+#                    `bottom' in dimension d (c.f. Fig A. in the documentation 
+#                    of `get_bdry_maps')
 #
 # ----------------------------------------------------------------------------
 #
@@ -350,7 +460,16 @@ def get_bdry_locs(bdry_maps):
 #
 # ----------------------------------------------------------------------------
 #
-#  - values of the field at the pixels 
+#  - bdry_vals: A dictionary of voxel values. For each dimension (e.g. if the
+#               image is 2D, for the first and second dimension) the dictionary
+#               contains another dictionary consisting of the values of the 
+#               field at the voxels pairs along the boundary. The format of 
+#               the dictionary for each dimension is designed to mirror that of 
+#               the bdry_locs input. For example
+#                    output[d]['bottom']['inner'] returns the values of the 
+#                    field at the pixels which lie inside the excursion set 
+#                    at the `bottom' in dimension d (c.f. Fig A. in the
+#                    documentation of `get_bdry_maps')
 #
 # ============================================================================
 def get_bdry_values(field, bdry_locs):
@@ -391,9 +510,13 @@ def get_bdry_values(field, bdry_locs):
     # Return boundary values
     return(bdry_vals)
 
+
+
 # ============================================================================
 # 
-# The below function takes in a field image, boundary locations
+# Given a dictionary of boundary values at pairs of voxels and a threshold,
+# the below function returns interpolation weights describing where the
+# threshold value lies between each pair at a sub-voxel level.
 #
 # ----------------------------------------------------------------------------
 #
@@ -401,8 +524,19 @@ def get_bdry_values(field, bdry_locs):
 #
 # ----------------------------------------------------------------------------
 #
-#  -  field image, boundary locations
-#  - boundary locations dictionary
+#  - bdry_vals: A dictionary of voxel values returned by `get_bdry_vals`. For
+#               each dimension (e.g. if theima ge is 2D, for the first and
+#               second dimension) the dictionary contains another dictionary
+#               consisting of the values of the field at the voxels pairs
+#               along the boundary. The format of the dictionary for each
+#               dimension is designed to mirror that of the bdry_locs input.
+#               For example:
+#                    output[d]['bottom']['inner'] gives the values of the 
+#                    field at the pixels which lie inside the excursion set 
+#                    at the `bottom' in dimension d (c.f. Fig A. in the
+#                    documentation of `get_bdry_maps')
+#  - c: The value c which was used to threshold the field (e.g. we are
+#       interested in the set {pixels : field at pixel = c}.
 #
 # ----------------------------------------------------------------------------
 #
@@ -410,8 +544,36 @@ def get_bdry_values(field, bdry_locs):
 #
 # ----------------------------------------------------------------------------
 #
-#  - weights for use in interpolation (c.f. Bowring)
+#   - bdry_weights: For each pair of pixels values along the boundary, p1 and 
+#                   p2, this function returns a pair of weights, w1 and w2, 
+#                   such that w1*p1 + w2*p2 = c. These weights represent the
+#                   location of the boundary ``between the pixels'' and can be
+#                   used in interpolation to get values of other fields along
+#                   the boundary (c.f. Bowring (2018); Spatial confidence sets
+#                   for raw effect size images).
 #
+#     mu
+#      |                                         mu(s)=c       . straight line 
+#      |                                             /     .    between pixel 1 
+#      |                                            /  .          and pixel 2
+#  p2 _| _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ________ ./
+#   c _| _ _ _ _ _ _ _ _ _ _ _ _ _ _ ___/ _  .  |
+#      |                _______     /   .  |    |
+#  p1 _| _ _ _ _ _ ____/ _ _ _ \___/.      |    |               w1 = (c-p1)/(p2-p1)
+#      |         _/             . |        |    |               w2 = (p2-c)/(p2-p1)
+#      |     ___/           .     |        |    |
+#      |____/           .         |        |    |           
+#      |____________._____________|________|____|________________
+#                                 |        |    |                  S
+#                              pixel 1     | pixel 2
+#                                          |
+#                                     Interpolated 
+#                                       boundary
+#                                       location
+#
+#        Fig B. Interpolation along the Boundary to get weights w1 and w2
+#               such that w1*p1 + w2*p2 = c.
+#        
 # ============================================================================
 def get_bdry_weights(bdry_vals,c):
 
