@@ -4,6 +4,7 @@ import numpy as np
 from lib.generateData import *
 from lib.boundary import *
 from lib.fileio import *
+from src.bootstrap import *
 import yaml
 import matplotlib.pyplot as plt
 
