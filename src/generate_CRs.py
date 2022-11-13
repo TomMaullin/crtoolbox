@@ -1,12 +1,10 @@
 import os
 import sys
-sys.path.append("..")
-sys.path.append("../lib/")
 import time
 import numpy as np
 from lib.boundary import *
 from lib.fileio import *
-from src.bootstrap import *
+from bootstrap import *
 import yaml
 import matplotlib.pyplot as plt
 
