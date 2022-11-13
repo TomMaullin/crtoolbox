@@ -2,8 +2,8 @@ import os
 import sys
 import time
 import numpy as np
-from lib.boundary import *
-from lib.fileio import *
+from boundary import *
+from fileio import *
 import yaml
 import matplotlib.pyplot as plt
 # m, nReals, pVals, resids (resids_dFcHat_partitioned)
