@@ -1,6 +1,7 @@
 import os
 import sys
-sys.path.insert(1, os.path.abspath(".."))
+sys.path.append("..")
+sys.path.append("../lib/")
 import time
 import numpy as np
 from lib.boundary import *
