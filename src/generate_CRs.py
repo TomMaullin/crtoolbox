@@ -39,39 +39,39 @@ import matplotlib.pyplot as plt
 # ===============================================================================
 def generate_CRs(data, c, p, out_dir, mask=None, n_boot=5000, tau='1/np.sqrt(nSub)'):
 
-	# Evaulate tau
-	tau = eval(inputs['tau'])
+    # Evaulate tau
+    tau = eval(inputs['tau'])
 
-	# Work out m, the number of samples we are considering
-	m = data.shape[0]
+    # Work out m, the number of samples we are considering
+    m = data.shape[0]
 
-	# Get number of subjects
-	n_sub = data.shape[1]
+    # Get number of subjects
+    n_sub = data.shape[1]
 
-	# Get image dimensions
-	image_dim = data.shape[2:]
+    # Get image dimensions
+    image_dim = data.shape[2:]
 
 
-	# -------------------------------------------------------------------
-	# Mean and standard deviation estimates
-	# -------------------------------------------------------------------
+    # -------------------------------------------------------------------
+    # Mean and standard deviation estimates
+    # -------------------------------------------------------------------
 
-	# Obtain mu estimate
-	muHats = np.mean(data, axis=1).reshape(m,1,*image_dim)
+    # Obtain mu estimate
+    muHats = np.mean(data, axis=1).reshape(m,1,*image_dim)
 
-	# Obtain sigma
-	sigmas = np.std(data, axis=1).reshape(m,1,*image_dim)
+    # Obtain sigma
+    sigmas = np.std(data, axis=1).reshape(m,1,*image_dim)
 
-	# -------------------------------------------------------------------
-	# Boundary locations and values
-	# -------------------------------------------------------------------
+    # -------------------------------------------------------------------
+    # Boundary locations and values
+    # -------------------------------------------------------------------
 
     # Make a structure to hold the estimated boundary weights in array form 
     est_bdry_weights_concat = {}
 
-	# We are going to ignore the first two dimensions as they correspond 
-	# to the number of samples and subjects, and not image dimensions.
-	ignore_dims = np.array([0,1])
+    # We are going to ignore the first two dimensions as they correspond 
+    # to the number of samples and subjects, and not image dimensions.
+    ignore_dims = np.array([0,1])
 
     # -------------------------------------------------------------------
     # Boundary locations for AcHati
@@ -84,17 +84,17 @@ def generate_CRs(data, c, p, out_dir, mask=None, n_boot=5000, tau='1/np.sqrt(nSu
 
     for i in np.arange(m):
 
-    	# Get muhat for this sample
-    	muHat = muHat[i:(i+1),...]
+        # Get muhat for this sample
+        muHat = muHat[i:(i+1),...]
 
-	    # Get coordinates for the boundary of AcHat
-	    AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map[i:(i+1),...])
+        # Get coordinates for the boundary of AcHat
+        AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map[i:(i+1),...])
 
-	    # Save boundary locations
-	    est_bdry_locs['AcHat'+str(i+1)] = AcHat_bdry_locs
+        # Save boundary locations
+        est_bdry_locs['AcHat'+str(i+1)] = AcHat_bdry_locs
 
-	    # Delete map as we no longer need it
-	    del AcHat_bdry_map
+        # Delete map as we no longer need it
+        del AcHat_bdry_map
 
         # -------------------------------------------------------------------
         # Interpolation weights for AcHati boundary (Array version)
@@ -294,9 +294,9 @@ def generate_CRs(data, c, p, out_dir, mask=None, n_boot=5000, tau='1/np.sqrt(nSu
 
 
 
-	# -------------------------------------------------------------------
-	# CURRENTLY HERE  ---------- MARKER
-	# -------------------------------------------------------------------
+    # -------------------------------------------------------------------
+    # CURRENTLY HERE  ---------- MARKER
+    # -------------------------------------------------------------------
 
     # -------------------------------------------------------------------
     # Estimated excursion sets

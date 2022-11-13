@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 def bootstrap_resids(resids, m, n_boot, p):
 
-	# Work out number of p values
-	nPvals = len(p)
+    # Work out number of p values
+    nPvals = len(p)
 
 
     # Get list of possible alphas to be considered
