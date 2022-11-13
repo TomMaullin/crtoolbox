@@ -1,7 +1,6 @@
 import os
 import time
 import numpy as np
-from lib.generateData import *
 from lib.boundary import *
 from lib.fileio import *
 import yaml
