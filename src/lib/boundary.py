@@ -215,7 +215,7 @@ def get_bdry_map(field, c, d, mask=None):
 #        documentation of `get_bdry_maps')
 #
 # ============================================================================
-def get_bdry_maps(field, c, ignore_dims=None, mask=None):
+def get_bdry_maps(field, c, mask=None):
 
     # Shape of field
     shape = np.array(field.shape)
@@ -254,7 +254,7 @@ def get_bdry_maps(field, c, ignore_dims=None, mask=None):
             bdry_maps[d]['top']['outer'] = top_outer
 
     # Add the non-flat (>1) dimensions as an array for good measure
-    bdry_maps['dims'] = np.arange(dim)[(shape>1)]
+    bdry_maps['dims'] = np.arange(dim)[shape>1]
 
     # Save original field shapes
     bdry_maps['shape_orig'] = np.array(field.shape)

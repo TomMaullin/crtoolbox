@@ -147,6 +147,8 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Obtain residuals
         resid = (data[i,...]-muHats[i,...])/sigmas[i,...]
 
+        print('resid check ', muHats.shape, sigmas.shape, data.shape)
+
         # Residuals along FcHat boundary
         resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
 
