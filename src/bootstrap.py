@@ -17,10 +17,14 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub):
     # Get list of possible alphas to be considered
     alphas=list(powerset(np.arange(m)+1))
 
+    # Dimensions of bootstrap variables
+    boot_dim = np.array([n_sub, 1]) 
+
     # -------------------------------------------------------------------
     # Bootstrap 
     # -------------------------------------------------------------------
     # Initialize empty bootstrap stores for supremum along each boundary
+    # segment
     min_supg_dFcHat = {}
 
     # Loop through boundary segments
