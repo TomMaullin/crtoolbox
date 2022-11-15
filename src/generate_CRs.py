@@ -37,10 +37,8 @@ import matplotlib.pyplot as plt
 # And returns the following outputs:
 #
 # ===============================================================================
-def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(nSub)'):
+def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
 
-    # Evaulate tau
-    tau = eval(tau)
 
     # Work out m, the number of samples we are considering
     m = data.shape[0]
@@ -51,6 +49,8 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(nSub)'):
     # Get image dimensions
     image_dim = data.shape[2:]
 
+    # Evaulate tau
+    tau = eval(tau)
 
     # -------------------------------------------------------------------
     # Mean and standard deviation estimates
