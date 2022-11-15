@@ -144,7 +144,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # -------------------------------------------------------------------
 
         # Obtain residuals
-        resid = (datas[i,...]-muHats[i,...])/sigmas[i,...]
+        resid = (data[i,...]-muHats[i,...])/sigmas[i,...]
 
         # Save residuals
         resids_dFc['field'+str(i+1)] = resid_dFc_concat
@@ -166,7 +166,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         muHat_dFcHat['field'+str(i+1)] = muHat_FcHat_bdry_concat
 
     # Delete data as it is longer needed
-    del datas, resid
+    del data, resid
 
     # -------------------------------------------------------------------
     # Boundary partitions 
