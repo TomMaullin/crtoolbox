@@ -146,9 +146,6 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Obtain residuals
         resid = (data[i,...]-muHats[i,...])/sigmas[i,...]
 
-        # Save residuals
-        resids_dFc['field'+str(i+1)] = resid_dFc_concat
-
         # Residuals along FcHat boundary
         resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
 
@@ -160,10 +157,10 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # -------------------------------------------------------------------
 
         # Obtain MuHat along FcHat
-        muHat_FcHat_bdry_concat = get_bdry_values_concat(muHats[i,...], FcHat_bdry_locs)
+        muHat_dFcHat_concat = get_bdry_values_concat(muHats[i,...], FcHat_bdry_locs)
 
         # Save mu
-        muHat_dFcHat['field'+str(i+1)] = muHat_FcHat_bdry_concat
+        muHat_dFcHat['field'+str(i+1)] = muHat_dFcHat_concat
 
     # Delete data as it is longer needed
     del data, resid
