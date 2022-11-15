@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 def generate_CRs(data, c, p, out_dir, mask=None, n_boot=5000, tau='1/np.sqrt(nSub)'):
 
     # Evaulate tau
-    tau = eval(inputs['tau'])
+    tau = eval(tau)
 
     # Work out m, the number of samples we are considering
     m = data.shape[0]
