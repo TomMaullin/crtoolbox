@@ -69,16 +69,6 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # Make a structure to hold the estimated boundary weights in array form 
     est_bdry_weights_concat = {}
 
-    # We are going to ignore the first two dimensions as they correspond 
-    # to the number of samples and subjects, and not image dimensions.
-    ignore_dims = np.array([0,1])
-
-    # -------------------------------------------------------------------
-    # Boundary locations for AcHati
-    # -------------------------------------------------------------------
-    # Get boolean maps for the boundary of AcHat
-    AcHat_bdry_map = get_bdry_maps(muHats, c, ignore_dims)
-
     # Make a structure to hold the true and estimated boundary locations
     est_bdry_locs = {}
 
@@ -87,8 +77,14 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Get muhat for this sample
         muHat = muHats[i:(i+1),...]
 
+        # -------------------------------------------------------------------
+        # Boundary locations for AcHati
+        # -------------------------------------------------------------------
+        # Get boolean maps for the boundary of AcHat
+        AcHat_bdry_map = get_bdry_maps(muHat, c)
+
         # Get coordinates for the boundary of AcHat
-        AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map[i:(i+1),...])
+        AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map)
 
         # Save boundary locations
         est_bdry_locs['AcHat'+str(i+1)] = AcHat_bdry_locs

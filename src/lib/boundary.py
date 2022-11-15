@@ -192,8 +192,6 @@ def get_bdry_map(field, c, d, mask=None):
 #  - c: The value c with which to threshold the field (e.g. we are interested
 #       in the set {pixels : field at pixel = c}.
 #
-#  - ignore_dims: MARKER
-#
 #  - mask: A binary image showing pixels which should be ignored during
 #          computation, or ``masked out". For example, if we are interested in
 #          fMRI BOLD signal over the brain, the mask might be only the pixels
@@ -231,36 +229,32 @@ def get_bdry_maps(field, c, ignore_dims=None, mask=None):
     # Loop through dimensions of field and get the boundary boolean maps.
     for d in np.arange(dim):
 
-        # If we've been told to ignore dimensions, ignore them
-        if ignore_dims is not None and len(ignore_dims)>0:
-            if d in ignore_dims:
+        # Dimensions of 1 are assumed to be uninteresting as they are usually 
+        # only included for broadcasting purposes.
+        if shape[d]>1:
 
-                # Dimensions of 1 are assumed to be uninteresting as they are usually 
-                # only included for broadcasting purposes.
-                if shape[d]>1:
+            # Get boundaries
+            bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask)
 
-                    # Get boundaries
-                    bottom_inner, bottom_outer, top_inner, top_outer = get_bdry_map(field, c, d, mask)
+            # Record d^th boundary
+            bdry_maps[d] = dict()
 
-                    # Record d^th boundary
-                    bdry_maps[d] = dict()
+            # Add bottom boundaries
+            bdry_maps[d]['bottom'] = dict()
 
-                    # Add bottom boundaries
-                    bdry_maps[d]['bottom'] = dict()
+            # Add inner and outer bottom boundaries
+            bdry_maps[d]['bottom']['inner'] = bottom_inner
+            bdry_maps[d]['bottom']['outer'] = bottom_outer
 
-                    # Add inner and outer bottom boundaries
-                    bdry_maps[d]['bottom']['inner'] = bottom_inner
-                    bdry_maps[d]['bottom']['outer'] = bottom_outer
+            # Add top boundaries
+            bdry_maps[d]['top'] = dict()
 
-                    # Add top boundaries
-                    bdry_maps[d]['top'] = dict()
-
-                    # Add inner and outer top boundaries
-                    bdry_maps[d]['top']['inner'] = top_inner
-                    bdry_maps[d]['top']['outer'] = top_outer
+            # Add inner and outer top boundaries
+            bdry_maps[d]['top']['inner'] = top_inner
+            bdry_maps[d]['top']['outer'] = top_outer
 
     # Add the non-flat (>1) dimensions as an array for good measure
-    bdry_maps['dims'] = np.arange(dim)[(shape>1) & (~(np.isin(dim, ignore_dims)))]
+    bdry_maps['dims'] = np.arange(dim)[(shape>1)]
 
     # Save original field shapes
     bdry_maps['shape_orig'] = np.array(field.shape)
