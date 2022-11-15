@@ -85,7 +85,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     for i in np.arange(m):
 
         # Get muhat for this sample
-        muHat = muHat[i:(i+1),...]
+        muHat = muHats[i:(i+1),...]
 
         # Get coordinates for the boundary of AcHat
         AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map[i:(i+1),...])
