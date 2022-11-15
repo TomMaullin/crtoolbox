@@ -21,6 +21,9 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub):
     # Bootstrap 
     # -------------------------------------------------------------------
     # Initialize empty bootstrap stores for supremum along each boundary
+    min_supg_dFcHat = {}
+
+    # Loop through boundary segments
     for alpha in alphas:
 
         # Save empty bootstrap stores
