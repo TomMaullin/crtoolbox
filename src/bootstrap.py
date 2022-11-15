@@ -7,9 +7,9 @@ from setTheory2mu import *
 from fileio import *
 import yaml
 import matplotlib.pyplot as plt
-# m, nReals, pVals, resids (resids_dFcHat_partitioned)
+# m, nReals, pVals, resid_vals (resids_dFcHat_partitioned)
 
-def bootstrap_resids(resids, m, n_boot, p, n_sub, interp_weights):
+def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
 
     # Work out number of p values
     nPvals = len(p)
@@ -65,12 +65,14 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub, interp_weights):
             # Loop through i in alpha getting gi interpolated
             for i in alpha:
 
+                print('loop top ', i, alpha)
+
                 # ------------------------------------------------------
                 # Get residuals true and estimated boundary
                 # ------------------------------------------------------
 
                 # Get original residuals of mui along boundary Aci
-                residsi_dalphaFcHat = resids[np.array2string(alpha)][str(i)]
+                residsi_dalphaFcHat = resid_vals[np.array2string(alpha)][str(i)]
 
                 # ------------------------------------------------------
                 # Bootstrap residuals
@@ -78,6 +80,8 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub, interp_weights):
 
                 # Multiply by rademacher variables
                 boot_residsi_dalphaFcHat = boot_vars*residsi_dalphaFcHat
+
+                print('hereee:',boot_vars.shape,residsi_dalphaFcHat.shape)
 
                 # ------------------------------------------------------
                 # Get gi along dalpha FcHat
@@ -106,7 +110,9 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub, interp_weights):
                 # ------------------------------------------------------
 
                 # Get weights
-                dalphaFcHat_muHati_bdry_weights = interp_weights[np.array2string(alpha)][str(i)]
+                dalphaFcHat_muHati_bdry_weights = resid_weights[np.array2string(alpha)][str(i)]
+
+                print('MARKER ',boot_gi_dalphaFcHat.shape,dalphaFcHat_muHati_bdry_weights.shape)
 
                 # Interpolation for gi along dalphaFc
                 boot_gi_dalphaFcHat = get_bdry_vals_interpolated_concat(boot_gi_dalphaFcHat,dalphaFcHat_muHati_bdry_weights)
