@@ -9,11 +9,10 @@ import yaml
 import matplotlib.pyplot as plt
 # m, nReals, pVals, resids (resids_dFcHat_partitioned)
 
-def bootstrap_resids(resids, m, n_boot, p):
+def bootstrap_resids(resids, m, n_boot, p, n_sub):
 
     # Work out number of p values
     nPvals = len(p)
-
 
     # Get list of possible alphas to be considered
     alphas=list(powerset(np.arange(m)+1))
@@ -22,42 +21,12 @@ def bootstrap_resids(resids, m, n_boot, p):
     # Bootstrap 
     # -------------------------------------------------------------------
     # Initialize empty bootstrap stores for supremum along each boundary
-    # e.g. supg_dFc[str(alpha)][str(i)] will give the supremum of g^i 
-    #      along the boundary d\alpha F_c
-    supg_dFcHat = {}
-
-    # Loop through boundary partitions
-    for alpha in alphas:
-
-        # Initialize
-        supg_dalphaFcHat = {}
-
-        # Loop through i in alpha getting values for interpolation
-        for i in alpha:
-
-            # Save empty bootstrap stores
-            supg_dalphaFcHat[str(i)] = np.zeros(n_boot)
-
-        # Save empty bootstrap stores
-        supg_dFcHat[np.array2string(alpha)] = supg_dalphaFcHat
-
-
-    # Initialise array for recording the whether set violations occured, for a derived
-    # from bootstrapping the true boundary and estimated boundary, respectively. The
-    # result in these arrays are based on interpolation based assessment of set
-    # condition violations.
-    trueBdry_success_intrp = np.zeros((nReals,nPvals))
-    estBdry_success_intrp = np.zeros((nReals,nPvals))
-
-    # Loop through boundary partitions
     for alpha in alphas:
 
         # Save empty bootstrap stores
-        min_supg_dFc[np.array2string(alpha)] = np.zeros(n_boot)
         min_supg_dFcHat[np.array2string(alpha)] = np.zeros(n_boot)
 
     # Save empty bootstrap stores
-    min_supg_dFc['max'] = np.zeros(n_boot)
     min_supg_dFcHat['max'] = np.zeros(n_boot)
 
     # For each bootstrap record the max of the residuals along the
@@ -112,8 +81,8 @@ def bootstrap_resids(resids, m, n_boot, p):
                 # much faster if performed seperately for each of the last rows. 
                 # I am still looking into why this is)
                 boot_gi_dalphaFcHat = np.zeros(boot_residsi_dalphaFcHat.shape[-2:])
-                boot_gi_dalphaFcHat[...,0] = np.sum(boot_residsi_dalphaFcHat[...,0], axis=0)/np.sqrt(nSub)
-                boot_gi_dalphaFcHat[...,1] = np.sum(boot_residsi_dalphaFcHat[...,1], axis=0)/np.sqrt(nSub)
+                boot_gi_dalphaFcHat[...,0] = np.sum(boot_residsi_dalphaFcHat[...,0], axis=0)/np.sqrt(n_sub)
+                boot_gi_dalphaFcHat[...,1] = np.sum(boot_residsi_dalphaFcHat[...,1], axis=0)/np.sqrt(n_sub)
 
                 # Obtain bootstrap standard deviations for muHat i along dalphaFcHat. 
                 # (Note: For some reason this is much faster if performed seperately
