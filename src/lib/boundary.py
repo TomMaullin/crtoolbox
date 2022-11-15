@@ -232,7 +232,7 @@ def get_bdry_maps(field, c, ignore_dims=None, mask=None):
     for d in np.arange(dim):
 
         # If we've been told to ignore dimensions, ignore them
-        if ignore_dims:
+        if ignore_dims is not None and len(ignore_dims)>0:
             if d in ignore_dims:
 
                 # Dimensions of 1 are assumed to be uninteresting as they are usually 
