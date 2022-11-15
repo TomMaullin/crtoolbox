@@ -2,8 +2,8 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
-from lib.generateData import *
-from lib.boundary import *
+from generateData import *
+from boundary import *
 
 # Powerset function, taken from:
 # https://stackoverflow.com/questions/1482308/how-to-get-all-subsets-of-a-set-powerset
