@@ -9,7 +9,7 @@ import yaml
 import matplotlib.pyplot as plt
 # m, nReals, pVals, resids (resids_dFcHat_partitioned)
 
-def bootstrap_resids(resids, m, n_boot, p, n_sub):
+def bootstrap_resids(resids, m, n_boot, p, n_sub, interp_weights):
 
     # Work out number of p values
     nPvals = len(p)
@@ -106,7 +106,7 @@ def bootstrap_resids(resids, m, n_boot, p, n_sub):
                 # ------------------------------------------------------
 
                 # Get weights
-                dalphaFcHat_muHati_bdry_weights = weights_dFcHat[np.array2string(alpha)][str(i)]
+                dalphaFcHat_muHati_bdry_weights = interp_weights[np.array2string(alpha)][str(i)]
 
                 # Interpolation for gi along dalphaFc
                 boot_gi_dalphaFcHat = get_bdry_vals_interpolated_concat(boot_gi_dalphaFcHat,dalphaFcHat_muHati_bdry_weights)

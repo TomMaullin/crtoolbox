@@ -299,7 +299,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------
     # Perform Bootstrap 
     # -------------------------------------------------------------------
-    a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, m, n_boot, p, n_sub)
+    a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, m, n_boot, p, n_sub, weights_dFcHat)
 
 
 
