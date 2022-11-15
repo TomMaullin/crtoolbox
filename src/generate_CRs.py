@@ -76,7 +76,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     for i in np.arange(m):
 
         # Get muhat for this sample
-        muHat = muHats[i:(i+1),...]
+        muHat = muHats[i,...]
 
         # -------------------------------------------------------------------
         # Boundary locations for AcHati
