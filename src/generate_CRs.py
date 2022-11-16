@@ -129,7 +129,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     est_bdry_locs['FcHat'] = FcHat_bdry_locs
 
     # Delete maps as we no longer need them
-    del FcHat_bdry_map
+    #del FcHat_bdry_map
 
     # Empty dict to store residuals
     resids_dFcHat = {}
