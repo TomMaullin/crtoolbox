@@ -303,7 +303,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------#FcHat_bdry_locs, FcHat_bdry_map
     print('FcHat_bdry_map ', FcHat_bdry_map)
     #print('FcHat_bdry_map ', FcHat_bdry_map)
-    print('FcHat_bdry_locs ', FcHat_bdry_locs[np.array2string(1)].shape)
+    print('FcHat_bdry_locs ', FcHat_bdry_locs)
     #print('FcHat_bdry_locs ', FcHat_bdry_locs[np.array2string(1)])
     print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)].shape)
     #print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)])
