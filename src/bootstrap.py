@@ -65,8 +65,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
             # Loop through i in alpha getting gi interpolated
             for i in alpha:
 
-                print('loop top ', i, alpha)
-
                 # ------------------------------------------------------
                 # Get residuals true and estimated boundary
                 # ------------------------------------------------------
@@ -80,8 +78,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
 
                 # Multiply by rademacher variables
                 boot_residsi_dalphaFcHat = boot_vars*residsi_dalphaFcHat
-
-                print('hereee:',boot_vars.shape,residsi_dalphaFcHat.shape)
 
                 # ------------------------------------------------------
                 # Get gi along dalpha FcHat
@@ -111,8 +107,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
 
                 # Get weights
                 dalphaFcHat_muHati_bdry_weights = resid_weights[np.array2string(alpha)][str(i)]
-
-                print('MARKER ',boot_gi_dalphaFcHat.shape,dalphaFcHat_muHati_bdry_weights.shape)
 
                 # Interpolation for gi along dalphaFc
                 boot_gi_dalphaFcHat = get_bdry_vals_interpolated_concat(boot_gi_dalphaFcHat,dalphaFcHat_muHati_bdry_weights)
