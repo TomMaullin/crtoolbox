@@ -58,10 +58,10 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------
 
     # Obtain mu estimate
-    muHats = np.mean(data, axis=1).reshape(m,1,*image_dim)
+    muHats = np.mean(data, axis=1).reshape(m,*image_dim)
 
     # Obtain sigma
-    sigmas = np.std(data, axis=1).reshape(m,1,*image_dim)
+    sigmas = np.std(data, axis=1).reshape(m,*image_dim)
 
     # -------------------------------------------------------------------
     # Boundary locations and values
