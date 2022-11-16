@@ -129,7 +129,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     est_bdry_locs['FcHat'] = FcHat_bdry_locs
 
     # Delete maps as we no longer need them
-    #del FcHat_bdry_map
+    del FcHat_bdry_map
 
     # Empty dict to store residuals
     resids_dFcHat = {}
@@ -301,14 +301,14 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------
     # Perform Bootstrap 
     # -------------------------------------------------------------------#FcHat_bdry_locs, FcHat_bdry_map
-    print('FcHat_bdry_map ', FcHat_bdry_map)
-    #print('FcHat_bdry_map ', FcHat_bdry_map)
-    print('FcHat_bdry_locs ', FcHat_bdry_locs)
-    #print('FcHat_bdry_locs ', FcHat_bdry_locs[np.array2string(1)])
-    print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)].shape)
-    #print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)])
-    print('dalphaFcHat_locs ', dalphaFcHat_locs[np.array2string(alphas[0])].shape)
-    #print('dalphaFcHat_locs ', dalphaFcHat_locs[np.array2string(alphas[0])])
+    # print('FcHat_bdry_map ', FcHat_bdry_map)
+    # #print('FcHat_bdry_map ', FcHat_bdry_map)
+    # print('FcHat_bdry_locs ', FcHat_bdry_locs)
+    # #print('FcHat_bdry_locs ', FcHat_bdry_locs[np.array2string(1)])
+    # print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)].shape)
+    # #print('muHat_dFcHat ', muHat_dFcHat[np.array2string(1)])
+    # print('dalphaFcHat_locs ', dalphaFcHat_locs[np.array2string(alphas[0])].shape)
+    # #print('dalphaFcHat_locs ', dalphaFcHat_locs[np.array2string(alphas[0])])
     a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, weights_dFcHat, m, n_boot, p, n_sub)
 
 
