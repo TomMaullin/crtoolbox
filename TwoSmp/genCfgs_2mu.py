@@ -2568,8 +2568,253 @@ def generateCfgs(OutDir, simNo):
                 # Incremement cfgID
                 cfgId = cfgId + 1
 
+
         # Delete fields which vary across simulation
         del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+    # --------------------------------------------------------------------------
+    # Reviewer Requested Simulations
+    # --------------------------------------------------------------------------
+    # The simulations that follow were added to this file during the first week
+    # of December 2022 following reviewer requested feedback.
+    # --------------------------------------------------------------------------
+
+    # ==========================================================================
+    #
+    # Simulation 23: Varying smoothness of signal
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in varying the smoothess of 
+    # the signal, with particular interest being paid to the setting of zero
+    # spatial correlation.
+    #
+    # ==========================================================================
+    if simNo==23:
+
+        # These are our signal smoothness values
+        smooths = np.arange(0,8,0.2)
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # Add mu2 center
+        mu2['center']= 'np.array([20,0])'
+
+        # We will generate figures for these settings
+        fg_mags = np.array([1,1.5,2])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for smooth in smooths:
+
+            # Add mu1 fwhm
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+
+            # Add mu2 fwhm
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+   
+
+    # ==========================================================================
+    #
+    # Simulation 24: Varying smoothness of signal (lower SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in varying the smoothess of 
+    # the signal, with particular interest being paid to the setting of zero
+    # spatial correlation.
+    #
+    # ==========================================================================
+    if simNo==24:
+
+        # These are our signal smoothness values
+        smooths = np.arange(0,8,0.2)
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # Add mu2 center
+        mu2['center']= 'np.array([20,0])'
+
+        # We will generate figures for these settings
+        fg_mags = np.array([1,1.5,2])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for smooth in smooths:
+
+            # Add mu1 fwhm
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+
+            # Add mu2 fwhm
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['noise2']['mag'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
+
     
 
     #--------------------------------------------------------------------------------------
