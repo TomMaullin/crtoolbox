@@ -2645,7 +2645,7 @@ def generateCfgs(OutDir, simNo):
         mu2['center']= 'np.array([20,0])'
 
         # We will generate figures for these settings
-        fg_mags = np.array([1,1.5,2])
+        fg_smooths = np.array([0,2,4,6])
 
         # Id for config file
         cfgId = 1
@@ -2675,7 +2675,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -2762,7 +2762,7 @@ def generateCfgs(OutDir, simNo):
         mu2['center']= 'np.array([20,0])'
 
         # We will generate figures for these settings
-        fg_mags = np.array([1,1.5,2])
+        fg_smooths = np.array([0,2,4,6])
 
         # Id for config file
         cfgId = 1
@@ -2792,7 +2792,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_mags,mag)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
