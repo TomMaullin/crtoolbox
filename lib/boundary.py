@@ -3,8 +3,8 @@ import os
 import time
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from generateData import *
-from fileio import *
+from lib.generateData import *
+from lib.fileio import *
 
 # ============================================================================
 # 
