@@ -1589,7 +1589,7 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # fwhm
-                fwhm = np.float(inputs['mu1']['fwhm'])
+                fwhm = np.float(eval(inputs['mu1']['fwhm'])[0])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table
