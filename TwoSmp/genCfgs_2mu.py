@@ -2824,7 +2824,7 @@ def generateCfgs(OutDir, simNo):
     # spatial correlation.
     #
     # ==========================================================================
-    if simNo==26:
+    if simNo==25:
 
         # These are our signal smoothness values
         smooths = np.arange(0,8,0.2)
