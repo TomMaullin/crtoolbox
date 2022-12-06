@@ -2927,7 +2927,7 @@ def generateCfgs(OutDir, simNo):
                 cfgId = cfgId + 1
 
         # Delete fields which vary across simulation
-        del inputs['noise1']['fwhm'], inputs['noise2']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del inputs['noise1']['FWHM'], inputs['noise2']['FWHM'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
    
 
     # ==========================================================================
@@ -3044,7 +3044,7 @@ def generateCfgs(OutDir, simNo):
                 cfgId = cfgId + 1
 
         # Delete fields which vary across simulation
-        del inputs['noise1']['fwhm'], inputs['noise2']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del inputs['noise1']['FWHM'], inputs['noise2']['FWHM'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
 
