@@ -3060,4 +3060,262 @@ def generateCfgs(OutDir, simNo):
         yaml.dump(inputs, outfile, default_flow_style=False)
 
 
+
+
+
+
+    # ==========================================================================
+    #
+    # Simulation 27: Varying c
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in varying the threhold c.
+    #
+    # ==========================================================================
+    if simNo==27:
+
+        # These are our signal smoothness values
+        cs = np.arange(0,4,0.2)
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # Add mu2 center
+        mu2['center']= 'np.array([20,0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 to inputs
+        inputs['mu2'] = mu2
+
+        # We will generate figures for these settings
+        fg_cs = np.array([0,1,2,3])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for c in cs:
+
+            # Add threshold c
+            inputs['c'] = c
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_cs,c)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['c'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
+    
+
+    #--------------------------------------------------------------------------------------
+    # Save the baseline configuration (Note: This must be the last file output as the bash
+    # script used for running simulations on the cluster will take this files existence as
+    # a sign to run the next stage of the simulations)
+    #--------------------------------------------------------------------------------------
+    # Save the yml
+    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
+
+
+
+    # ==========================================================================
+    #
+    # Simulation 28: Varying c (Low SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in varying the threhold c.
+    #
+    # ==========================================================================
+    if simNo==28:
+
+        # These are our signal smoothness values
+        cs = np.arange(0,4,0.2)/4
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # Add mu2 center
+        mu2['center']= 'np.array([20,0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 to inputs
+        inputs['mu2'] = mu2
+
+        # We will generate figures for these settings
+        fg_cs = np.array([0,1,2,3])/4
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for c in cs:
+
+            # Add threshold c
+            inputs['c'] = c
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_cs,c)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['c'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
+    
+
+    #--------------------------------------------------------------------------------------
+    # Save the baseline configuration (Note: This must be the last file output as the bash
+    # script used for running simulations on the cluster will take this files existence as
+    # a sign to run the next stage of the simulations)
+    #--------------------------------------------------------------------------------------
+    # Save the yml
+    with open(os.path.join(simDir,'cfgs','baseline_cfg.yml'), 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
+
 #generateCfgs('/home/tommaullin/Documents/ConfRes/tmp/sim19', 19)
