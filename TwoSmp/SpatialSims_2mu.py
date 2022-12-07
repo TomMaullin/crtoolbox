@@ -2115,10 +2115,10 @@ def SpatialSims_2mu_seperate(ipath):
         g1_dAc1_concat = get_bdry_values_concat(g1.reshape(mu1.shape), Ac1_bdry_locs)
         g2_dAc2_concat = get_bdry_values_concat(g2.reshape(mu2.shape), Ac2_bdry_locs)
 
-        print('g1 shape ', g1.shape)
-        print('g2 shape ', g2.shape)
-        print('Ac1_bdry_locs ', Ac1_bdry_locs)
-        print('Ac2_bdry_locs ', Ac2_bdry_locs)
+        # print('g1 shape ', g1.shape)
+        # print('g2 shape ', g2.shape)
+        # print('Ac1_bdry_locs ', Ac1_bdry_locs)
+        # print('Ac2_bdry_locs ', Ac2_bdry_locs)
 
 
         # Interpolation
