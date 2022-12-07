@@ -1578,8 +1578,8 @@ def SpatialSims_2mu_seperate(ipath):
         resid2_dAc2_concat = get_bdry_values_concat(resid2, Ac2_bdry_locs)
 
         # Residuals along AcHat boundary
-        resid1_dAc1Hat_concat = get_bdry_values_concat(resid1, AcHat1_bdry_locs)
-        resid2_dAc2Hat_concat = get_bdry_values_concat(resid2, AcHat2_bdry_locs)
+        resid1_dAcHat1_concat = get_bdry_values_concat(resid1, AcHat1_bdry_locs)
+        resid2_dAcHat2_concat = get_bdry_values_concat(resid2, AcHat2_bdry_locs)
 
         # Delete residuals as they are no longer needed
         #del data1, data2
