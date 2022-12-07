@@ -1707,9 +1707,9 @@ def SpatialSims_2mu_seperate(ipath):
 
         # print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_dFc_concat.shape)
 
-        # Get locations where outer mu1 and mu2 are greater than c
-        dAc1_loc = np.where(mu1_dAc1_concat[0,:,1]>c)[0]
-        dAc2_loc = np.where(mu2_dAc2_concat[0,:,1]>c)[0]
+        # # Get locations where outer mu1 and mu2 are greater than c
+        # dAc1_loc = np.where(mu1_dAc1_concat[0,:,1]>c)[0]
+        # dAc2_loc = np.where(mu2_dAc2_concat[0,:,1]>c)[0]
 
         # print(resid1_dFc_concat[:,d1Fc_loc,:].shape)
         # print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
@@ -1720,39 +1720,39 @@ def SpatialSims_2mu_seperate(ipath):
 
         # print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
 
-        # Get locations where outer muHat1 and muHat2 are greater than c
-        dAcHat1_loc = np.where(muHat1_dAcHat1_concat[0,:,1]>c)[0]
-        dAcHat2_loc = np.where(muHat2_dAcHat2_concat[0,:,1]>c)[0]
+        # # Get locations where outer muHat1 and muHat2 are greater than c
+        # dAcHat1_loc = np.where(muHat1_dAcHat1_concat[0,:,1]>c)[0]
+        # dAcHat2_loc = np.where(muHat2_dAcHat2_concat[0,:,1]>c)[0]
 
         # print(resid1_FcHat_bdry_concat[:,d1FcHat_loc,:].shape)
-        # print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
+        # # print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
 
-        # -------------------------------------------------------------------
-        # Residuals along dkFc and dkFcHat boundaries (Array version)
-        # -------------------------------------------------------------------
-        # In this simulation we are bootstrapping the residuals for field 1
-        # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
-        # for field 2.
-        resid1_dAc1_concat = resid1_dAc1_concat[:,dAc1_loc,:]
-        resid2_dAc2_concat = resid2_dAc2_concat[:,dAc2_loc,:]
+        # # -------------------------------------------------------------------
+        # # Residuals along dkFc and dkFcHat boundaries (Array version)
+        # # -------------------------------------------------------------------
+        # # In this simulation we are bootstrapping the residuals for field 1
+        # # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
+        # # for field 2.
+        # resid1_dAc1_concat = resid1_dAc1_concat[:,dAc1_loc,:]
+        # resid2_dAc2_concat = resid2_dAc2_concat[:,dAc2_loc,:]
 
-        # In this simulation we are bootstrapping the residuals for field 1
-        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
-        # vice versa for field 2.
-        resid1_dAcHat1_concat = resid1_dAcHat1_concat[:,dAcHat1_loc,:]
-        resid2_dAcHat2_concat = resid2_dAcHat2_concat[:,dAcHat2_loc,:]
+        # # In this simulation we are bootstrapping the residuals for field 1
+        # # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
+        # # vice versa for field 2.
+        # resid1_dAcHat1_concat = resid1_dAcHat1_concat[:,dAcHat1_loc,:]
+        # resid2_dAcHat2_concat = resid2_dAcHat2_concat[:,dAcHat2_loc,:]
 
-        # -------------------------------------------------------------------
-        # Mu and MuHat along dAc and dAcHat boundaries (Array version)
-        # -------------------------------------------------------------------
-        mu1_dAc1_concat = mu1_dAc1_concat[:,dAc1_loc,:]
-        mu2_dAc2_concat = mu2_dAc2_concat[:,dAc2_loc,:]
+        # # -------------------------------------------------------------------
+        # # Mu and MuHat along dAc and dAcHat boundaries (Array version)
+        # # -------------------------------------------------------------------
+        # mu1_dAc1_concat = mu1_dAc1_concat[:,dAc1_loc,:]
+        # mu2_dAc2_concat = mu2_dAc2_concat[:,dAc2_loc,:]
 
-        # In this simulation we are bootstrapping the residuals for field 1
-        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
-        # vice versa for field 2.
-        muHat1_dAcHat1_concat = muHat1_dAcHat1_concat[:,dAcHat1_loc,:]
-        muHat2_dAcHat2_concat = muHat2_dAcHat2_concat[:,dAcHat2_loc,:]
+        # # In this simulation we are bootstrapping the residuals for field 1
+        # # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
+        # # vice versa for field 2.
+        # muHat1_dAcHat1_concat = muHat1_dAcHat1_concat[:,dAcHat1_loc,:]
+        # muHat2_dAcHat2_concat = muHat2_dAcHat2_concat[:,dAcHat2_loc,:]
 
         # -------------------------------------------------------------------
         # Interpolation weights dAc and dAcHat boundaries (Array version)
@@ -2114,6 +2114,11 @@ def SpatialSims_2mu_seperate(ipath):
         # Obtain g1 and g2 along the boundary for Ac1 and Ac2
         g1_dAc1_concat = get_bdry_values_concat(g1.reshape(mu1.shape), Ac1_bdry_locs)
         g2_dAc2_concat = get_bdry_values_concat(g2.reshape(mu2.shape), Ac2_bdry_locs)
+
+        print('g1 shape ', g1.shape)
+        print('g2 shape ', g2.shape)
+        print('Ac1_bdry_locs ', Ac1_bdry_locs)
+        print('Ac2_bdry_locs ', Ac2_bdry_locs)
 
 
         # Interpolation
