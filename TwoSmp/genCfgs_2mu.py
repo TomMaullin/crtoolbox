@@ -3129,7 +3129,7 @@ def generateCfgs(OutDir, simNo):
         for c in cs:
 
             # Add threshold c
-            inputs['c'] = c
+            inputs['c'] = str(c)
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -3244,7 +3244,7 @@ def generateCfgs(OutDir, simNo):
         for c in cs:
 
             # Add threshold c
-            inputs['c'] = c
+            inputs['c'] = str(c)
 
             # Loop through all nSub settings
             for nSub in nSubs:
