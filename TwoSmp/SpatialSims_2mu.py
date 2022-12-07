@@ -48,6 +48,14 @@ def SpatialSims_2mu(ipath):
     with open(ipath, 'r') as stream:
         inputs = yaml.load(stream,Loader=yaml.FullLoader)
 
+    # If we're running the method seperately for each field and intersecting
+    # the results (for sims 29 and 30), then we move to the 'seperate'
+    # function.
+    if 'Seperate' in inputs:
+        if inputs['Seperate']:
+            SpatialSims_2mu_seperate(ipath)
+            return(None)
+
     # Get output directory
     OutDir = inputs['OutDir']
 
@@ -114,6 +122,24 @@ def SpatialSims_2mu(ipath):
     if 'fwhm' in muSpec2:
         muSpec2['fwhm']=eval(muSpec2['fwhm'])
 
+
+    # Is there some signal we want both images to have?
+    if 'muSpecBoth' in inputs:
+
+        # Get specification for mu overlap
+        muSpecBoth = inputs['muBoth']
+
+        # Reformat center and fwhm if needed
+        if 'center' in muSpecBoth:
+            muSpecBoth['center']=eval(muSpecBoth['center'])
+        if 'fwhm' in muSpecBoth:
+            muSpecBoth['fwhm']=eval(muSpecBoth['fwhm'])
+
+    else:
+
+        # Otherwise set it to none
+        muSpecBoth = None
+
     # ID for the configuration
     cfgId = inputs['cfgId']
 
@@ -166,7 +192,7 @@ def SpatialSims_2mu(ipath):
         # -------------------------------------------------------------------
 
         # Obtain data
-        data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2, data_dim, noiseCorr)
+        data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2, data_dim, noiseCorr, muSpecBoth)
 
         #print('data shapes: ', data1.shape, data2.shape, mu1.shape, mu2.shape)
 
@@ -1286,6 +1312,933 @@ def SpatialSims_2mu(ipath):
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
     append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
     append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'times.csv'), times) # Times for bootstrap
+
+    # Save the computation times
+    t2overall = time.time()
+    append_to_file(os.path.join(simDir, 'RawResults', 'computationTime.csv'), np.array([t2overall-t1overall]))
+
+#SpatialSims_2mu('/home/tommaullin/Documents/ConfRes/tmp/sim15/sim15/cfgs/cfg578.yml')
+
+
+
+
+# Reviewer requested - intersection of separate CRs
+def SpatialSims_2mu_seperate(ipath):
+
+    # -----------------------------------------------------------------------
+    # Load in inputs 
+    # -----------------------------------------------------------------------
+    # Read in file
+    with open(ipath, 'r') as stream:
+        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
+    # Get output directory
+    OutDir = inputs['OutDir']
+
+    # Get number of subjects
+    nSub = int(inputs['nSub'])
+
+    # Get number of simulation realizations
+    nReals = int(inputs['nReals'])
+
+    # Get Threshold
+    c = np.float(inputs['c'])
+
+    # Get p values
+    p = eval(inputs['p'])
+
+    # Get simulation number
+    simNo = int(inputs['simNo'])
+
+    # Get noise spec
+    noiseSpec1 = inputs['noise1']
+
+    # Reforemat FWHM for the noise in field 1
+    noiseSpec1['FWHM'] = str2vec(noiseSpec1['FWHM']) 
+
+    # Get noise spec
+    noiseSpec2 = inputs['noise2']
+
+    # Reforemat FWHM for the noise in field 2
+    noiseSpec2['FWHM'] = str2vec(noiseSpec2['FWHM']) 
+
+    # Correlation between noise fields
+    if 'noiseCorr' in inputs:
+        noiseCorr = np.float(inputs['noiseCorr'])
+    else:
+        noiseCorr = None
+
+    # Get number of bootstraps
+    if 'nBoot' in inputs:
+        nBoot = int(inputs['nBoot'])
+    else:
+        nBoot = 5000 # Recommended 1e4 
+
+    # Get number of bootstraps
+    if 'tau' in inputs:
+        tau = eval(inputs['tau'])
+    else:
+        tau = 1/np.sqrt(nSub)
+
+    # Get specification for mu 1
+    muSpec1 = inputs['mu1']
+
+    # Reformat center and fwhm if needed
+    if 'center' in muSpec1:
+        muSpec1['center']=eval(muSpec1['center'])
+    if 'fwhm' in muSpec1:
+        muSpec1['fwhm']=eval(muSpec1['fwhm'])
+
+    # Get specification for mu 2
+    muSpec2 = inputs['mu2']
+
+    # Reformat center and fwhm if needed
+    if 'center' in muSpec2:
+        muSpec2['center']=eval(muSpec2['center'])
+    if 'fwhm' in muSpec2:
+        muSpec2['fwhm']=eval(muSpec2['fwhm'])
+
+
+    # Is there some signal we want both images to have?
+    if 'muSpecBoth' in inputs:
+
+        # Get specification for mu overlap
+        muSpecBoth = inputs['muBoth']
+
+        # Reformat center and fwhm if needed
+        if 'center' in muSpecBoth:
+            muSpecBoth['center']=eval(muSpecBoth['center'])
+        if 'fwhm' in muSpecBoth:
+            muSpecBoth['fwhm']=eval(muSpecBoth['fwhm'])
+
+    else:
+
+        # Otherwise set it to none
+        muSpecBoth = None
+
+    # ID for the configuration
+    cfgId = inputs['cfgId']
+
+    # Bootstrap mode
+    mode = inputs['mode']
+
+    # -----------------------------------------------------------------------
+
+    # Simulation directory
+    simDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId))
+    if not os.path.exists(simDir):
+        os.mkdir(simDir)
+
+    # Timing
+    t1overall = time.time()
+
+    # Get the number of p-values we're looking at
+    nPvals = len(p)
+
+    # Dimensions of simulated data
+    data_dim = np.array([nSub, 100,100])
+
+    # Dimensions of bootstrap variables
+    boot_dim = np.array([nSub, 1]) # : COULD MAKE  np.array([batchBoot, nSub, 1])
+
+
+    # Initialise array for recording the whether set violations occured, for a derived
+    # from bootstrapping the true boundary and estimated boundary, respectively. The
+    # result in these arrays are based on voxelwise assessment of set condition 
+    # violations.
+    trueBdry_success1 = np.zeros((nReals,nPvals))
+    estBdry_success1 = np.zeros((nReals,nPvals))
+    trueBdry_success2 = np.zeros((nReals,nPvals))
+    estBdry_success2 = np.zeros((nReals,nPvals))
+    trueBdry_success = np.zeros((nReals,nPvals))
+    estBdry_success = np.zeros((nReals,nPvals))
+
+    # Initialise array for recording the whether set violations occured, for a derived
+    # from bootstrapping the true boundary and estimated boundary, respectively. The
+    # result in these arrays are based on interpolation based assessment of set
+    # condition violations.
+    trueBdry_success_intrp1 = np.zeros((nReals,nPvals))
+    estBdry_success_intrp1 = np.zeros((nReals,nPvals))
+    trueBdry_success_intrp2 = np.zeros((nReals,nPvals))
+    estBdry_success_intrp2 = np.zeros((nReals,nPvals))
+    trueBdry_success_intrp = np.zeros((nReals,nPvals))
+    estBdry_success_intrp = np.zeros((nReals,nPvals))
+
+
+    # Initialize for saving times
+    times = np.zeros((nReals,1))
+
+    # Loop through realizations
+    for r in np.arange(nReals):
+
+        print('r: ', r)
+        # -------------------------------------------------------------------
+        # Data generation
+        # -------------------------------------------------------------------
+
+        # Obtain data
+        data1, data2, mu1, mu2 = get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,data_dim,noiseCorr,muSpecBoth)
+
+        #print('data shapes: ', data1.shape, data2.shape, mu1.shape, mu2.shape)
+
+        # -------------------------------------------------------------------
+        # Mean and variance estimates
+        # -------------------------------------------------------------------
+
+        # Obtain mu estimate
+        muHat1 = np.mean(data1, axis=0).reshape(mu1.shape)
+        muHat2 = np.mean(data2, axis=0).reshape(mu1.shape)
+
+        # Obtain sigma
+        sigma1 = np.std(data1, axis=0).reshape(mu1.shape)
+        sigma2 = np.std(data2, axis=0).reshape(mu1.shape)
+
+        # -------------------------------------------------------------------
+        # Boundary locations for Ac1 and Ac2
+        # -------------------------------------------------------------------
+        # Get boolean maps for the boundary of Ac1 and Ac2
+        Ac1_bdry_maps = get_bdry_maps(mu1, c)
+        Ac2_bdry_maps = get_bdry_maps(mu2, c)
+
+        # Get coordinates for the boundary of Ac1 and Ac2
+        Ac1_bdry_locs = get_bdry_locs(Ac1_bdry_maps)
+        Ac2_bdry_locs = get_bdry_locs(Ac2_bdry_maps)
+
+        # Delete maps as we no longer need them
+        del Ac1_bdry_maps, Ac2_bdry_maps
+
+        # -------------------------------------------------------------------
+        # Boundary locations for AcHat1 and AcHat2
+        # -------------------------------------------------------------------
+        # Get boolean maps for the boundary of AcHat1 and AcHat2
+        AcHat1_bdry_maps = get_bdry_maps(muHat1, c)
+        AcHat2_bdry_maps = get_bdry_maps(muHat2, c)
+
+        # Get coordinates for the boundary of AcHat1 and AcHat2
+        AcHat1_bdry_locs = get_bdry_locs(AcHat1_bdry_maps)
+        AcHat2_bdry_locs = get_bdry_locs(AcHat2_bdry_maps)
+
+        # Delete maps as we no longer need them
+        del AcHat1_bdry_maps, AcHat2_bdry_maps 
+
+        # -------------------------------------------------------------------
+        # Interpolation weights for Ac1 and Ac2 boundary (Dict version)
+        # -------------------------------------------------------------------
+        # Obtain the values along the boundary for Ac1 and Ac2
+        Ac1_bdry_vals = get_bdry_values(mu1, Ac1_bdry_locs)
+        Ac2_bdry_vals = get_bdry_values(mu2, Ac2_bdry_locs)
+
+        # Obtain the weights along the boundary for Ac1 and Ac2
+        Ac1_bdry_weights = get_bdry_weights(Ac1_bdry_vals, c)
+        Ac2_bdry_weights = get_bdry_weights(Ac2_bdry_vals, c)
+
+        # Delete values as we no longer need them
+        del Ac1_bdry_vals, Ac2_bdry_vals
+
+        # -------------------------------------------------------------------
+        # Interpolation weights for Ac1 and Ac2 boundary (Array version)
+        # -------------------------------------------------------------------
+        # Obtain the values along the boundary for Ac1 and Ac2
+        Ac1_bdry_vals_concat = get_bdry_values_concat(mu1, Ac1_bdry_locs)
+        Ac2_bdry_vals_concat = get_bdry_values_concat(mu2, Ac2_bdry_locs)
+
+        # Obtain the weights along the boundary for Ac1 and Ac2
+        Ac1_bdry_weights_concat = get_bdry_weights_concat(Ac1_bdry_vals_concat, c)
+        Ac2_bdry_weights_concat = get_bdry_weights_concat(Ac2_bdry_vals_concat, c)
+
+        # Delete values as we no longer need them
+        del Ac1_bdry_vals_concat, Ac2_bdry_vals_concat
+
+        # -------------------------------------------------------------------
+        # Interpolation weights for AcHat1 and AcHat2 boundary (Array
+        # version)
+        # -------------------------------------------------------------------
+        # Obtain the values along the boundary for AcHat1 and AcHat2
+        AcHat1_bdry_vals_concat = get_bdry_values_concat(muHat1, AcHat1_bdry_locs)
+        AcHat2_bdry_vals_concat = get_bdry_values_concat(muHat2, AcHat2_bdry_locs)
+
+        # Obtain the weights along the boundary for AcHat1 and AcHat2
+        AcHat1_bdry_weights_concat = get_bdry_weights_concat(AcHat1_bdry_vals_concat, c)
+        AcHat2_bdry_weights_concat = get_bdry_weights_concat(AcHat2_bdry_vals_concat, c)
+
+        # Delete values as we no longer need them
+        del AcHat1_bdry_vals_concat, AcHat2_bdry_vals_concat
+
+        # -------------------------------------------------------------------
+        # Residuals along dAc1Hat and dAc2Hat
+        # -------------------------------------------------------------------
+
+        # Obtain residuals
+        resid1 = (data1-muHat1)/sigma1
+        resid2 = (data2-muHat2)/sigma2
+
+        # Residuals along Ac boundary
+        resid1_dAc1_concat = get_bdry_values_concat(resid1, Ac1_bdry_locs)
+        resid2_dAc2_concat = get_bdry_values_concat(resid2, Ac2_bdry_locs)
+
+        # Residuals along AcHat boundary
+        resid1_dAc1Hat_concat = get_bdry_values_concat(resid1, AcHat1_bdry_locs)
+        resid2_dAc2Hat_concat = get_bdry_values_concat(resid2, AcHat2_bdry_locs)
+
+        # Delete residuals as they are no longer needed
+        #del data1, data2
+
+        # -------------------------------------------------------------------
+        # Mu along Ac1 and Ac2 
+        # -------------------------------------------------------------------
+
+        # Obtain Mu along Ac
+        mu1_dAc1_concat = get_bdry_values_concat(mu1, Ac1_bdry_locs)
+        mu2_dAc2_concat = get_bdry_values_concat(mu2, Ac2_bdry_locs)
+
+        # -------------------------------------------------------------------
+        # Images
+        # -------------------------------------------------------------------
+        if r==1 and inputs['figGen']:
+            
+            # Make image directory
+            figDir = os.path.join(OutDir, 'sim'+str(simNo), 'Figures')
+            if not os.path.exists(figDir):
+                os.mkdir(figDir)
+
+            # AcHat1
+            AcHat1_im = muHat1>c
+            plt.figure(0)
+            plt.imshow(1*AcHat1_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'AcHat1_cfg'+str(cfgId)+'.png'))
+
+            # dAcHat1
+            dAcHat1_im = get_bdry_map_combined(muHat1, c)
+            plt.figure(1)
+            plt.imshow(1*dAcHat1_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dAcHat1_cfg'+str(cfgId)+'.png'))
+
+            # AcHat2
+            AcHat2_im = muHat2>c
+            plt.figure(2)
+            plt.imshow(1*AcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'AcHat2_cfg'+str(cfgId)+'.png'))
+
+            # dAcHat2
+            dAcHat2_im = get_bdry_map_combined(muHat2, c)
+            plt.figure(3)
+            plt.imshow(1*dAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dAcHat2_cfg'+str(cfgId)+'.png'))
+
+            # AcHat1 \cup AcHat2
+            AcHat1cupAcHat2_im = np.maximum(muHat1,muHat2)>c
+            plt.figure(4)
+            plt.imshow(1*AcHat1cupAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'GcHat_cfg'+str(cfgId)+'.png'))
+
+            # d(AcHat1 \cup AcHat2)
+            dAcHat1cupAcHat2_im = get_bdry_map_combined(np.maximum(muHat1,muHat2),c)
+            plt.figure(5)
+            plt.imshow(1*dAcHat1cupAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dGcHat_cfg'+str(cfgId)+'.png'))
+
+            # AcHat1 \cap AcHat2
+            AcHat1capAcHat2_im = np.minimum(muHat1,muHat2)>c
+            plt.figure(6)
+            plt.imshow(1*AcHat1capAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'FcHat_cfg'+str(cfgId)+'.png'))
+
+            # d(AcHat1 \cap AcHat2)
+            dAcHat1capAcHat2_im = get_bdry_map_combined(np.minimum(muHat1,muHat2),c)
+            plt.figure(7)
+            plt.imshow(1*dAcHat1capAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dFcHat_cfg'+str(cfgId)+'.png'))
+
+            # dF12cHat = dAcHat1 \cap dAcHat2
+            dAcHat1capdAcHat2_im = dAcHat1capAcHat2_im*dAcHat1cupAcHat2_im
+            plt.figure(8)
+            plt.imshow(1*dAcHat1capdAcHat2_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF12cHat_cfg'+str(cfgId)+'.png'))
+
+            # dF1cHat = dAcHat1 \cap AcHat2
+            rhs_im = dAcHat1_im*AcHat2_im
+            plt.figure(10)
+            plt.imshow(1*rhs_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF1cHat_cfg'+str(cfgId)+'.png'))
+
+            # dF2cHat = dAcHat2 \cap AcHat1
+            lhs_im = dAcHat2_im*AcHat1_im
+            plt.figure(9)
+            plt.imshow(1*lhs_im[0,:,:])
+            plt.savefig(os.path.join(figDir, 'dF2cHat_cfg'+str(cfgId)+'.png'))
+
+            # muHat1
+            plt.figure(11)
+            plt.imshow(muHat1[0,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'muHat1_cfg'+str(cfgId)+'.png'))
+
+            # muHat2
+            plt.figure(12)
+            plt.imshow(muHat2[0,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'muHat2_cfg'+str(cfgId)+'.png'))
+
+            # data1
+            plt.figure(13)
+            plt.imshow(data1[10,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'data1_cfg'+str(cfgId)+'.png'))
+
+            # data2
+            plt.figure(14)
+            plt.imshow(data2[10,:,:])
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'data2_cfg'+str(cfgId)+'.png'))
+
+            # max(muHat1,muHat2)
+            plt.figure(15)
+            plt.imshow(np.maximum(muHat1[0,:,:],muHat2[0,:,:]))
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'maxMuHat_cfg'+str(cfgId)+'.png'))
+
+            # min(muHat1,muHat2)
+            plt.figure(16)
+            plt.imshow(np.minimum(muHat1[0,:,:],muHat2[0,:,:]))
+            plt.colorbar()
+            plt.savefig(os.path.join(figDir, 'minMuHat_cfg'+str(cfgId)+'.png'))
+
+
+        # print('shapes here : ', mu1_Fc_bdry_concat.shape,resid1_dFc_concat.shape)
+
+        # Get locations where outer mu1 and mu2 are greater than c
+        dAc1_loc = np.where(mu1_dAc1_concat[0,:,1]>c)[0]
+        dAc2_loc = np.where(mu2_dAc2_concat[0,:,1]>c)[0]
+
+        # print(resid1_dFc_concat[:,d1Fc_loc,:].shape)
+        # print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
+
+        # Obtain MuHat along Ac
+        muHat1_Ac1Hat_concat = get_bdry_values_concat(muHat1, AcHat1_bdry_locs)
+        muHat2_Ac2Hat_concat = get_bdry_values_concat(muHat2, AcHat2_bdry_locs)
+
+        # print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
+
+        # Get locations where outer muHat1 and muHat2 are greater than c
+        dAcHat1_loc = np.where(muHat1_dAcHat1_concat[0,:,1]>c)[0]
+        dAcHat2_loc = np.where(muHat2_dAcHat2_concat[0,:,1]>c)[0]
+
+        # print(resid1_FcHat_bdry_concat[:,d1FcHat_loc,:].shape)
+        # print(resid2_FcHat_bdry_concat[:,d2FcHat_loc,:].shape)
+
+        # -------------------------------------------------------------------
+        # Residuals along dkFc and dkFcHat boundaries (Array version)
+        # -------------------------------------------------------------------
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
+        # for field 2.
+        resid1_dAc1_concat = resid1_dAc1_concat[:,dAc1_loc,:]
+        resid2_dAc2_concat = resid2_dAc2_concat[:,dAc2_loc,:]
+
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
+        # vice versa for field 2.
+        resid1_dAcHat1_concat = resid1_dAcHat1_concat[:,dAcHat1_loc,:]
+        resid2_dAcHat2_concat = resid2_dAcHat2_concat[:,dAcHat2_loc,:]
+
+        # -------------------------------------------------------------------
+        # Mu and MuHat along dAc and dAcHat boundaries (Array version)
+        # -------------------------------------------------------------------
+        mu1_dAc1_concat = mu1_dAc1_concat[:,dAc1_loc,:]
+        mu2_dAc2_concat = mu2_dAc2_concat[:,dAc2_loc,:]
+
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAcHat1 intersect AcHat2 i.e. along dF where muHat2 > c. And 
+        # vice versa for field 2.
+        muHat1_dAcHat1_concat = muHat1_dAcHat1_concat[:,dAcHat1_loc,:]
+        muHat2_dAcHat2_concat = muHat2_dAcHat2_concat[:,dAcHat2_loc,:]
+
+        # -------------------------------------------------------------------
+        # Interpolation weights dAc and dAcHat boundaries (Array version)
+        # -------------------------------------------------------------------
+        dAc1_weights_concat = get_bdry_weights_concat(mu1_dAc1_concat, c)
+        dAc2_weights_concat = get_bdry_weights_concat(mu2_dAc2_concat, c)
+
+        dAcHat1_weights_concat = get_bdry_weights_concat(muHat1_dAcHat1_concat, c)
+        dAcHat2_weights_concat = get_bdry_weights_concat(muHat2_dAcHat2_concat, c)
+
+        # -------------------------------------------------------------------
+        # True and estimated excursion sets
+        # -------------------------------------------------------------------
+        # Obtain Ac1 and Ac2
+        Ac1 = mu1 > c
+        Ac2 = mu2 > c
+
+        # Obtain AcHat2 and AcHat2 
+        AcHat1 = muHat1 > c
+        AcHat2 = muHat2 > c
+
+        # -------------------------------------------------------------------
+        # Bootstrap 
+        # -------------------------------------------------------------------
+        # Initialize empty bootstrap stores
+        max_g1_dAc1 = np.zeros(nBoot)
+        max_g2_dAc2 = np.zeros(nBoot)
+        max_g1_dAcHat1 = np.zeros(nBoot)
+        max_g2_dAcHat2 = np.zeros(nBoot)
+
+        t1 = time.time()
+        # For each bootstrap record the max of the residuals along the
+        # boundary
+        for b in np.arange(nBoot):
+
+            # Obtain bootstrap variables
+            boot_vars = 2*np.random.randint(0,2,boot_dim)-1
+
+            # Reshape for broadcasting purposes (extra axis refers to the fact we have
+            # inner and outer boundary values in the last axes of resid_FsdGc_bdry_concat
+            # and resid_FsdGcHat_bdry_concat)
+            boot_vars = boot_vars.reshape((*boot_vars.shape),1)
+
+            # Bootstrap residuals along dAc1 and dAc2
+            boot_resid1_dAc1_concat = boot_vars*resid1_dAc1_concat
+            boot_resid2_dAc2_concat = boot_vars*resid2_dAc2_concat
+
+            # Bootstrap residuals along dAcHat1 and dAcHat2
+            boot_resid1_dAcHat1_concat = boot_vars*resid1_dAcHat1_concat
+            boot_resid2_dAcHat2_concat = boot_vars*resid2_dAcHat2_concat
+
+            # ------------------------------------------------------------------------------------------
+            # True boundary
+            # ------------------------------------------------------------------------------------------
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of dAc1. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g1_dAc1_concat = np.zeros(boot_resid1_dAc1_concat.shape[-2:])
+            boot_g1_dAc1_concat[...,0] = np.sum(boot_resid1_dAc1_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g1_dAc1_concat[...,1] = np.sum(boot_resid1_dAc1_concat[...,1], axis=0)/np.sqrt(nSub)
+
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of dAc2. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g2_dAc2_concat = np.zeros(boot_resid2_dAc2_concat.shape[-2:])
+            boot_g2_dAc2_concat[...,0] = np.sum(boot_resid2_dAc2_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g2_dAc2_concat[...,1] = np.sum(boot_resid2_dAc2_concat[...,1], axis=0)/np.sqrt(nSub)
+
+            # Obtain bootstrap standard deviations along dAc1. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma1_boot_dAc1_concat = np.zeros(boot_resid1_dAc1_concat.shape[-2:])
+            sigma1_boot_dAc1_concat[...,0] = np.std(boot_resid1_dAc1_concat[...,0], axis=0, ddof=1)
+            sigma1_boot_dAc1_concat[...,1] = np.std(boot_resid1_dAc1_concat[...,1], axis=0, ddof=1)
+
+            # Obtain bootstrap standard deviations along dAc2. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma2_boot_dAc2_concat = np.zeros(boot_resid2_dAc2_concat.shape[-2:])
+            sigma2_boot_dAc2_concat[...,0] = np.std(boot_resid2_dAc2_concat[...,0], axis=0, ddof=1)
+            sigma2_boot_dAc2_concat[...,1] = np.std(boot_resid2_dAc2_concat[...,1], axis=0, ddof=1)
+
+            # Divide by the boostrap standard deviation on dAc1
+            boot_g1_dAc1_concat = boot_g1_dAc1_concat/sigma1_boot_dAc1_concat
+
+            # Divide by the boostrap standard deviation on dAc2
+            boot_g2_dAc2_concat = boot_g2_dAc2_concat/sigma2_boot_dAc2_concat
+
+            # ------------------------------------------------------------------------------------------
+            # Estimated boundary
+            # ------------------------------------------------------------------------------------------
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of dAcHat1. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g1_dAcHat1_concat = np.zeros(boot_resid1_dAcHat1_concat.shape[-2:])
+            boot_g1_dAcHat1_concat[...,0] = np.sum(boot_resid1_dAcHat1_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g1_dAcHat1_concat[...,1] = np.sum(boot_resid1_dAcHat1_concat[...,1], axis=0)/np.sqrt(nSub)
+
+            # Sum across subjects to get the bootstrapped a values along
+            # the boundary of dAcHat2. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. 
+            # I am still looking into why this is)
+            boot_g2_dAcHat2_concat = np.zeros(boot_resid2_dAcHat2_concat.shape[-2:])
+            boot_g2_dAcHat2_concat[...,0] = np.sum(boot_resid2_dAcHat2_concat[...,0], axis=0)/np.sqrt(nSub)
+            boot_g2_dAcHat2_concat[...,1] = np.sum(boot_resid2_dAcHat2_concat[...,1], axis=0)/np.sqrt(nSub)
+
+            # Obtain bootstrap standard deviations along dAcHat1. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma1_boot_dAcHat1_concat = np.zeros(boot_resid1_dAcHat1_concat.shape[-2:])
+            sigma1_boot_dAcHat1_concat[...,0] = np.std(boot_resid1_dAcHat1_concat[...,0], axis=0, ddof=1)
+            sigma1_boot_dAcHat1_concat[...,1] = np.std(boot_resid1_dAcHat1_concat[...,1], axis=0, ddof=1)
+
+
+            # Obtain bootstrap standard deviations along dAcHat2. (Note: For some reason this is 
+            # much faster if performed seperately for each of the last rows. I am still looking
+            # into why this is)
+            sigma2_boot_dAcHat2_concat = np.zeros(boot_resid2_dAcHat2_concat.shape[-2:])
+            sigma2_boot_dAcHat2_concat[...,0] = np.std(boot_resid2_dAcHat2_concat[...,0], axis=0, ddof=1)
+            sigma2_boot_dAcHat2_concat[...,1] = np.std(boot_resid2_dAcHat2_concat[...,1], axis=0, ddof=1)
+
+            # Divide by the boostrap standard deviation on dAcHat1
+            boot_g1_dAcHat1_concat = boot_g1_dAcHat1_concat/sigma1_boot_dAcHat1_concat
+
+            # Divide by the boostrap standard deviation on dAcHat2
+            boot_g2_dAcHat2_concat = boot_g2_dAcHat2_concat/sigma2_boot_dAcHat2_concat
+
+            # ------------------------------------------------------------------------------------------
+            # Interpolation
+            # ------------------------------------------------------------------------------------------
+
+            # Interpolation for dAc1 and dAc2 boundary
+            boot_g1_dAc1_concat = get_bdry_vals_interpolated_concat(boot_g1_dAc1_concat,dAc1_weights_concat)
+            boot_g2_dAc2_concat = get_bdry_vals_interpolated_concat(boot_g2_dAc2_concat,dAc2_weights_concat)
+
+            # Interpolation for dAcHat1 and dAcHat2 boundary
+            boot_g1_dAcHat1_concat = get_bdry_vals_interpolated_concat(boot_g1_dAcHat1_concat,dAcHat1_weights_concat)
+            boot_g2_dAcHat2_concat = get_bdry_vals_interpolated_concat(boot_g2_dAcHat2_concat,dAcHat2_weights_concat)
+
+
+            # Get the maximum along dAc1 if it exists
+            if np.prod(boot_g1_dAc1_concat.shape) > 0:
+                max_g1_dAc1[b] = np.max(np.abs(boot_g1_dAc1_concat)) 
+
+            # Get the maximum along dAc2 if it exists
+            if np.prod(boot_g2_dAc2_concat.shape) > 0:
+                max_g2_dAc2[b] = np.max(np.abs(boot_g2_dAc2_concat)) 
+
+            # Get the maximum along dAcHat1 if it exists
+            if np.prod(boot_g1_dAcHat1_concat.shape) > 0:
+                max_g1_dAcHat1[b] = np.max(np.abs(boot_g1_dAcHat1_concat)) 
+
+
+            # Get the maximum along dAcHat2 if it exists
+            if np.prod(boot_g2_dAcHat2_concat.shape) > 0:
+                max_g2_dAcHat2[b] = np.max(np.abs(boot_g2_dAcHat2_concat)) 
+
+
+            # -------------------------------------------------------------------------------------
+
+            
+        t2 = time.time()
+        # print('Bootstrap time: ', t2-t1)
+
+        # -------------------------------------------------------------------
+        # Obtaining a from percentiles of the max distribution
+        # -------------------------------------------------------------------
+
+        # Drop the instances where the boundary length was zero
+        max_g1_dAc1 = max_g1_dAc1[max_g1_dAc1!=0]
+        max_g2_dAc2 = max_g2_dAc2[max_g2_dAc2!=0]
+        max_g1_dAcHat1 = max_g1_dAcHat1[max_g1_dAcHat1!=0]
+        max_g2_dAcHat2 = max_g2_dAcHat2[max_g2_dAcHat2!=0]
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g1_dAc1.shape) > 0):
+            # Get the a estimates for the true boundary
+            a_trueBdry1 = np.percentile(max_g1_dAc1, 100*p).reshape(nPvals,1,1,1)
+        else:
+            # Set to inf by default
+            a_trueBdry1 = np.Inf*np.ones((nPvals,1,1,1))
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g2_dAc2.shape) > 0):
+            # Get the a estimates for the true boundary
+            a_trueBdry2 = np.percentile(max_g2_dAc2, 100*p).reshape(nPvals,1,1,1)
+        else:
+            # Set to inf by default
+            a_trueBdry2 = np.Inf*np.ones((nPvals,1,1,1))
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g1_dAcHat1.shape) > 0):
+            # Get the a estimates for the estimated boundary
+            a_estBdry1 = np.percentile(max_g1_dAcHat1, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        else:
+            # Set to inf by default
+            a_estBdry1 = np.Inf*np.ones((nPvals,1,1,1))
+
+        # If we have recorded values get their quantiles
+        if (np.prod(max_g2_dAcHat2.shape) > 0):
+            # Get the a estimates for the estimated boundary
+            a_estBdry2 = np.percentile(max_g2_dAcHat2, 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        else:
+            # Set to inf by default
+            a_estBdry2 = np.Inf*np.ones((nPvals,1,1,1))
+
+        # Reformat them to an array form useful for boolean operation
+        a_trueBdry1 = np.concatenate((-a_trueBdry1,a_trueBdry1),axis=1)
+        a_trueBdry2 = np.concatenate((-a_trueBdry2,a_trueBdry2),axis=1)
+        a_estBdry1 = np.concatenate((-a_estBdry1,a_estBdry1),axis=1)
+        a_estBdry2 = np.concatenate((-a_estBdry2,a_estBdry2),axis=1)
+
+        # print('a')
+        # print(a_trueBdry)
+        # print(a_estBdry)
+
+        # Get the statistic field which defined Achat^{+/-,1/2}
+        g1 = ((muHat1-c)/(sigma1*tau))
+        g1 = g1.reshape(g1.shape[-2],g1.shape[-1])
+        g2 = ((muHat2-c)/(sigma2*tau))
+        g2 = g2.reshape(g2.shape[-2],g2.shape[-1])
+
+        # Obtain AcHat^+ and AcHat^- based on a from the true boundary. This variable
+        # has axes corresponding to [pvalue, plus/minus, field dimensions]
+        AcHat1_pm_trueBdry = g1 >= a_trueBdry1
+        AcHat2_pm_trueBdry = g2 >= a_trueBdry2
+
+        # Obtain AcHat^+ and AcHat^- based on a from the estimated boundary. This variable
+        # has axes corresponding to [pvalue, plus/minus, field dimensions]
+        AcHat1_pm_estBdry = g1 >= a_estBdry1
+        AcHat2_pm_estBdry = g2 >= a_estBdry2
+
+
+        # End timer (we have the confidence sets now)
+        t2 = time.time()
+
+        # Save time 
+        times[r,:] = t2-t1
+        
+        # -------------------------------------------------------------------
+        # Images
+        # -------------------------------------------------------------------
+        if r==1 and inputs['figGen']:
+
+            # Indices for 0.8,0.9 and 0.95
+            pInds = [16,18,19]
+
+            for pInd in pInds:
+
+                # P value of interest
+                pVal = p[pInd]
+
+                # AcHat1 plus (based on estimated bdry)
+                plt.figure(16)
+                plt.imshow(1*AcHat1_pm_estBdry[pInd,0,...])
+                plt.savefig(os.path.join(figDir, 'AcHat1_plus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat1 minus (based on estimated bdry)
+                plt.figure(17)
+                plt.imshow(1*AcHat1_pm_estBdry[pInd,1,...])
+                plt.savefig(os.path.join(figDir, 'AcHat1_minus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat1 plus (based on true bdry)
+                plt.figure(18)
+                plt.imshow(1*AcHat1_pm_trueBdry[pInd,0,...])
+                plt.savefig(os.path.join(figDir, 'AcHat1_plus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat1 minus (based on true bdry)
+                plt.figure(19)
+                plt.imshow(1*AcHat1_pm_trueBdry[pInd,1,...])
+                plt.savefig(os.path.join(figDir, 'AcHat1_minus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+
+                # AcHat2 plus (based on estimated bdry)
+                plt.figure(20)
+                plt.imshow(1*AcHat2_pm_estBdry[pInd,0,...])
+                plt.savefig(os.path.join(figDir, 'AcHat2_plus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat2 minus (based on estimated bdry)
+                plt.figure(21)
+                plt.imshow(1*AcHat2_pm_estBdry[pInd,1,...])
+                plt.savefig(os.path.join(figDir, 'AcHat2_minus_estBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat2 plus (based on true bdry)
+                plt.figure(22)
+                plt.imshow(1*AcHat2_pm_trueBdry[pInd,0,...])
+                plt.savefig(os.path.join(figDir, 'AcHat2_plus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+                # AcHat2 minus (based on true bdry)
+                plt.figure(23)
+                plt.imshow(1*AcHat2_pm_trueBdry[pInd,1,...])
+                plt.savefig(os.path.join(figDir, 'AcHat2_minus_trueBdry_p'+str(int(100*pVal))+'_cfg'+str(cfgId)+'.png'))
+
+        # -------------------------------------------------------------------
+        # Some set logic to work out violations
+        # -------------------------------------------------------------------
+
+        # Obtain AcHat1^+\AcHat1 based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHat1p_sub_Ac1_trueBdry = AcHat1_pm_trueBdry[:,1,...] & ~Ac1[...]
+
+        # Obtain AcHat1^+\AcHat1 based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHat1p_sub_Ac1_estBdry = AcHat1_pm_estBdry[:,1,...] & ~Ac1[...]
+
+        # Obtain Ac1\AcHat1^- based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        Ac1_sub_AcHat1m_trueBdry = Ac1[...] & ~AcHat1_pm_trueBdry[:,0,...]
+
+        # Obtain Ac1\AcHat1^- based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        Ac1_sub_AcHat1m_estBdry = Ac1[...] & ~AcHat1_pm_estBdry[:,0,...]
+
+        # Obtain AcHat2^+\AcHat2 based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHat2p_sub_Ac2_trueBdry = AcHat2_pm_trueBdry[:,2,...] & ~Ac2[...]
+
+        # Obtain AcHat2^+\AcHat2 based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHat2p_sub_Ac2_estBdry = AcHat2_pm_estBdry[:,2,...] & ~Ac2[...]
+
+        # Obtain Ac2\AcHat2^- based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        Ac2_sub_AcHat2m_trueBdry = Ac2[...] & ~AcHat2_pm_trueBdry[:,0,...]
+
+        # Obtain Ac2\AcHat2^- based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        Ac2_sub_AcHat2m_estBdry = Ac2[...] & ~AcHat2_pm_estBdry[:,0,...]
+
+
+        # Record if we saw a violation in the true boundary based sets
+        trueBdry_success1[r,:] = 1-(np.any(AcHat1p_sub_Ac1_trueBdry,axis=(1,2)) | np.any(Ac1_sub_AcHat1m_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the estimated boundary based sets
+        estBdry_success1[r,:] = 1-(np.any(AcHat1p_sub_Ac1_estBdry,axis=(1,2)) | np.any(Ac1_sub_AcHat1m_estBdry,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the true boundary based sets
+        trueBdry_success2[r,:] = 1-(np.any(AcHat2p_sub_Ac2_trueBdry,axis=(1,2)) | np.any(Ac2_sub_AcHat2m_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the estimated boundary based sets
+        estBdry_success2[r,:] = 1-(np.any(AcHat2p_sub_Ac2_estBdry,axis=(1,2)) | np.any(Ac2_sub_AcHat2m_estBdry,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
+
+        # Success in both instances
+        trueBdry_success[r,:] = trueBdry_success1[r,:]*trueBdry_success2[r,:]
+        estBdry_success[r,:] = estBdry_success1[r,:]*estBdry_success2[r,:]
+
+
+        # -------------------------------------------------------------------
+        # Get stat along the Ac boundaries
+        # -------------------------------------------------------------------
+
+
+        # Obtain g1 and g2 along the boundary for Ac1 and Ac2
+        g1_dAc1_concat = get_bdry_values_concat(g1, Ac1_bdry_locs)
+        g2_dAc2_concat = get_bdry_values_concat(g2, Ac2_bdry_locs)
+
+
+        # Interpolation
+        g1_dAc1_concat = get_bdry_vals_interpolated_concat(g1_dAc1_concat,dAc1_weights_concat)
+        g2_dAc2_concat = get_bdry_vals_interpolated_concat(g2_dAc2_concat,dAc2_weights_concat)
+
+        # Reshape a bit
+        g1_dAc1_concat = g1_dAc1_concat.reshape(g1_dAc1_concat.shape[-2],g1_dAc1_concat.shape[-1])
+        g2_dAc2_concat = g2_dAc2_concat.reshape(g2_dAc2_concat.shape[-2],g2_dAc2_concat.shape[-1])
+
+        
+
+        # -------------------------------------------------------------------
+        # Check whether there were any boundary violations using interpolated
+        # boundary values (checking if voxels had values corresponding to no
+        # violations, etc)
+        # -------------------------------------------------------------------
+
+        # Perform lower check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_lowerCheck_estBdry1 = g1_dAc1_concat >= a_estBdry1[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_upperCheck_estBdry1 = g1_dAc1_concat <= a_estBdry1[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # true boundary
+        bdry_lowerCheck_trueBdry1 = g1_dAc1_concat >= a_trueBdry1[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # true boundary
+        bdry_upperCheck_trueBdry1 = g1_dAc1_concat <= a_trueBdry1[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_lowerCheck_estBdry2 = g2_dAc2_concat >= a_estBdry2[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_upperCheck_estBdry2 = g2_dAc2_concat <= a_estBdry2[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # true boundary
+        bdry_lowerCheck_trueBdry2 = g2_dAc2_concat >= a_trueBdry2[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # true boundary
+        bdry_upperCheck_trueBdry2 = g2_dAc2_concat <= a_trueBdry2[:,1,:,0]
+
+        # -------------------------------------------------------------------
+        # Work out whether simulation observed successful sets.
+        # -------------------------------------------------------------------
+        # Record if we saw a violation in the true boundary based sets
+        trueBdry_success_intrp1[r,:] = np.all(bdry_lowerCheck_trueBdry1,axis=(1)) & np.all(bdry_upperCheck_trueBdry1,axis=(1))# : AXES WONT WORK FOR 3D ATM
+        trueBdry_success_intrp2[r,:] = np.all(bdry_lowerCheck_trueBdry2,axis=(1)) & np.all(bdry_upperCheck_trueBdry2,axis=(1))# : AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the estimated boundary based sets
+        estBdry_success_intrp1[r,:] = np.all(bdry_lowerCheck_estBdry1,axis=(1)) & np.all(bdry_upperCheck_estBdry1,axis=(1)) # : AXES WONT WORK FOR 3D ATM
+        estBdry_success_intrp2[r,:] = np.all(bdry_lowerCheck_estBdry2,axis=(1)) & np.all(bdry_upperCheck_estBdry2,axis=(1)) # : AXES WONT WORK FOR 3D ATM
+
+
+        # Success in both instances
+        trueBdry_success_intrp[r,:] = trueBdry_success_intrp1[r,:]*trueBdry_success_intrp2[r,:]
+        estBdry_success_intrp[r,:] = estBdry_success_intrp1[r,:]*estBdry_success_intrp2[r,:]
+
+    # For the interpolated boundary success checks, we still need to do the 
+    # voxelwise checks as well. This will take care of that.
+    trueBdry_success_intrp1 = trueBdry_success_intrp1*trueBdry_success1
+    estBdry_success_intrp1 = estBdry_success_intrp1*estBdry_success1
+
+    # For the interpolated boundary success checks, we still need to do the 
+    # voxelwise checks as well. This will take care of that.
+    trueBdry_success_intrp2 = trueBdry_success_intrp2*trueBdry_success2
+    estBdry_success_intrp2 = estBdry_success_intrp2*estBdry_success2
+
+    # For the interpolated boundary success checks, we still need to do the 
+    # voxelwise checks as well. This will take care of that.
+    trueBdry_success_intrp = trueBdry_success_intrp*trueBdry_success
+    estBdry_success_intrp = estBdry_success_intrp*estBdry_success
+
+    # Coverage probabilities
+    coverage_trueBdry1 = np.mean(trueBdry_success1,axis=0)
+    coverage_estBdry1 = np.mean(estBdry_success1,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry2 = np.mean(trueBdry_success2,axis=0)
+    coverage_estBdry2 = np.mean(estBdry_success2,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry = np.mean(trueBdry_success,axis=0)
+    coverage_estBdry = np.mean(estBdry_success,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry_intrp1 = np.mean(trueBdry_success_intrp1,axis=0)
+    coverage_estBdry_intrp1 = np.mean(estBdry_success_intrp1,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry_intrp2 = np.mean(trueBdry_success_intrp2,axis=0)
+    coverage_estBdry_intrp2 = np.mean(estBdry_success_intrp2,axis=0)
+
+    # Coverage probabilities
+    coverage_trueBdry_intrp = np.mean(trueBdry_success_intrp,axis=0)
+    coverage_estBdry_intrp = np.mean(estBdry_success_intrp,axis=0)
+
+    # Make results folder
+    if not os.path.exists(os.path.join(simDir, 'RawResults')):
+        os.mkdir(os.path.join(simDir, 'RawResults'))
+
+    # Save the violations to a file
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess1.csv'), trueBdry_success1) # Successes based on the true boundary (assessed without interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess1.csv'), estBdry_success1) # Successes based on the interpolated boundary (assessed without interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp1.csv'), trueBdry_success_intrp1) # Successes based on the true boundary (assessed with interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp1.csv'), estBdry_success_intrp1) # Successes based on the interpolated boundary (assessed with interpolation) 
+
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess2.csv'), trueBdry_success2) # Successes based on the true boundary (assessed without interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess2.csv'), estBdry_success2) # Successes based on the interpolated boundary (assessed without interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp2.csv'), trueBdry_success_intrp2) # Successes based on the true boundary (assessed with interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp2.csv'), estBdry_success_intrp2) # Successes based on the interpolated boundary (assessed with interpolation) 
+
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess.csv'), trueBdry_success) # Successes based on the true boundary (assessed without interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess.csv'), estBdry_success) # Successes based on the interpolated boundary (assessed without interpolation) 
+    append_to_file(os.path.join(simDir, 'RawResults', 'trueSuccess_intrp.csv'), trueBdry_success_intrp) # Successes based on the true boundary (assessed with interpolation)
+    append_to_file(os.path.join(simDir, 'RawResults', 'estSuccess_intrp.csv'), estBdry_success_intrp) # Successes based on the interpolated boundary (assessed with interpolation) 
+
     append_to_file(os.path.join(simDir, 'RawResults', 'times.csv'), times) # Times for bootstrap
 
     # Save the computation times

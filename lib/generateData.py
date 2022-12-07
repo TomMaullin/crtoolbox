@@ -30,7 +30,7 @@ from matplotlib import pyplot as plt
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCorr=None):
+def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCorr=None,muSpecBoth=None):
 
     # Obtain the noise fields
     noise1 = get_noise(noiseSpec1, dim)
@@ -43,6 +43,13 @@ def get_data(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCorr=None):
     # Obtain mu
     mu1 = get_mu(muSpec1, dim)
     mu2 = get_mu(muSpec2, dim)
+
+    if muSpecBoth is not None:
+        # There is a component we must add to both signals
+        muBoth = get_mu(muSpecBoth, dim)
+        mu1 = mu1 + muBoth 
+        mu2 = mu2 + muBoth 
+
     
     # Create the data
     data1 = mu1 + noise1
