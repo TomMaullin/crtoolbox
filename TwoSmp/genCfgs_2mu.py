@@ -3361,7 +3361,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['center']= 'np.array([30,30])'
 
         # We will generate figures for these settings
-        fg_cs = np.array([0,1,2,3])
+        fg_smooths = np.array([0,2,4,6])
 
         # Id for config file
         cfgId = 1
