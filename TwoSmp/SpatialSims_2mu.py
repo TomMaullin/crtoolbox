@@ -2074,11 +2074,11 @@ def SpatialSims_2mu_seperate(ipath):
 
         # Obtain AcHat2^+\AcHat2 based on the true boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
-        AcHat2p_sub_Ac2_trueBdry = AcHat2_pm_trueBdry[:,2,...] & ~Ac2[...]
+        AcHat2p_sub_Ac2_trueBdry = AcHat2_pm_trueBdry[:,1,...] & ~Ac2[...]
 
         # Obtain AcHat2^+\AcHat2 based on the estimated boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
-        AcHat2p_sub_Ac2_estBdry = AcHat2_pm_estBdry[:,2,...] & ~Ac2[...]
+        AcHat2p_sub_Ac2_estBdry = AcHat2_pm_estBdry[:,1,...] & ~Ac2[...]
 
         # Obtain Ac2\AcHat2^- based on the true boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
