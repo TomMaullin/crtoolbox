@@ -1715,8 +1715,8 @@ def SpatialSims_2mu_seperate(ipath):
         # print(resid2_dFc_concat[:,d2Fc_loc,:].shape)
 
         # Obtain MuHat along Ac
-        muHat1_Ac1Hat_concat = get_bdry_values_concat(muHat1, AcHat1_bdry_locs)
-        muHat2_Ac2Hat_concat = get_bdry_values_concat(muHat2, AcHat2_bdry_locs)
+        muHat1_dAcHat1_concat = get_bdry_values_concat(muHat1, AcHat1_bdry_locs)
+        muHat2_dAcHat2_concat = get_bdry_values_concat(muHat2, AcHat2_bdry_locs)
 
         # print('shapes here : ', muHat1_FcHat_bdry_concat.shape,resid1_FcHat_bdry_concat.shape)
 
