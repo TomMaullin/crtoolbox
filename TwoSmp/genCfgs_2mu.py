@@ -3295,6 +3295,9 @@ def generateCfgs(OutDir, simNo):
         # These are our signal smoothness values
         smooths = np.arange(0,8,0.2)
 
+        # Create muBoth specification
+        muBoth = {}
+
         # Add mode
         inputs['mode'] = 3
 
