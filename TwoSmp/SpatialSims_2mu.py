@@ -1401,7 +1401,7 @@ def SpatialSims_2mu_seperate(ipath):
 
 
     # Is there some signal we want both images to have?
-    if 'muSpecBoth' in inputs:
+    if 'muBoth' in inputs:
 
         # Get specification for mu overlap
         muSpecBoth = inputs['muBoth']
