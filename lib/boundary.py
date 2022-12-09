@@ -497,8 +497,8 @@ def get_bdry_values(field, bdry_locs):
 
             # Get inner and outer boundary values in this dimension and
             # direction            
-            inner_vals = field[...,*bdry_locs[d][direction]['inner']]
-            outer_vals = field[...,*bdry_locs[d][direction]['outer']]
+            inner_vals = field[...,(*bdry_locs[d][direction]['inner'])]
+            outer_vals = field[...,(*bdry_locs[d][direction]['outer'])]
 
             # Record boundary values
             bdry_vals[d][direction]['inner'] = inner_vals
@@ -731,8 +731,8 @@ def get_bdry_values_concat(field, bdry_locs):
 
             # Get inner and outer boundary values in this dimension and
             # direction            
-            inner_vals = field[...,*bdry_locs[d][direction]['inner']]
-            outer_vals = field[...,*bdry_locs[d][direction]['outer']]
+            inner_vals = field[...,(*bdry_locs[d][direction]['inner'])]
+            outer_vals = field[...,(*bdry_locs[d][direction]['outer'])]
 
             # Reshape for concatenation
             inner_vals = inner_vals.reshape((*inner_vals.shape),1)
