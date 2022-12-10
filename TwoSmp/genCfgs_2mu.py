@@ -3418,6 +3418,423 @@ def generateCfgs(OutDir, simNo):
         del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
+    # ==========================================================================
+    #
+    # Simulation 30: 3 circles, intersection of CRs (Low SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in comparing the method to
+    # just intersecting CRs. A specially generated signal of three circles 
+    # diagonal is used (one for each condition and one shared) with varying 
+    # signal smoothness, and we run the intersection of CRs method here.
+    #
+    # ==========================================================================
+    if simNo==30:
+
+        # These are our signal smoothness values
+        smooths = np.arange(0,8,0.2)
+
+        # Create muBoth specification
+        muBoth = {}
+
+        # Add mode
+        inputs['mode'] = 3
+
+        inputs['Seperate'] = 1
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 12
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-30,-30])'
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 radius
+        mu2['r'] = 12
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # Add mu2 center
+        mu2['center']= 'np.array([30,30])'
+
+        # Add muBoth type
+        muBoth['type'] = 'circle2D' 
+
+        # Add muBoth radius
+        muBoth['r'] = 12
+
+        # Add muBoth magnitude
+        muBoth['mag'] = 3/4
+
+        # Add muBoth center
+        muBoth['center']= 'np.array([30,30])'
+
+        # We will generate figures for these settings
+        fg_smooths = np.array([0,2,4,6])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for smooth in smooths:
+
+            # Add mu1 fwhm
+            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add mu2 fwhm
+            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add muBoth fwhm
+            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Add muBoth to inputs
+            inputs['muBoth'] = muBoth
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+    # ==========================================================================
+    #
+    # Simulation 31: 3 circles, intersection of CRs (conjunction method)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in comparing the method to
+    # just intersecting CRs. A specially generated signal of three circles 
+    # diagonal is used (one for each condition and one shared) with varying 
+    # signal smoothness, and we run the conjunction method here.
+    #
+    # ==========================================================================
+    if simNo==31:
+
+        # These are our signal smoothness values
+        smooths = np.arange(0,8,0.2)
+
+        # Create muBoth specification
+        muBoth = {}
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 12
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-30,-30])'
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 radius
+        mu2['r'] = 12
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # Add mu2 center
+        mu2['center']= 'np.array([30,30])'
+
+        # Add muBoth type
+        muBoth['type'] = 'circle2D' 
+
+        # Add muBoth radius
+        muBoth['r'] = 12
+
+        # Add muBoth magnitude
+        muBoth['mag'] = 3
+
+        # Add muBoth center
+        muBoth['center']= 'np.array([30,30])'
+
+        # We will generate figures for these settings
+        fg_smooths = np.array([0,2,4,6])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for smooth in smooths:
+
+            # Add mu1 fwhm
+            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add mu2 fwhm
+            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add muBoth fwhm
+            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Add muBoth to inputs
+            inputs['muBoth'] = muBoth
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+    # ==========================================================================
+    #
+    # Simulation 32: 3 circles, intersection of CRs (conjunction method) (Low 
+    # SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in comparing the method to
+    # just intersecting CRs. A specially generated signal of three circles 
+    # diagonal is used (one for each condition and one shared) with varying 
+    # signal smoothness, and we run the conjunction method here.
+    #
+    # ==========================================================================
+    if simNo==32:
+
+        # These are our signal smoothness values
+        smooths = np.arange(0,8,0.2)
+
+        # Create muBoth specification
+        muBoth = {}
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Save noise 2
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 radius
+        mu1['r'] = 12
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-30,-30])'
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 radius
+        mu2['r'] = 12
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # Add mu2 center
+        mu2['center']= 'np.array([30,30])'
+
+        # Add muBoth type
+        muBoth['type'] = 'circle2D' 
+
+        # Add muBoth radius
+        muBoth['r'] = 12
+
+        # Add muBoth magnitude
+        muBoth['mag'] = 3/4
+
+        # Add muBoth center
+        muBoth['center']= 'np.array([30,30])'
+
+        # We will generate figures for these settings
+        fg_smooths = np.array([0,2,4,6])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for smooth in smooths:
+
+            # Add mu1 fwhm
+            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add mu2 fwhm
+            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+
+            # Add muBoth fwhm
+            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Add muBoth to inputs
+            inputs['muBoth'] = muBoth
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
     
 
     #--------------------------------------------------------------------------------------
