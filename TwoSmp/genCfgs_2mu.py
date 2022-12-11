@@ -3358,7 +3358,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3
 
         # Add muBoth center
-        muBoth['center']= 'np.array([30,30])'
+        muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
         fg_smooths = np.array([0,2,4,6])
@@ -3498,7 +3498,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3/4
 
         # Add muBoth center
-        muBoth['center']= 'np.array([30,30])'
+        muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
         fg_smooths = np.array([0,2,4,6])
@@ -3635,7 +3635,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3
 
         # Add muBoth center
-        muBoth['center']= 'np.array([30,30])'
+        muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
         fg_smooths = np.array([0,2,4,6])
@@ -3774,7 +3774,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3/4
 
         # Add muBoth center
-        muBoth['center']= 'np.array([30,30])'
+        muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
         fg_smooths = np.array([0,2,4,6])
