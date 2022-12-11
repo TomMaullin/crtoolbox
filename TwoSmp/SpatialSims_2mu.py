@@ -2188,6 +2188,16 @@ def SpatialSims_2mu_seperate(ipath):
         # Interpolation weights
         # -------------------------------------------------------------------
 
+        # In this simulation we are bootstrapping the residuals for field 1
+        # along dAc1 intersect Ac2 i.e. along dF where mu2 > c. And vice versa
+        # for field 2.
+        mu1_d1Fc_concat = mu1_Fc_bdry_concat[:,d1Fc_loc,:]
+        mu2_d2Fc_concat = mu2_Fc_bdry_concat[:,d2Fc_loc,:]
+
+        # For intersect boundary
+        mu1_d12Fc_concat = mu1_Fc_bdry_concat[:,d12Fc_loc,:]
+        mu2_d12Fc_concat = mu2_Fc_bdry_concat[:,d12Fc_loc,:]
+
         # Obtain the weights along the boundary for dkFc
         d1Fc_bdry_weights_concat = get_bdry_weights_concat(mu1_d1Fc_concat, c)
         d2Fc_bdry_weights_concat = get_bdry_weights_concat(mu2_d2Fc_concat, c)
