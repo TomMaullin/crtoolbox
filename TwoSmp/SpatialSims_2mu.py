@@ -2124,11 +2124,11 @@ def SpatialSims_2mu_seperate(ipath):
 
         # Obtain Ac1\AcHat1^- based on the true boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
-        AcCap_sub_AcHat1Capm_trueBdry = AcCap[...] & ~AcHatCap_pm_trueBdry[:,0,...]
+        AcCap_sub_AcHatCapm_trueBdry = AcCap[...] & ~AcHatCap_pm_trueBdry[:,0,...]
 
         # Obtain Ac1\AcHat1^- based on the estimated boundary. This variable
         # has axes corresponding to [pvalue, field dimensions]
-        AcCap_sub_AcHat1Capm_estBdry = AcCap[...] & ~AcHatCap_pm_estBdry[:,0,...]
+        AcCap_sub_AcHatCapm_estBdry = AcCap[...] & ~AcHatCap_pm_estBdry[:,0,...]
 
         # Record if we saw a violation in the true boundary based sets
         trueBdry_success[r,:] = 1-(np.any(AcHatCapp_sub_AcCap_trueBdry,axis=(1,2)) | np.any(AcCap_sub_AcHatCapm_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
