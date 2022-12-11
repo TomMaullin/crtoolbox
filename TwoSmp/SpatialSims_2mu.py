@@ -2175,9 +2175,9 @@ def SpatialSims_2mu_seperate(ipath):
         mu2_Fc_bdry_concat = get_bdry_values_concat(mu2, Fc_bdry_locs)
 
         # Obtain g1 and g2 along the boundary for Fc
-        g1_dFc_concat = get_bdry_values_concat(g1, Fc_bdry_locs)
-        g2_dFc_concat = get_bdry_values_concat(g2, Fc_bdry_locs)
-        
+        g1_dFc_concat = get_bdry_values_concat(g1.reshape(mu1.shape), Fc_bdry_locs)
+        g2_dFc_concat = get_bdry_values_concat(g2.reshape(mu2.shape), Fc_bdry_locs)
+
         # Get locations where outer mu1 and mu2 are greater than c
         d1Fc_loc = np.where((mu2_Fc_bdry_concat[0,:,1]>c))[0]
         d2Fc_loc = np.where((mu1_Fc_bdry_concat[0,:,1]>c))[0]
