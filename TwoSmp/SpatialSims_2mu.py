@@ -2101,9 +2101,40 @@ def SpatialSims_2mu_seperate(ipath):
         # Record if we saw a violation in the estimated boundary based sets
         estBdry_success2[r,:] = 1-(np.any(AcHat2p_sub_Ac2_estBdry,axis=(1,2)) | np.any(Ac2_sub_AcHat2m_estBdry,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
 
-        # Success in both instances
-        trueBdry_success[r,:] = trueBdry_success1[r,:]*trueBdry_success2[r,:]
-        estBdry_success[r,:] = estBdry_success1[r,:]*estBdry_success2[r,:]
+        # -------------------------------------------------------------------
+        # Intersection images
+        # -------------------------------------------------------------------
+
+        # Work out intersection masks
+        AcHatCap_pm_trueBdry = AcHat1_pm_trueBdry & AcHat2_pm_trueBdry
+        AcHatCap_pm_estBdry = AcHat1_pm_estBdry & AcHat2_pm_estBdry
+        AcCap = Ac1 & Ac2
+
+        # -------------------------------------------------------------------
+        # Some set logic to work out violations for intersection
+        # -------------------------------------------------------------------
+
+        # Obtain AcHat1^+\AcHat1 based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHatCapp_sub_AcCap_trueBdry = AcHatCap_pm_trueBdry[:,1,...] & ~AcCap[...]
+
+        # Obtain AcHat1^+\AcHat1 based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcHatCapp_sub_AcCap_estBdry = AcHatCap_pm_estBdry[:,1,...] & ~AcCap[...]
+
+        # Obtain Ac1\AcHat1^- based on the true boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcCap_sub_AcHat1Capm_trueBdry = AcCap[...] & ~AcHatCap_pm_trueBdry[:,0,...]
+
+        # Obtain Ac1\AcHat1^- based on the estimated boundary. This variable
+        # has axes corresponding to [pvalue, field dimensions]
+        AcCap_sub_AcHat1Capm_estBdry = AcCap[...] & ~AcHatCap_pm_estBdry[:,0,...]
+
+        # Record if we saw a violation in the true boundary based sets
+        trueBdry_success[r,:] = 1-(np.any(AcHatCapp_sub_AcCap_trueBdry,axis=(1,2)) | np.any(AcCap_sub_AcHatCapm_trueBdry,axis=(1,2))) # : AXES WONT WORK FOR 3D ATM
+
+        # Record if we saw a violation in the estimated boundary based sets
+        estBdry_success[r,:] = 1-(np.any(AcHatCapp_sub_AcCap_estBdry,axis=(1,2)) | np.any(AcCap_sub_AcHatCapm_estBdry,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
 
 
         # -------------------------------------------------------------------
@@ -2129,12 +2160,136 @@ def SpatialSims_2mu_seperate(ipath):
         g1_dAc1_concat = g1_dAc1_concat.reshape(g1_dAc1_concat.shape[-2],g1_dAc1_concat.shape[-1])
         g2_dAc2_concat = g2_dAc2_concat.reshape(g2_dAc2_concat.shape[-2],g2_dAc2_concat.shape[-1])
 
-        
+        # -------------------------------------------------------------------
+        # Intersection locations
+        # -------------------------------------------------------------------
+
+        # Get boolean maps for the boundary of Fc
+        Fc_bdry_maps = get_bdry_maps(np.minimum(mu1,mu2), c)
+
+        # Get coordinates for the boundary of Fc
+        Fc_bdry_locs = get_bdry_locs(Fc_bdry_maps)
+
+        # Obtain Mu along Fc (We need this to estimate interpolated regions)
+        mu1_Fc_bdry_concat = get_bdry_values_concat(mu1, Fc_bdry_locs)
+        mu2_Fc_bdry_concat = get_bdry_values_concat(mu2, Fc_bdry_locs)
+
+        # Get locations where outer mu1 and mu2 are greater than c
+        d1Fc_loc = np.where((mu2_Fc_bdry_concat[0,:,1]>c))[0]
+        d2Fc_loc = np.where((mu1_Fc_bdry_concat[0,:,1]>c))[0]
+        d12Fc_loc = np.where((mu2_Fc_bdry_concat[0,:,1]<= c)*(mu1_Fc_bdry_concat[0,:,1]<=c))[0]
+
+        # print('g1 shape ', g1.shape)
+        # print('g2 shape ', g2.shape)
+        # print('Ac1_bdry_locs ', Ac1_bdry_locs)
+        # print('Ac2_bdry_locs ', Ac2_bdry_locs)
+
+        # -------------------------------------------------------------------
+        # Interpolation weights
+        # -------------------------------------------------------------------
+
+        # Obtain the weights along the boundary for dkFc
+        d1Fc_bdry_weights_concat = get_bdry_weights_concat(mu1_d1Fc_concat, c)
+        d2Fc_bdry_weights_concat = get_bdry_weights_concat(mu2_d2Fc_concat, c)
+        d12Fc_mu1_bdry_weights_concat = get_bdry_weights_concat(mu1_d12Fc_concat, c)
+        d12Fc_mu2_bdry_weights_concat = get_bdry_weights_concat(mu2_d12Fc_concat, c)
+
+        # -------------------------------------------------------------------
+        # g1 and g2 on boundary
+        # -------------------------------------------------------------------
+
+        # g1 and g2 along d1Fc
+        g1_d1Fc_concat = g1_dFc_concat[:,d1Fc_loc,:]
+        g2_d1Fc_concat = g2_dFc_concat[:,d1Fc_loc,:]
+
+        # g1 and g2 along d2Fc
+        g1_d2Fc_concat = g1_dFc_concat[:,d2Fc_loc,:]
+        g2_d2Fc_concat = g2_dFc_concat[:,d2Fc_loc,:]
+
+        # g1 and g2 along d12Fc
+        g1_d12Fc_concat = g1_dFc_concat[:,d12Fc_loc,:]
+        g2_d12Fc_concat = g2_dFc_concat[:,d12Fc_loc,:]
+
+        # Interpolation for d1Fc boundary (we perform this interpolation based on the weights of
+        # mu1 as we are on the boundary of Ac1)
+        g1_d1Fc_concat = get_bdry_vals_interpolated_concat(g1_d1Fc_concat,d1Fc_bdry_weights_concat)
+        g2_d1Fc_concat = get_bdry_vals_interpolated_concat(g2_d1Fc_concat,d1Fc_bdry_weights_concat)
+
+        # Interpolation for d2Fc boundary (we perform this interpolation based on the weights of
+        # mu2 as we are on the boundary of Ac2)
+        g1_d2Fc_concat = get_bdry_vals_interpolated_concat(g1_d2Fc_concat,d2Fc_bdry_weights_concat)
+        g2_d2Fc_concat = get_bdry_vals_interpolated_concat(g2_d2Fc_concat,d2Fc_bdry_weights_concat)
+
+
+        # Interpolation for d1Fc and d2Fc boundary
+        g1_d12Fc_concat = get_bdry_vals_interpolated_concat(g1_d12Fc_concat,d12Fc_mu1_bdry_weights_concat)
+        g2_d12Fc_concat = get_bdry_vals_interpolated_concat(g2_d12Fc_concat,d12Fc_mu2_bdry_weights_concat)
+
+        # Reshape a bit
+        g1_d1Fc_concat = g1_d1Fc_concat.reshape(g1_d1Fc_concat.shape[-2], g1_d1Fc_concat.shape[-1])
+        g2_d1Fc_concat = g2_d1Fc_concat.reshape(g2_d1Fc_concat.shape[-2], g2_d1Fc_concat.shape[-1])
+        g1_d2Fc_concat = g1_d2Fc_concat.reshape(g1_d2Fc_concat.shape[-2], g1_d2Fc_concat.shape[-1])
+        g2_d2Fc_concat = g2_d2Fc_concat.reshape(g2_d2Fc_concat.shape[-2], g2_d2Fc_concat.shape[-1])
+        g1_d12Fc_concat = g1_d12Fc_concat.reshape(g1_d12Fc_concat.shape[-2], g1_d12Fc_concat.shape[-1])
+        g2_d12Fc_concat = g2_d12Fc_concat.reshape(g2_d12Fc_concat.shape[-2], g2_d12Fc_concat.shape[-1])
+
+
+        # Get g1 and g2 along dFc
+        g1_FcBdry = np.concatenate((g1_d1Fc_concat,g1_d2Fc_concat,g1_d12Fc_concat),axis=-1)
+        g1_FcBdry = g1_FcBdry.reshape(g1_FcBdry.shape[-2],g1_FcBdry.shape[-1])
+
+        g2_FcBdry = np.concatenate((g2_d1Fc_concat,g2_d2Fc_concat,g2_d12Fc_concat),axis=-1)
+        g2_FcBdry = g2_FcBdry.reshape(g2_FcBdry.shape[-2],g2_FcBdry.shape[-1])
 
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using interpolated
         # boundary values (checking if voxels had values corresponding to no
-        # violations, etc)
+        # violations, etc) (For intersection)
+        # -------------------------------------------------------------------
+
+        # Perform lower check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_lowerCheck_estBdry_cap1 = g1_dFc_concat >= a_estBdry1[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_upperCheck_estBdry_cap1 = g1_dFc_concat <= a_estBdry1[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # true boundary
+        bdry_lowerCheck_trueBdry_cap1 = g1_dFc_concat >= a_trueBdry1[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # true boundary
+        bdry_upperCheck_trueBdry_cap1 = g1_dFc_concat <= a_trueBdry1[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_lowerCheck_estBdry_cap2 = g2_dFc_concat >= a_estBdry2[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # estimated boundary
+        bdry_upperCheck_estBdry_cap2 = g2_dFc_concat <= a_estBdry2[:,1,:,0]
+
+        # Perform lower check on stat map using thresholds based on the
+        # true boundary
+        bdry_lowerCheck_trueBdry_cap2 = g2_dFc_concat >= a_trueBdry2[:,0,:,0]
+
+        # Perform upper check on stat map using thresholds based on the
+        # true boundary
+        bdry_upperCheck_trueBdry_cap2 = g2_dFc_concat <= a_trueBdry2[:,1,:,0]
+
+
+        # Success in both instances
+        trueBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_trueBdry_cap1,axis=(1)) & np.all(bdry_upperCheck_trueBdry_cap1,axis=(1)) & \
+                                      np.all(bdry_lowerCheck_trueBdry_cap2,axis=(1)) & np.all(bdry_upperCheck_trueBdry_cap2,axis=(1))
+        estBdry_success_intrp[r,:] = np.all(bdry_lowerCheck_estBdry_cap1,axis=(1)) & np.all(bdry_upperCheck_estBdry_cap1,axis=(1)) & \
+                                     np.all(bdry_lowerCheck_estBdry_cap2,axis=(1)) & np.all(bdry_upperCheck_estBdry_cap2,axis=(1))
+
+        # -------------------------------------------------------------------
+        # Check whether there were any boundary violations using interpolated
+        # boundary values (checking if voxels had values corresponding to no
+        # violations, etc) (For Ac1 and Ac2 seperately)
         # -------------------------------------------------------------------
 
         # Perform lower check on stat map using thresholds based on the
@@ -2180,10 +2335,6 @@ def SpatialSims_2mu_seperate(ipath):
         estBdry_success_intrp1[r,:] = np.all(bdry_lowerCheck_estBdry1,axis=(1)) & np.all(bdry_upperCheck_estBdry1,axis=(1)) # : AXES WONT WORK FOR 3D ATM
         estBdry_success_intrp2[r,:] = np.all(bdry_lowerCheck_estBdry2,axis=(1)) & np.all(bdry_upperCheck_estBdry2,axis=(1)) # : AXES WONT WORK FOR 3D ATM
 
-
-        # Success in both instances
-        trueBdry_success_intrp[r,:] = trueBdry_success_intrp1[r,:]*trueBdry_success_intrp2[r,:]
-        estBdry_success_intrp[r,:] = estBdry_success_intrp1[r,:]*estBdry_success_intrp2[r,:]
 
     # For the interpolated boundary success checks, we still need to do the 
     # voxelwise checks as well. This will take care of that.
