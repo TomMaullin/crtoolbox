@@ -245,8 +245,24 @@ def get_noise(noiseSpec, dim):
     # Work out padded dimensions
     pdim = dim + 2*(radii+1)
 
-    # Generate unsmoothed random normal data for noise
-    noise = np.random.randn(*pdim)
+    if 'distribution' not in noiseSpec:
+
+        # Generate unsmoothed random normal data for noise
+        noise = np.random.randn(*pdim)
+
+    else:
+
+        if noiseSpec['distribution']=='GaussianMix':
+
+            # switch variable, deciding which distribution we're looking at:
+            switch = np.random.binomial(1,0.5)
+
+            # Get mixture variances
+            c1 = float(noiseSpec['mix']['var1'])
+            c2 = float(noiseSpec['mix']['var2']) 
+
+            # Generate noise as a mixture of two gaussians
+            noise = switch*(-1+np.random.randn(*pdim)*c1) + switch*(1 + np.random.randn(*pdim)*c2)
 
     # -----------------------------------------------------------------------
     # Perform smoothing
