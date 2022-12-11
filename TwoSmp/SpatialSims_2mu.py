@@ -2263,35 +2263,35 @@ def SpatialSims_2mu_seperate(ipath):
 
         # Perform lower check on stat map using thresholds based on the
         # estimated boundary
-        bdry_lowerCheck_estBdry_cap1 = g1_dFc_concat >= a_estBdry1[:,0,:,0]
+        bdry_lowerCheck_estBdry_cap1 = g1_FcBdry >= a_estBdry1[:,0,:,0]
 
         # Perform upper check on stat map using thresholds based on the
         # estimated boundary
-        bdry_upperCheck_estBdry_cap1 = g1_dFc_concat <= a_estBdry1[:,1,:,0]
+        bdry_upperCheck_estBdry_cap1 = g1_FcBdry <= a_estBdry1[:,1,:,0]
 
         # Perform lower check on stat map using thresholds based on the
         # true boundary
-        bdry_lowerCheck_trueBdry_cap1 = g1_dFc_concat >= a_trueBdry1[:,0,:,0]
+        bdry_lowerCheck_trueBdry_cap1 = g1_FcBdry >= a_trueBdry1[:,0,:,0]
 
         # Perform upper check on stat map using thresholds based on the
         # true boundary
-        bdry_upperCheck_trueBdry_cap1 = g1_dFc_concat <= a_trueBdry1[:,1,:,0]
+        bdry_upperCheck_trueBdry_cap1 = g1_FcBdry <= a_trueBdry1[:,1,:,0]
 
         # Perform lower check on stat map using thresholds based on the
         # estimated boundary
-        bdry_lowerCheck_estBdry_cap2 = g2_dFc_concat >= a_estBdry2[:,0,:,0]
+        bdry_lowerCheck_estBdry_cap2 = g2_FcBdry >= a_estBdry2[:,0,:,0]
 
         # Perform upper check on stat map using thresholds based on the
         # estimated boundary
-        bdry_upperCheck_estBdry_cap2 = g2_dFc_concat <= a_estBdry2[:,1,:,0]
+        bdry_upperCheck_estBdry_cap2 = g2_FcBdry <= a_estBdry2[:,1,:,0]
 
         # Perform lower check on stat map using thresholds based on the
         # true boundary
-        bdry_lowerCheck_trueBdry_cap2 = g2_dFc_concat >= a_trueBdry2[:,0,:,0]
+        bdry_lowerCheck_trueBdry_cap2 = g2_FcBdry >= a_trueBdry2[:,0,:,0]
 
         # Perform upper check on stat map using thresholds based on the
         # true boundary
-        bdry_upperCheck_trueBdry_cap2 = g2_dFc_concat <= a_trueBdry2[:,1,:,0]
+        bdry_upperCheck_trueBdry_cap2 = g2_FcBdry <= a_trueBdry2[:,1,:,0]
 
 
         # Success in both instances
