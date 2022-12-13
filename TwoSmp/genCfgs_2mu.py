@@ -3293,7 +3293,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==29:
 
         # These are our signal smoothness values
-        smooths = np.arange(0,8,0.2)
+        smooths = np.arange(0.5,16.5,0.5)
 
         # Create muBoth specification
         muBoth = {}
@@ -3352,7 +3352,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 12
+        muBoth['r'] = 16
 
         # Add muBoth magnitude
         muBoth['mag'] = 3
@@ -3361,7 +3361,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])
+        fg_smooths = np.array([0,2,4,6])*2
 
         # Id for config file
         cfgId = 1
@@ -3370,13 +3370,13 @@ def generateCfgs(OutDir, simNo):
         for smooth in smooths:
 
             # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3433,7 +3433,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==30:
 
         # These are our signal smoothness values
-        smooths = np.arange(0,8,0.2)
+        smooths = np.arange(0.5,16.5,0.5)
 
         # Create muBoth specification
         muBoth = {}
@@ -3492,7 +3492,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 12
+        muBoth['r'] = 16
 
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
@@ -3501,7 +3501,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])
+        fg_smooths = np.array([0,2,4,6])*2
 
         # Id for config file
         cfgId = 1
@@ -3510,13 +3510,13 @@ def generateCfgs(OutDir, simNo):
         for smooth in smooths:
 
             # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3572,7 +3572,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==31:
 
         # These are our signal smoothness values
-        smooths = np.arange(0,8,0.2)
+        smooths = np.arange(0.5,16.5,0.5)
 
         # Create muBoth specification
         muBoth = {}
@@ -3629,7 +3629,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 12
+        muBoth['r'] = 16
 
         # Add muBoth magnitude
         muBoth['mag'] = 3
@@ -3638,7 +3638,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])
+        fg_smooths = np.array([0,2,4,6])*2
 
         # Id for config file
         cfgId = 1
@@ -3647,13 +3647,13 @@ def generateCfgs(OutDir, simNo):
         for smooth in smooths:
 
             # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3711,7 +3711,7 @@ def generateCfgs(OutDir, simNo):
     if simNo==32:
 
         # These are our signal smoothness values
-        smooths = np.arange(0,8,0.2)
+        smooths = np.arange(0.5,16.5,0.5)
 
         # Create muBoth specification
         muBoth = {}
@@ -3768,7 +3768,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 12
+        muBoth['r'] = 16
 
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
@@ -3777,7 +3777,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['center']= 'np.array([0,0])'
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])
+        fg_smooths = np.array([0,2,4,6])*2
 
         # Id for config file
         cfgId = 1
@@ -3786,13 +3786,13 @@ def generateCfgs(OutDir, simNo):
         for smooth in smooths:
 
             # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(2+smooth) + ',' + str(2+smooth) +'])'
+            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
 
             # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(10-smooth) + ',' + str(10-smooth) +'])'
+            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
