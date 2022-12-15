@@ -10,7 +10,17 @@ import yaml
 import matplotlib.pyplot as plt
 
 
-def check_violations(Fc, FcHat_plus, FcHat_minus, muHats, mus, sigmas, c, tau, a):
+def check_violations(FcHat_plus, FcHat_minus, muHats, mus, sigmas, c, tau, a):
+
+    # -------------------------------------------------------------------
+    # Get minimum field
+    # -------------------------------------------------------------------
+    # This is named cap as the excursion set of the minimum field is
+    # the intersection of all fields (\cap in latex)
+    cap_mu = np.amin(mus,axis=0)
+
+    # Obtain Fc
+    Fc = cap_mu > c
 
     # -------------------------------------------------------------------
     # Some set logic to work out violations
