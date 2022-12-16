@@ -63,8 +63,9 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # Get coordinates for the boundary of Fc
     Fc_bdry_locs = get_bdry_locs(Fc_bdry_map)
 
-    # Empty dict to store g along true boundary
+    # Empty dict to store g and mu along true boundary
     g_dFc = {}
+    mu_dFc = {}
 
     # Loop through fields
     for i in (np.arange(m)+1):
@@ -81,7 +82,6 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
     # Empty dict to store interpolate g along true boundary
     g_dFc_interp = {}
-
 
     # -------------------------------------------------------------------
     # Boundary partitions 
@@ -131,6 +131,37 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
         # Save locations
         dalphaFc_locs[np.array2string(alpha)] = dalphaFc_loc
+
+
+
+    # -------------------------------------------------------------------
+    # Get residuals, mu and muhat along boundary partitions
+    # -------------------------------------------------------------------
+
+    # Empty dict for mu
+    mu_dFc_partitioned = {}
+
+    # Loop through boundary partitions
+    for alpha in alphas:
+
+        # New empty dict for mu on dalpha Fc
+        mu_dalphaFc = {}
+
+        # Loop through i in alpha getting values for interpolation
+        for i in alpha:
+
+            # ------------------------------------------------------
+            # Mu on true boundary; dFc
+            # ------------------------------------------------------
+
+            # Get mu for field i along dFc
+            mui_dFc = mu_dFc['field'+str(i)]
+
+            # Save residuals for field i along dalphaFc
+            mu_dalphaFc[str(i)] = mui_dFc[dalphaFc_loc,:]
+
+        # Save mu and muhat for alpha
+        mu_dFc_partitioned[np.array2string(alpha)] = mu_dalphaFc
 
 
     # -------------------------------------------------------------------
