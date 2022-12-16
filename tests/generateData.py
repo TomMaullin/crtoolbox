@@ -3,6 +3,32 @@ from scipy import ndimage
 import time
 from matplotlib import pyplot as plt
 
+
+# Even circle points function, taken from:
+# https://stackoverflow.com/questions/33510979/generator-of-evenly-spaced-points-in-a-circle-in-python
+def circle_points(r, n):
+    circles = []
+    for r, n in zip(r, n):
+        t = np.linspace(0, 2*np.pi, n, endpoint=False)
+        x = np.round(r * np.cos(t))
+        y = np.round(r * np.sin(t))
+        circles.append(np.c_[x, y])
+    return circles[0]
+
+def get_data_1field(muSpec,noiseSpec,dim):
+
+    # Obtain the noise fields
+    noise = get_noise(noiseSpec, dim)
+
+    # Obtain mu
+    mu = get_mu(muSpec, dim)
+    
+    # Create the data
+    data = mu + noise
+
+    # Return the data and mu
+    return(data,mu)
+
 # ===========================================================================
 #
 # Inputs:

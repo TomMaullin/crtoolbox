@@ -3,7 +3,7 @@ import sys
 import time
 import numpy as np
 from boundary import *
-from setTheory2mu import *
+from set_theory import powerset
 from fileio import *
 import yaml
 import matplotlib.pyplot as plt

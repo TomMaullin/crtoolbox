@@ -5,7 +5,7 @@ import numpy as np
 from boundary import *
 from fileio import *
 from bootstrap import *
-from set_theory import powerset
+from setTheory2mu import *
 import yaml
 import matplotlib.pyplot as plt
 
