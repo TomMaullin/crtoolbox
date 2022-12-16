@@ -155,7 +155,7 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
             # ------------------------------------------------------
 
             # Get mu for field i along dFc
-            mui_dFc = mu_dFc['field'+str(i)]
+            mui_dFc = mu_dFc[str(i)]
 
             # Save residuals for field i along dalphaFc
             mu_dalphaFc[str(i)] = mui_dFc[dalphaFc_loc,:]
