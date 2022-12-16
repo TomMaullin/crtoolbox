@@ -49,7 +49,7 @@ def check_violations(FcHat_plus, FcHat_minus, muHats, mus, sigmas, c, tau, a):
     # -------------------------------------------------------------------
 
     # Get boolean map for the boundary of Fc
-    Fc_bdry_map = get_bdry_maps(mu, c)
+    Fc_bdry_map = get_bdry_maps(cap_mu, c)
 
     # Get coordinates for the boundary of Fc
     Fc_bdry_locs = get_bdry_locs(Fc_bdry_map)
