@@ -71,14 +71,14 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     for i in (np.arange(m)+1):
 
         # Get the values for gi along dFc
-        g_dFc[str(i)] = get_bdry_values_concat(g[i,...], Fc_bdry_locs)
+        g_dFc[str(i)] = get_bdry_values_concat(g[i-1,...], Fc_bdry_locs)
         
         # -------------------------------------------------------------------
         # Mu along dFc
         # -------------------------------------------------------------------
 
         # Obtain Mu along Fc
-        mu_dFc[str(i)] = get_bdry_values_concat(mus[i,...], Fc_bdry_locs)
+        mu_dFc[str(i)] = get_bdry_values_concat(mus[i-1,...], Fc_bdry_locs)
 
     # Empty dict to store interpolate g along true boundary
     g_dFc_interp = {}
