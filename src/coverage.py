@@ -10,7 +10,16 @@ import yaml
 import matplotlib.pyplot as plt
 
 
-def check_violations(FcHat_plus, FcHat_minus, muHats, mus, sigmas, c, tau, a):
+def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
+
+    # -------------------------------------------------------------------
+    # Get Muhat and Sigma
+    # -------------------------------------------------------------------
+    muHats = np.mean(datas,axis=1)
+    sigmas = np.mean(datas,axis=1)
+
+    # Number of conditions
+    m = datas.shape[0]
 
     # -------------------------------------------------------------------
     # Get minimum field
