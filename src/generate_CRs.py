@@ -317,4 +317,4 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     FcHat_pm_estBdry = stat >= a_estBdry
 
     # Return result
-    return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...])
+    return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...].reshape(np.prod(a_estBdry.shape)))

@@ -16,7 +16,7 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # Get Muhat and Sigma
     # -------------------------------------------------------------------
     muHats = np.mean(datas,axis=1)
-    sigmas = np.mean(datas,axis=1)
+    sigmas = np.std(datas,axis=1)
 
     # Number of conditions
     m = datas.shape[0]
@@ -53,6 +53,8 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # Obtain statistic, g
     g = ((muHats-c)/(sigmas*tau))
 
+    print('MARKER 1: ', muHats,c,sigmas,tau)
+
     # -------------------------------------------------------------------
     # Boundary locations for FcHat
     # -------------------------------------------------------------------
@@ -63,25 +65,19 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # Get coordinates for the boundary of Fc
     Fc_bdry_locs = get_bdry_locs(Fc_bdry_map)
 
-    # Empty dict to store g and mu along true boundary
-    g_dFc = {}
+    # Empty dict to store mu along true boundary
     mu_dFc = {}
+
 
     # Loop through fields
     for i in (np.arange(m)+1):
 
-        # Get the values for gi along dFc
-        g_dFc[str(i)] = get_bdry_values_concat(g[i-1,...], Fc_bdry_locs)
-        
         # -------------------------------------------------------------------
         # Mu along dFc
         # -------------------------------------------------------------------
 
         # Obtain Mu along Fc
         mu_dFc[str(i)] = get_bdry_values_concat(mus[i-1,...], Fc_bdry_locs)
-
-    # Empty dict to store interpolate g along true boundary
-    g_dFc_interp = {}
 
     # -------------------------------------------------------------------
     # Boundary partitions 
@@ -147,6 +143,9 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
         # New empty dict for mu on dalpha Fc
         mu_dalphaFc = {}
 
+        # Get dalpha locations
+        dalphaFc_loc = dalphaFc_locs[np.array2string(alpha)]
+
         # Loop through i in alpha getting values for interpolation
         for i in alpha:
 
@@ -159,6 +158,7 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
             # Save residuals for field i along dalphaFc
             mu_dalphaFc[str(i)] = mui_dFc[dalphaFc_loc,:]
+
 
         # Save mu and muhat for alpha
         mu_dFc_partitioned[np.array2string(alpha)] = mu_dalphaFc
@@ -193,6 +193,27 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
         # Save weights
         weights_dFc[np.array2string(alpha)] = weights_dalphaFc
 
+    # -------------------------------------------------------------------
+    # Get stat along the Fc boundary
+    # -------------------------------------------------------------------
+
+    g_dFc = {}
+
+    # Loop through fields
+    for i in (np.arange(m)+1):
+
+        # Get the values for gi along dFc
+        g_dFc[str(i)] = get_bdry_values_concat(g[i-1,...], Fc_bdry_locs)
+        
+        # -------------------------------------------------------------------
+        # Mu along dFc
+        # -------------------------------------------------------------------
+
+        # Obtain Mu along Fc
+        mu_dFc[str(i)] = get_bdry_values_concat(mus[i-1,...], Fc_bdry_locs)
+
+    # Empty dict to store interpolate g along true boundary
+    g_dFc_interp = {}
 
     # Boolean to tell us if this is the first alpha we've looked at
     Firstalpha = True
@@ -264,13 +285,17 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # violations, etc)
     # -------------------------------------------------------------------
 
+    # Reshaping for binary comparison
+    a = a.reshape(np.prod(a.shape),1)
+    stat_dFc2 = stat_dFc.reshape(1,np.prod(stat_dFc.shape))
+
     # Perform lower check on stat map using thresholds based on the
     # estimated boundary
-    bdry_lowerCheck = stat_dFc >= a[:,0,:,0]
+    bdry_lowerCheck = stat_dFc2 >= -a
 
     # Perform upper check on stat map using thresholds based on the
     # estimated boundary
-    bdry_upperCheck = stat_dFc <= a[:,1,:,0]
+    bdry_upperCheck = stat_dFc2 <= a
 
     # -------------------------------------------------------------------
     # Work out whether we observed successful sets.
