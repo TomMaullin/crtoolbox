@@ -3328,7 +3328,7 @@ def generateCfgs(OutDir, simNo):
         mu1['type'] = 'circle2D' 
 
         # Add mu1 radius
-        mu1['r'] = 12
+        mu1['r'] = 16
 
         # Add mu1 magnitude
         mu1['mag'] = 3
@@ -3340,7 +3340,7 @@ def generateCfgs(OutDir, simNo):
         mu2['type'] = 'circle2D' 
 
         # Add mu2 radius
-        mu2['r'] = 12
+        mu2['r'] = 16
 
         # Add mu2 magnitude
         mu2['mag'] = 3
@@ -3352,7 +3352,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 16
+        muBoth['r'] = 12
 
         # Add muBoth magnitude
         muBoth['mag'] = 3
@@ -3468,7 +3468,7 @@ def generateCfgs(OutDir, simNo):
         mu1['type'] = 'circle2D' 
 
         # Add mu1 radius
-        mu1['r'] = 12
+        mu1['r'] = 16
 
         # Add mu1 magnitude
         mu1['mag'] = 3/4
@@ -3480,7 +3480,7 @@ def generateCfgs(OutDir, simNo):
         mu2['type'] = 'circle2D' 
 
         # Add mu2 radius
-        mu2['r'] = 12
+        mu2['r'] = 16
 
         # Add mu2 magnitude
         mu2['mag'] = 3/4
@@ -3492,7 +3492,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 16
+        muBoth['r'] = 12
 
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
@@ -3605,7 +3605,7 @@ def generateCfgs(OutDir, simNo):
         mu1['type'] = 'circle2D' 
 
         # Add mu1 radius
-        mu1['r'] = 12
+        mu1['r'] = 16
 
         # Add mu1 magnitude
         mu1['mag'] = 3
@@ -3617,7 +3617,7 @@ def generateCfgs(OutDir, simNo):
         mu2['type'] = 'circle2D' 
 
         # Add mu2 radius
-        mu2['r'] = 12
+        mu2['r'] = 16
 
         # Add mu2 magnitude
         mu2['mag'] = 3
@@ -3629,7 +3629,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 16
+        muBoth['r'] = 12
 
         # Add muBoth magnitude
         muBoth['mag'] = 3
@@ -3744,7 +3744,7 @@ def generateCfgs(OutDir, simNo):
         mu1['type'] = 'circle2D' 
 
         # Add mu1 radius
-        mu1['r'] = 12
+        mu1['r'] = 16
 
         # Add mu1 magnitude
         mu1['mag'] = 3/4
@@ -3756,7 +3756,7 @@ def generateCfgs(OutDir, simNo):
         mu2['type'] = 'circle2D' 
 
         # Add mu2 radius
-        mu2['r'] = 12
+        mu2['r'] = 16
 
         # Add mu2 magnitude
         mu2['mag'] = 3/4
@@ -3768,7 +3768,7 @@ def generateCfgs(OutDir, simNo):
         muBoth['type'] = 'circle2D' 
 
         # Add muBoth radius
-        muBoth['r'] = 16
+        muBoth['r'] = 12
 
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
