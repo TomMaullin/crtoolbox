@@ -4,7 +4,7 @@
   library(dplyr)
   
   # All simulations
-  simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','M1-M2','M3-M4')
+  simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','23-24','25-26','27-28','29-30','31-32','33-34','M1-M2','M3-M4')
   
   # All p values we're interested in
   pArray <- c(0.80,0.90,0.95)
@@ -21,7 +21,7 @@
     bdryStr = 'True Boundary'
   }
   
-  simDirs <- c('2smp/Sim1','2smp/Sim2','2smp/Sim7','2smp/Sim8','2smp/Sim11','2smp/Sim12','2smp/Sim15','2smp/Sim16','2smp/Sim17','2smp/Sim18','2smp/Sim19','2smp/Sim20','2smp/Sim21','2smp/Sim22','Msmp/Sim1','Msmp/Sim2','Msmp/Sim3','Msmp/Sim4')
+  simDirs <- c('2smp/Sim1','2smp/Sim2','2smp/Sim7','2smp/Sim8','2smp/Sim11','2smp/Sim12','2smp/Sim15','2smp/Sim16','2smp/Sim17','2smp/Sim18','2smp/Sim19','2smp/Sim20','2smp/Sim21','2smp/Sim22','2smp/Sim23','2smp/Sim24','2smp/Sim25','2smp/Sim26','2smp/Sim27','2smp/Sim28','2smp/Sim29','2smp/Sim30','2smp/Sim31','2smp/Sim32','Msmp/Sim1','Msmp/Sim2','Msmp/Sim3','Msmp/Sim4')
   
   # Relevant parameters
   nReals <- 2500
@@ -57,6 +57,12 @@
         if ((simDir == '2smp/Sim20')){
           
           sim_data <- subset(sim_data,Varying>0.9)
+          
+        }
+        
+        if ((simDir == '2smp/Sim23') | (simDir == '2smp/Sim24')){
+          
+          sim_data <- subset(sim_data,Varying>2)
           
         }
         
@@ -168,7 +174,7 @@
         # Create plot
         sim1_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 1: Varying Distance, Circle Signal (High SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -250,7 +256,7 @@
         # Create plot
         sim1_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 1: Varying Distance, Circle Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -331,7 +337,7 @@
         # Create plot
         sim2_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 1: Varying Distance, Circle Signal (Low SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -413,7 +419,7 @@
         # Create plot
         sim2_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 1: Varying Distance, Circle Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -508,7 +514,7 @@
         # Create plot
         sim7_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 4: Varying Distance, Square Signal (High SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -590,7 +596,7 @@
         # Create plot
         sim7_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 4: Varying Distance, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -671,7 +677,7 @@
         # Create plot
         sim8_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 4: Varying Distance, Square Signal (Low SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -753,7 +759,7 @@
         # Create plot
         sim8_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 4: Varying Distance, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -848,7 +854,7 @@
         # Create plot
         sim11_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 5: Varying Distance, Square Signal, Heterogeneous Noise (High SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -930,7 +936,7 @@
         # Create plot
         sim11_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 5: Varying Distance, Square Signal, Heterogeneous Noise (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1011,7 +1017,7 @@
         # Create plot
         sim12_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,50) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,50) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 5: Varying Distance, Square Signal, Heterogeneous Noise (Low SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -1093,7 +1099,7 @@
         # Create plot
         sim12_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 5: Varying Distance, Square Signal, Heterogeneous Noise (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1189,7 +1195,7 @@
         # Create plot
         sim15_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,46) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,46) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 6: Varying Distance, Square Signal, One Smaller (High SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -1271,7 +1277,7 @@
         # Create plot
         sim15_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 6: Varying Distance, Square Signal, One Smaller (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1352,7 +1358,7 @@
         # Create plot
         sim16_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0,46) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0,46) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 6: Varying Distance, Square Signal, One Smaller (Low SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Distance Between Square Centers (Number of Pixels)', y = 'Observed Coverage')
@@ -1434,7 +1440,7 @@
         # Create plot
         sim16_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 6: Varying Distance, Square Signal, One Smaller (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1534,7 +1540,7 @@
         # Create plot
         sim17_corr_vs_cov <- ggplot(tmp, aes(x=`Correlation`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(-1,1) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(-1,1) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Correlation`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 2: Varying Correlation, Square Signal (High SNR)', subtitle = paste('Correlation vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Correlation Between Noise Fields', y = 'Observed Coverage')
@@ -1619,7 +1625,7 @@
         # Create plot
         sim17_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Correlation`, color=`Correlation`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('-1' = 'indianred1', '-0.5' = 'orange', '0' = 'darkorchid', '0.5' = 'dodgerblue3', '1' = 'slategray'), name = 'Correlation') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 2: Varying Correlation, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1703,7 +1709,7 @@
         # Create plot
         sim18_corr_vs_cov <- ggplot(tmp, aes(x=`Correlation`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(-1,1) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(-1,1) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Correlation`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 2: Varying Correlation, Square Signal (Low SNR)', subtitle = paste('Correlation vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Correlation Between Noise Fields', y = 'Observed Coverage')
@@ -1788,7 +1794,7 @@
         # Create plot
         sim18_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Correlation`, color=`Correlation`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('-1' = 'indianred1', '-0.5' = 'orange', '0' = 'darkorchid', '0.5' = 'dodgerblue3', '1' = 'slategray'), name = 'Correlation') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 2: Varying Correlation, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -1886,7 +1892,7 @@
         # Create plot
         sim19_grad_vs_cov <- ggplot(tmp, aes(x=`Gradient`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(2,14) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(2,14) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Gradient`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 3: Varying Signal Gradient, Ramp Signal (High SNR)', subtitle = paste('Gradient vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Gradient (per 50 voxels)', y = 'Observed Coverage')
@@ -1971,7 +1977,7 @@
         # Create plot
         sim19_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Gradient`, color=`Gradient`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('2' = 'salmon','4' = 'darkorchid','6' = 'slategray'), name = 'Gradient') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 3: Varying Signal Gradient, Ramp Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2055,7 +2061,7 @@
         # Create plot
         sim20_grad_vs_cov <- ggplot(tmp, aes(x=`Gradient`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(0.5,3.5) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(0.5,3.5) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Gradient`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 3: Varying Signal Gradient, Ramp Signal (Low SNR)', subtitle = paste('Gradient vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Gradient (per 50 voxels)', y = 'Observed Coverage')
@@ -2140,7 +2146,7 @@
         # Create plot
         sim20_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Gradient`, color=`Gradient`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('0.5' = 'salmon','1' = 'darkorchid','1.5' = 'slategray'), name = 'Gradient') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 3: Varying Signal Gradient, Ramp Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2238,7 +2244,7 @@
         # Create plot
         sim21_corr_vs_cov <- ggplot(tmp, aes(x=`Magnitude`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(1,3) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(1,3) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Magnitude`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 7: Varying Noise Standard Deviation, Square Signal (High SNR)', subtitle = paste('Standard Deviation vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Standard Deviation of Second Noise Field', y = 'Observed Coverage')
@@ -2323,7 +2329,7 @@
         # Create plot
         sim21_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Magnitude`, color=`Magnitude`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('1' = 'salmon','2' = 'darkorchid','3' = 'slategray'), name = 'Std.') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 7: Varying Noise Standard Deviation, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2407,7 +2413,7 @@
         # Create plot
         sim22_corr_vs_cov <- ggplot(tmp, aes(x=`Magnitude`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(1,3) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(1,3) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`Magnitude`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 7: Varying Noise Standard Deviation, Square Signal (Low SNR)', subtitle = paste('Standard Deviation vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Standard Deviation of Second Noise Field', y = 'Observed Coverage')
@@ -2492,7 +2498,7 @@
         # Create plot
         sim22_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Magnitude`, color=`Magnitude`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('1' = 'salmon','2' = 'darkorchid','3' = 'slategray'), name = 'Std.') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 7: Varying Noise Standard Deviation, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2590,7 +2596,7 @@
         # Create plot
         sim1_m_vs_cov <- ggplot(tmp, aes(x=`M`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(2,5) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(2,5) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`M`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 8: Varying Number of Study Conditions (High SNR)', subtitle = paste('Number of Study Conditions vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Study Conditions (M)', y = 'Observed Coverage')
@@ -2675,7 +2681,7 @@
         # Create plot
         sim1_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`M`, color=`M`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('2' = 'indianred1', '3' = 'orange', '4' = 'darkorchid', '5' = 'slategray'), name = 'M') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 8: Varying Number of Study Conditions (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2759,7 +2765,7 @@
         # Create plot
         sim2_m_vs_cov <- ggplot(tmp, aes(x=`M`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(2,5) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(2,5) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
           geom_line(aes(x=`M`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 8: Varying Number of Study Conditions (Low SNR)', subtitle = paste('Number of Study Conditions vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Study Conditions (M)', y = 'Observed Coverage')
@@ -2844,7 +2850,7 @@
         # Create plot
         sim2_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`M`, color=`M`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('2' = 'indianred1', '3' = 'orange', '4' = 'darkorchid', '5' = 'slategray'), name = 'M') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 8: Varying Number of Study Conditions (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2949,7 +2955,7 @@
         # Create plot
         sim34_n_vs_cov <- ggplot(finaldata, aes(x=`n`,y=.data[[toString(p)]], group=`Sim`, color=`Sim`)) + 
           geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
-          xlim(40,500) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          xlim(40,500) + ylim(ymin,ymax) + 
           scale_color_manual(values = c('Low SNR' = 'salmon','High SNR' = 'darkorchid'), name = 'Simulation') +
           geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
           labs(title = 'Simulation 9: Nested Squares', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
@@ -2965,6 +2971,684 @@
         grid.arrange(sim34_n_vs_cov, ncol=1, nrow=1)
         dev.off()
   
+      }
+      
+      if (simNumbers=='23-24'){
+        
+        # ====================================================================================================
+        # Simulation 23: Varying smoothness of signal
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim23_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim23_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim23_data <- sim23_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim23_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim23_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(1-0.5*(1-p))*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim23_data[(sim23_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+        
+        xmin <- 0
+        xmax <- 7.8
+        
+        ymin <- 1-3*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim23_data[(sim23_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim23_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Smoothness`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (High SNR)', subtitle = paste('Smoothness vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Smoothness of Signals (FWHM)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 23: Varying smoothness of signal (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim23_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim23_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim23_data <- sim23_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim23_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim23_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim23_data[(sim23_data$Smoothness==reduced_d[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- 1-3*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim23_data[(sim23_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim23_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Smoothness`, color=`Smoothness`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values =  c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        # ====================================================================================================
+        # Simulation 24:  Varying Signal Smoothness (Low SNR)
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim24_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim24_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim24_data <- sim24_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim24_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim24_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim24_data[(sim24_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+        
+        xmin <- 0
+        xmax <- 7.8
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim24_data[(sim24_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim24_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Smoothness`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (Low SNR)', subtitle = paste('Smoothness vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Smoothness of Signals (FWHM)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 24: Varying Signal Smoothness(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim24_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim24_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim24_data <- sim24_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim24_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim24_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim24_data[(sim24_data$Smoothness==reduced_d[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim24_data[(sim24_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim24_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Smoothness`, color=`Smoothness`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Combine Sim 23 and 24 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/', toString(100*p), '/', bdryType ,'/sim10.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 12, bg = "white", res = 120)
+        grid.arrange(sim24_n_vs_cov, sim24_d_vs_cov, sim23_n_vs_cov, sim23_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+        
+      }
+
+      if (simNumbers=='25-26'){
+        
+        # ====================================================================================================
+        # Simulation 25: Varying smoothness of noise
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim25_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim25_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim25_data <- sim25_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim25_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim25_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(1-0.5*(1-p))*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim25_data[(sim25_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+        
+        xmin <- 0
+        xmax <- 7.8
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim25_data[(sim25_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim25_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Smoothness`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (High SNR)', subtitle = paste('Smoothness vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Smoothness of Noise (FWHM)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 25: Varying smoothness of noise (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim25_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim25_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim25_data <- sim25_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim25_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim25_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim25_data[(sim25_data$Smoothness==reduced_d[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim25_data[(sim25_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim25_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Smoothness`, color=`Smoothness`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values =  c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        # ====================================================================================================
+        # Simulation 26:  Varying Noise Smoothness (Low SNR)
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim26_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim26_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim26_data <- sim26_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim26_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim26_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim26_data[(sim26_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+        
+        xmin <- 0
+        xmax <- 7.8
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim26_data[(sim26_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim26_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Smoothness`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (Low SNR)', subtitle = paste('Smoothness vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Smoothness of Noise (FWHM)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 26: Varying Noise Smoothness(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim26_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim26_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim26_data <- sim26_data[c("n","Smoothness",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim26_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim26_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim26_data[(sim26_data$Smoothness==reduced_d[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim26_data[(sim26_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim26_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Smoothness`, color=`Smoothness`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Combine Sim 25 and 26 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/', toString(100*p), '/', bdryType ,'/sim11.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 12, bg = "white", res = 120)
+        grid.arrange(sim26_n_vs_cov, sim26_d_vs_cov, sim25_n_vs_cov, sim25_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+        
       }
   
     }
