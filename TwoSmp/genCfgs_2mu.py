@@ -3383,10 +3383,10 @@ def generateCfgs(OutDir, simNo):
         for h in heights:
 
             # Add mu1 radius
-            mu1['height'] = h
+            mu1['height'] = int(h)
 
             # Add mu2 radius
-            mu2['height'] = h
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3531,10 +3531,10 @@ def generateCfgs(OutDir, simNo):
         for h in heights:
 
             # Add mu1 radius
-            mu1['height'] = h
+            mu1['height'] = int(h)
 
             # Add mu2 radius
-            mu2['height'] = h
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3676,10 +3676,10 @@ def generateCfgs(OutDir, simNo):
         for h in heights:
 
             # Add mu1 radius
-            mu1['height'] = h
+            mu1['height'] = int(h)
 
             # Add mu2 radius
-            mu2['height'] = h
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
@@ -3808,7 +3808,7 @@ def generateCfgs(OutDir, simNo):
 
         # Add muBoth fwhm
         muBoth['fwhm'] = 'np.array([5,5])'
-        
+
         # Add muBoth to inputs
         inputs['muBoth'] = muBoth
 
@@ -3822,10 +3822,10 @@ def generateCfgs(OutDir, simNo):
         for h in heights:
 
             # Add mu1 radius
-            mu1['height'] = h
+            mu1['height'] = int(h)
 
             # Add mu2 radius
-            mu2['height'] = h
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
