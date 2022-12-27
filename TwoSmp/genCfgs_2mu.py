@@ -3401,7 +3401,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,height)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3546,7 +3546,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,height)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3688,7 +3688,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,height)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3831,7 +3831,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,height)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
