@@ -3364,6 +3364,9 @@ def generateCfgs(OutDir, simNo):
         # Add muBoth magnitude
         muBoth['mag'] = 3
 
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
         # Add muBoth center
         muBoth['center'] = 'np.array([0,0])'
 
@@ -3508,6 +3511,9 @@ def generateCfgs(OutDir, simNo):
 
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
+
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
 
         # Add muBoth center
         muBoth['center'] = 'np.array([0,0])'
@@ -3654,6 +3660,9 @@ def generateCfgs(OutDir, simNo):
         # Add muBoth center
         muBoth['center'] = 'np.array([0,0])'
 
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
         # Add muBoth to inputs
         inputs['muBoth'] = muBoth
 
@@ -3797,6 +3806,9 @@ def generateCfgs(OutDir, simNo):
         # Add muBoth center
         muBoth['center'] = 'np.array([0,0])'
 
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+        
         # Add muBoth to inputs
         inputs['muBoth'] = muBoth
 
