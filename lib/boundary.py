@@ -735,8 +735,8 @@ def get_bdry_values_concat(field, bdry_locs):
             outer_vals = field[(...,*bdry_locs[d][direction]['outer'])]
 
             # Reshape for concatenation
-            inner_vals = inner_vals.reshape((*inner_vals.shape),1)
-            outer_vals = outer_vals.reshape((*outer_vals.shape),1)
+            inner_vals = inner_vals.reshape(tuple(inner_vals.shape) + (1,))
+            outer_vals = outer_vals.reshape(tuple(outer_vals.shape) + (1,))
             
             # If this is the first edge we've looked at initialise 
             # concatenated interpolated boundary array
