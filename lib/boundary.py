@@ -777,8 +777,8 @@ def get_bdry_weights_concat(bdry_vals_concat,c):
         bdry_weights_outer_concat= (c-outer_vals)/(inner_vals-outer_vals)
 
         # Work out weights
-        bdry_weights_inner_concat = bdry_weights_inner_concat.reshape((*bdry_weights_inner_concat.shape),1)
-        bdry_weights_outer_concat = bdry_weights_outer_concat.reshape((*bdry_weights_outer_concat.shape),1)
+        bdry_weights_inner_concat = bdry_weights_inner_concat.reshape(*bdry_weights_inner_concat.shape,1)
+        bdry_weights_outer_concat = bdry_weights_outer_concat.reshape(*bdry_weights_outer_concat.shape,1)
 
     # In case we had 2 values which were the same (can happen when looking down
     # on ramp)
