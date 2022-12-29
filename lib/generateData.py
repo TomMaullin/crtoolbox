@@ -430,7 +430,7 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
 
     elif scaling=='max':
 
-        # Rescale noise by dividing by maximum value
+        # Rescale noise by dividing by maximum value (assuming we have positive values)
         if np.max(data)!= 0:
             data = data/np.max(data)
 
