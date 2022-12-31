@@ -2566,7 +2566,7 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # height value
-                height = np.float(eval(inputs['mu1']['height']))
+                height = np.float(inputs['mu1']['height'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table for Ac1
@@ -3074,7 +3074,7 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # fwhm value
-                height = np.float(eval(inputs['mu1']['height']))
+                height = np.float(inputs['mu1']['height'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table for conjunction
