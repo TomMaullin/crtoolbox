@@ -2300,11 +2300,11 @@ def SpatialSims_2mu_seperate(ipath):
 
 
         # Success in both instances
-        trueBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_trueBdry_cap1 | bdry_lowerCheck_trueBdry_cap2,axis=(1))) & \
+        trueBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_trueBdry_cap1 & bdry_lowerCheck_trueBdry_cap2,axis=(1))) & \
                                       (np.all(bdry_upperCheck_trueBdry_cap1 | bdry_upperCheck_trueBdry_cap2,axis=(1)))
-        estBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_estBdry_cap1 | bdry_lowerCheck_estBdry_cap2,axis=(1))) & \
+        estBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_estBdry_cap1 & bdry_lowerCheck_estBdry_cap2,axis=(1))) & \
                                      (np.all(bdry_upperCheck_estBdry_cap1 | bdry_upperCheck_estBdry_cap2,axis=(1)))
-                                     
+
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using interpolated
         # boundary values (checking if voxels had values corresponding to no
