@@ -274,7 +274,7 @@ def get_noise(noiseSpec, dim):
             c2 = float(noiseSpec['mix']['var2']) 
 
             # Generate noise as a mixture of two gaussians
-            noise = switch*(-1+np.random.randn(*pdim)*c1) + switch*(1 + np.random.randn(*pdim)*c2)
+            noise = switch*np.random.randn(*pdim)*c1 + (1-switch)*np.random.randn(*pdim)*c2
 
     # -----------------------------------------------------------------------
     # Perform smoothing
