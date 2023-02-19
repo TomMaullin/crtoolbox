@@ -4183,6 +4183,7 @@ def generateCfgs(OutDir, simNo):
 
             # Add type for noise 1
             noise2['distribution'] = 'GaussianMix'
+            noise2['mix'] = {}
 
             # Add mixture parameters for noise 1
             noise2['mix']['var1'] = 1
@@ -4190,6 +4191,7 @@ def generateCfgs(OutDir, simNo):
 
             # Add type for noise 1
             noise1['distribution'] = 'GaussianMix'
+            noise1['mix'] = {}
 
             # Add mixture parameters for noise 1
             noise1['mix']['var1'] = 1
@@ -4316,6 +4318,7 @@ def generateCfgs(OutDir, simNo):
 
             # Add type for noise 1
             noise2['distribution'] = 'GaussianMix'
+            noise2['mix'] = {}
 
             # Add mixture parameters for noise 1
             noise2['mix']['var1'] = 1
@@ -4323,6 +4326,7 @@ def generateCfgs(OutDir, simNo):
 
             # Add type for noise 1
             noise1['distribution'] = 'GaussianMix'
+            noise1['mix'] = {}
 
             # Add mixture parameters for noise 1
             noise1['mix']['var1'] = 1
