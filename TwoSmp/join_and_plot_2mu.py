@@ -2385,7 +2385,7 @@ def joinAndPlot(OutDir, simNo):
 
 
 
-    # Simulated over threshold range
+    # Simulated over height range
     if simNo in [29,30]:
 
         # Variable to check if this is the first file weve looked at
@@ -2565,29 +2565,29 @@ def joinAndPlot(OutDir, simNo):
                 # Number of subjects
                 nSub = inputs['nSub']
 
-                # fwhm value
-                fwhm = np.float(eval(inputs['mu1']['fwhm'])[0])
+                # height value
+                height = np.float(inputs['mu1']['height'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table for Ac1
                 # ------------------------------------------------------------------
                 # Line for table of estimated boundary results
-                tableLine_est1 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est1 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                 covp_est1.reshape(1,n_p)),\
                                                 axis=1)
 
                 # Line for table of true boundary results
-                tableLine_true1 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true1 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                  covp_true1.reshape(1,n_p)),\
                                                  axis=1)
 
                 # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp1 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est_intrp1 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                       covp_est_intrp1.reshape(1,n_p)),\
                                                       axis=1)
 
                 # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp1 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true_intrp1 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                        covp_true_intrp1.reshape(1,n_p)),\
                                                        axis=1)
 
@@ -2595,22 +2595,22 @@ def joinAndPlot(OutDir, simNo):
                 # Add coverage probabilities to table for Ac2
                 # ------------------------------------------------------------------
                 # Line for table of estimated boundary results
-                tableLine_est2 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est2 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                 covp_est2.reshape(1,n_p)),\
                                                 axis=1)
 
                 # Line for table of true boundary results
-                tableLine_true2 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true2 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                  covp_true2.reshape(1,n_p)),\
                                                  axis=1)
 
                 # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp2 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est_intrp2 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                       covp_est_intrp2.reshape(1,n_p)),\
                                                       axis=1)
 
                 # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp2 = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true_intrp2 = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                        covp_true_intrp2.reshape(1,n_p)),\
                                                        axis=1)
 
@@ -2618,22 +2618,22 @@ def joinAndPlot(OutDir, simNo):
                 # Add coverage probabilities to table for intersect
                 # ------------------------------------------------------------------
                 # Line for table of estimated boundary results
-                tableLine_est = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                 covp_est.reshape(1,n_p)),\
                                                 axis=1)
 
                 # Line for table of true boundary results
-                tableLine_true = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                  covp_true.reshape(1,n_p)),\
                                                  axis=1)
 
                 # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                       covp_est_intrp.reshape(1,n_p)),\
                                                       axis=1)
 
                 # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                        covp_true_intrp.reshape(1,n_p)),\
                                                        axis=1)
 
@@ -2749,7 +2749,7 @@ def joinAndPlot(OutDir, simNo):
         # ----------------------------------------------------------------------
 
         # Column headers
-        colhdr = ['cfgID', 'n', 'fwhm']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+        colhdr = ['cfgID', 'n', 'height']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
 
         # Assign column headers
         table_true_intrp1.columns=colhdr
@@ -2761,7 +2761,7 @@ def joinAndPlot(OutDir, simNo):
 
         # List of n and p values
         n_values = np.unique(table_est_intrp['n'].values)
-        f_values = np.unique(table_est_intrp['fwhm'].values)
+        h_values = np.unique(table_est_intrp['height'].values)
         p_values = np.linspace(0,1,21)
 
         # Loop through all values of n
@@ -2770,26 +2770,26 @@ def joinAndPlot(OutDir, simNo):
             # Loop through all values of p
             for p in p_values:
 
-                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('fwhm')
-                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('fwhm')
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('height')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('height')
 
-                # FWHMs
-                f_est_n = table_est_n[['fwhm']].values
+                # Heights
+                h_est_n = table_est_n[['height']].values
                 p_est_n = table_est_n[['p='+('%.2f' % p)]].values
-                f_true_n = table_true_n[['fwhm']].values
+                h_true_n = table_true_n[['height']].values
                 p_true_n = table_true_n[['p='+('%.2f' % p)]].values
 
-                print(f_est_n,p_est_n)
+                print(h_est_n,p_est_n)
 
-                plt.plot(f_est_n,p_est_n,color="red",label="Estimated boundary")
-                plt.plot(f_true_n,p_true_n,color="blue",label="True boundary")
-                plt.hlines(p, np.min(f_est_n), np.max(f_est_n),linestyles='dashed',label="Expected")
+                plt.plot(h_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(h_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(h_est_n), np.max(h_est_n),linestyles='dashed',label="Expected")
 
                 # Title
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("FWHM")
+                plt.xlabel("Height of Rectangle")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
@@ -2799,32 +2799,32 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'f_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+                plt.savefig(os.path.join(fResDir, 'h_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-                table_est_n1 = table_est_intrp1[table_est_intrp1['n']==n].sort_values('fwhm')
-                table_true_n1 = table_true_intrp1[table_true_intrp1['n']==n].sort_values('fwhm')
+                table_est_n1 = table_est_intrp1[table_est_intrp1['n']==n].sort_values('height')
+                table_true_n1 = table_true_intrp1[table_true_intrp1['n']==n].sort_values('height')
 
-                # FWHMs
-                f_est_n1 = table_est_n1[['fwhm']].values
+                # Heights
+                h_est_n1 = table_est_n1[['height']].values
                 p_est_n1 = table_est_n1[['p='+('%.2f' % p)]].values
-                f_true_n1 = table_true_n1[['fwhm']].values
+                h_true_n1 = table_true_n1[['height']].values
                 p_true_n1 = table_true_n1[['p='+('%.2f' % p)]].values
 
-                print(f_est_n1,p_est_n1)
+                print(h_est_n1,p_est_n1)
 
-                plt.plot(f_est_n1,p_est_n1,color="red",label="Estimated boundary")
-                plt.plot(f_true_n1,p_true_n1,color="blue",label="True boundary")
-                plt.hlines(p, np.min(f_est_n1), np.max(f_est_n1),linestyles='dashed',label="Expected")
+                plt.plot(h_est_n1,p_est_n1,color="red",label="Estimated boundary")
+                plt.plot(h_true_n1,p_true_n1,color="blue",label="True boundary")
+                plt.hlines(p, np.min(h_est_n1), np.max(h_est_n1),linestyles='dashed',label="Expected")
 
                 # Title
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("FWHM")
+                plt.xlabel("Height")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
@@ -2834,32 +2834,32 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'f_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac1.png'))
+                plt.savefig(os.path.join(fResDir, 'h_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac1.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-                table_est_n2 = table_est_intrp2[table_est_intrp2['n']==n].sort_values('fwhm')
-                table_true_n2 = table_true_intrp2[table_true_intrp2['n']==n].sort_values('fwhm')
+                table_est_n2 = table_est_intrp2[table_est_intrp2['n']==n].sort_values('height')
+                table_true_n2 = table_true_intrp2[table_true_intrp2['n']==n].sort_values('height')
 
-                # FWHMs
-                f_est_n2 = table_est_n2[['fwhm']].values
+                # Heights
+                h_est_n2 = table_est_n2[['height']].values
                 p_est_n2 = table_est_n2[['p='+('%.2f' % p)]].values
-                f_true_n2 = table_true_n2[['fwhm']].values
+                h_true_n2 = table_true_n2[['height']].values
                 p_true_n2 = table_true_n2[['p='+('%.2f' % p)]].values
 
-                print(f_est_n2,p_est_n2)
+                print(h_est_n2,p_est_n2)
 
-                plt.plot(f_est_n2,p_est_n2,color="red",label="Estimated boundary")
-                plt.plot(f_true_n2,p_true_n2,color="blue",label="True boundary")
-                plt.hlines(p, np.min(f_est_n2), np.max(f_est_n2),linestyles='dashed',label="Expected")
+                plt.plot(h_est_n2,p_est_n2,color="red",label="Estimated boundary")
+                plt.plot(h_true_n2,p_true_n2,color="blue",label="True boundary")
+                plt.hlines(p, np.min(h_est_n2), np.max(h_est_n2),linestyles='dashed',label="Expected")
 
                 # Title
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("FWHM")
+                plt.xlabel("Height")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
@@ -2869,119 +2869,119 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'f_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac2.png'))
+                plt.savefig(os.path.join(fResDir, 'h_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac2.png'))
 
                 # Clear figure
                 plt.clf()
 
 
 
-        # Loop through all values of fwhm
-        for f in f_values:
+        # Loop through all values of height
+        for h in h_values:
 
             # Loop through all values of p
             for p in p_values:
 
-                table_est_f = table_est_intrp[table_est_intrp['fwhm']==f].sort_values('n')
-                table_true_f = table_true_intrp[table_true_intrp['fwhm']==f].sort_values('n')
+                table_est_h = table_est_intrp[table_est_intrp['height']==h].sort_values('n')
+                table_true_h = table_true_intrp[table_true_intrp['height']==h].sort_values('n')
 
-                # n and p for this fwhm
-                n_est_f = table_est_f[['n']].values
-                p_est_f = table_est_f[['p='+('%.2f' % p)]].values
-                n_true_f = table_true_f[['n']].values
-                p_true_f = table_true_f[['p='+('%.2f' % p)]].values
+                # n and p for this height
+                n_est_h = table_est_h[['n']].values
+                p_est_h = table_est_h[['p='+('%.2f' % p)]].values
+                n_true_h = table_true_h[['n']].values
+                p_true_h = table_true_h[['p='+('%.2f' % p)]].values
 
-                plt.plot(n_est_f,p_est_f,color="red",label="Estimated boundary")
-                plt.plot(n_true_f,p_true_f,color="blue",label="True boundary")
-                plt.hlines(p, np.min(n_est_f), np.max(n_est_f),linestyles='dashed',label="Expected")
+                plt.plot(n_est_h,p_est_h,color="red",label="Estimated boundary")
+                plt.plot(n_true_h,p_true_h,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_h), np.max(n_est_h),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Threshold " + ('%.2f' % f) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Height " + ('%.2f' % h) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
                 plt.ylabel("Observed coverage")
                 
                 # Make axis a bit clearer
-                plt.ylim((np.min(p_true_f)-0.02,1))
+                plt.ylim((np.min(p_true_h)-0.02,1))
                 
                 # Legend
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_fwhm'+('%.2f' % f)+'.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_height'+('%.2f' % h)+'.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-                table_est_f1 = table_est_intrp1[table_est_intrp1['fwhm']==f].sort_values('n')
-                table_true_f1 = table_true_intrp1[table_true_intrp1['fwhm']==f].sort_values('n')
+                table_est_h1 = table_est_intrp1[table_est_intrp1['height']==h].sort_values('n')
+                table_true_h1 = table_true_intrp1[table_true_intrp1['height']==h].sort_values('n')
 
-                # n and p for this fwhm
-                n_est_f1 = table_est_f1[['n']].values
-                p_est_f1 = table_est_f1[['p='+('%.2f' % p)]].values
-                n_true_f1 = table_true_f1[['n']].values
-                p_true_f1 = table_true_f1[['p='+('%.2f' % p)]].values
+                # n and p for this height
+                n_est_h1 = table_est_h1[['n']].values
+                p_est_h1 = table_est_h1[['p='+('%.2f' % p)]].values
+                n_true_h1 = table_true_h1[['n']].values
+                p_true_h1 = table_true_h1[['p='+('%.2f' % p)]].values
 
-                plt.plot(n_est_f1,p_est_f1,color="red",label="Estimated boundary")
-                plt.plot(n_true_f1,p_true_f1,color="blue",label="True boundary")
-                plt.hlines(p, np.min(n_est_f1), np.max(n_est_f1),linestyles='dashed',label="Expected")
+                plt.plot(n_est_h1,p_est_h1,color="red",label="Estimated boundary")
+                plt.plot(n_true_h1,p_true_h1,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_h1), np.max(n_est_h1),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Threshold " + ('%.2f' % f) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Height " + ('%.2f' % h) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
                 plt.ylabel("Observed coverage")
                 
                 # Make axis a bit clearer
-                plt.ylim((np.min(p_true_f1)-0.02,1))
+                plt.ylim((np.min(p_true_h1)-0.02,1))
                 
                 # Legend
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_fwhm'+('%.2f' % f)+'_Ac1.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_height'+('%.2f' % h)+'_Ac1.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-                table_est_f2 = table_est_intrp2[table_est_intrp2['fwhm']==f].sort_values('n')
-                table_true_f2 = table_true_intrp2[table_true_intrp2['fwhm']==f].sort_values('n')
+                table_est_h2 = table_est_intrp2[table_est_intrp2['height']==h].sort_values('n')
+                table_true_h2 = table_true_intrp2[table_true_intrp2['height']==h].sort_values('n')
 
-                # n and p for this fwhm
-                n_est_f2 = table_est_f2[['n']].values
-                p_est_f2 = table_est_f2[['p='+('%.2f' % p)]].values
-                n_true_f2 = table_true_f2[['n']].values
-                p_true_f2 = table_true_f2[['p='+('%.2f' % p)]].values
+                # n and p for this height
+                n_est_h2 = table_est_h2[['n']].values
+                p_est_h2 = table_est_h2[['p='+('%.2f' % p)]].values
+                n_true_h2 = table_true_h2[['n']].values
+                p_true_h2 = table_true_h2[['p='+('%.2f' % p)]].values
 
-                plt.plot(n_est_f2,p_est_f2,color="red",label="Estimated boundary")
-                plt.plot(n_true_f2,p_true_f2,color="blue",label="True boundary")
-                plt.hlines(p, np.min(n_est_f2), np.max(n_est_f2),linestyles='dashed',label="Expected")
+                plt.plot(n_est_h2,p_est_h2,color="red",label="Estimated boundary")
+                plt.plot(n_true_h2,p_true_h2,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_h2), np.max(n_est_h2),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Threshold " + ('%.2f' % f) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Height " + ('%.2f' % h) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
                 plt.ylabel("Observed coverage")
                 
                 # Make axis a bit clearer
-                plt.ylim((np.min(p_true_f2)-0.02,1))
+                plt.ylim((np.min(p_true_h2)-0.02,1))
                 
                 # Legend
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_fwhm'+('%.2f' % f)+'_Ac2.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_height'+('%.2f' % h)+'_Ac2.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-    # Simulated over threshold range
+    # Simulated over height range
     if simNo in [31,32]:
 
         # Variable to check if this is the first file weve looked at
@@ -3074,28 +3074,28 @@ def joinAndPlot(OutDir, simNo):
                 nSub = inputs['nSub']
 
                 # fwhm value
-                fwhm = np.float(eval(inputs['mu1']['fwhm'])[0])
+                height = np.float(inputs['mu1']['height'])
 
                 # ------------------------------------------------------------------
                 # Add coverage probabilities to table for conjunction
                 # ------------------------------------------------------------------
                 # Line for table of estimated boundary results
-                tableLine_est = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                 covp_est.reshape(1,n_p)),\
                                                 axis=1)
 
                 # Line for table of true boundary results
-                tableLine_true = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                  covp_true.reshape(1,n_p)),\
                                                  axis=1)
 
                 # Line for table of estimated boundary interpolation assessed results
-                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                       covp_est_intrp.reshape(1,n_p)),\
                                                       axis=1)
 
                 # Line for table of true boundary interpolation assessed results
-                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,fwhm]]),\
+                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,height]]),\
                                                        covp_true_intrp.reshape(1,n_p)),\
                                                        axis=1)
 
@@ -3187,7 +3187,7 @@ def joinAndPlot(OutDir, simNo):
         # ----------------------------------------------------------------------
 
         # Column headers
-        colhdr = ['cfgID', 'n', 'fwhm']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+        colhdr = ['cfgID', 'n', 'height']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
 
         # Assign column headers
         table_true_intrp.columns=colhdr
@@ -3195,7 +3195,7 @@ def joinAndPlot(OutDir, simNo):
 
         # List of n and p values
         n_values = np.unique(table_est_intrp['n'].values)
-        f_values = np.unique(table_est_intrp['fwhm'].values)
+        h_values = np.unique(table_est_intrp['height'].values)
         p_values = np.linspace(0,1,21)
 
         # Loop through all values of n
@@ -3204,26 +3204,26 @@ def joinAndPlot(OutDir, simNo):
             # Loop through all values of p
             for p in p_values:
 
-                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('fwhm')
-                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('fwhm')
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('height')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('height')
 
-                # FWHMs
-                f_est_n = table_est_n[['fwhm']].values
+                # Heights
+                h_est_n = table_est_n[['height']].values
                 p_est_n = table_est_n[['p='+('%.2f' % p)]].values
-                f_true_n = table_true_n[['fwhm']].values
+                h_true_n = table_true_n[['height']].values
                 p_true_n = table_true_n[['p='+('%.2f' % p)]].values
 
-                print(f_est_n,p_est_n)
+                print(h_est_n,p_est_n)
 
-                plt.plot(f_est_n,p_est_n,color="red",label="Estimated boundary")
-                plt.plot(f_true_n,p_true_n,color="blue",label="True boundary")
-                plt.hlines(p, np.min(f_est_n), np.max(f_est_n),linestyles='dashed',label="Expected")
+                plt.plot(h_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(h_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(h_est_n), np.max(h_est_n),linestyles='dashed',label="Expected")
 
                 # Title
                 plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
 
                 # Axes
-                plt.xlabel("FWHM")
+                plt.xlabel("Height of Rectangle")
                 plt.ylabel("Observed coverage")
 
                 # Make axis a bit clearer
@@ -3233,47 +3233,938 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'f_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+                plt.savefig(os.path.join(fResDir, 'h_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
 
                 # Clear figure
                 plt.clf()
 
 
-        # Loop through all values of fwhm
-        for f in f_values:
+        # Loop through all values of height
+        for h in h_values:
 
             # Loop through all values of p
             for p in p_values:
 
-                table_est_f = table_est_intrp[table_est_intrp['fwhm']==f].sort_values('n')
-                table_true_f = table_true_intrp[table_true_intrp['fwhm']==f].sort_values('n')
+                table_est_h = table_est_intrp[table_est_intrp['height']==h].sort_values('n')
+                table_true_h = table_true_intrp[table_true_intrp['height']==h].sort_values('n')
 
-                # n and p for this fwhm
-                n_est_f = table_est_f[['n']].values
-                p_est_f = table_est_f[['p='+('%.2f' % p)]].values
-                n_true_f = table_true_f[['n']].values
-                p_true_f = table_true_f[['p='+('%.2f' % p)]].values
+                # n and p for this height
+                n_est_h = table_est_h[['n']].values
+                p_est_h = table_est_h[['p='+('%.2f' % p)]].values
+                n_true_h = table_true_h[['n']].values
+                p_true_h = table_true_h[['p='+('%.2f' % p)]].values
 
-                plt.plot(n_est_f,p_est_f,color="red",label="Estimated boundary")
-                plt.plot(n_true_f,p_true_f,color="blue",label="True boundary")
-                plt.hlines(p, np.min(n_est_f), np.max(n_est_f),linestyles='dashed',label="Expected")
+                plt.plot(n_est_h,p_est_h,color="red",label="Estimated boundary")
+                plt.plot(n_true_h,p_true_h,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_h), np.max(n_est_h),linestyles='dashed',label="Expected")
 
                 # Title
-                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Threshold " + ('%.2f' % f) + ")")
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Height " + ('%.2f' % h) + ")")
 
                 # Axes
                 plt.xlabel("Number of subjects")
                 plt.ylabel("Observed coverage")
                 
                 # Make axis a bit clearer
-                plt.ylim((np.min(p_true_f)-0.02,1))
+                plt.ylim((np.min(p_true_h)-0.02,1))
                 
                 # Legend
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_fwhm'+('%.2f' % f)+'.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_height'+('%.2f' % h)+'.png'))
 
                 # Clear figure
                 plt.clf()
 
+
+
+    # Simulated over distance range
+    if simNo in [33,34]:
+
+        # Variable to check if this is the first file weve looked at
+        first = True
+
+        # Loop through configuration files
+        for cfgFile in cfgFiles:
+
+            # ------------------------------------------------------------------
+            # Load in inputs 
+            # ------------------------------------------------------------------
+            # Read in file
+            with open(cfgFile, 'r') as stream:
+                inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
+            # ------------------------------------------------------------------
+            # Get directory of results for this config file
+            # ------------------------------------------------------------------
+            # Get configuration ID
+            cfgId = int(inputs['cfgId'])
+
+            # Results directory
+            resDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId), 'RawResults')
+
+            # ------------------------------------------------------------------
+            # Get number of p values
+            # ------------------------------------------------------------------ 
+            # Get p values
+            p = eval(inputs['p'])
+
+            # Number of p values
+            n_p = np.prod(p.shape)
+
+            # ------------------------------------------------------------------
+            # Currently there is a try except clause here. The reason for this
+            # is that if a boundary is empty the code will error and no results
+            # will be produced. In such a case, we skip that result.
+            # ------------------------------------------------------------------ 
+            try:
+
+                # ------------------------------------------------------------------
+                # Read in results for first Ac
+                # ------------------------------------------------------------------
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_est1 = pd.read_csv(os.path.join(resDir,'estSuccess1.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_true1 = pd.read_csv(os.path.join(resDir,'trueSuccess1.csv'), header=None, index_col=None)
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_est_intrp1 = pd.read_csv(os.path.join(resDir,'estSuccess_intrp1.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_true_intrp1 = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp1.csv'), header=None, index_col=None)
+
+                # ------------------------------------------------------------------
+                # Read in results for second Ac
+                # ------------------------------------------------------------------
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_est2 = pd.read_csv(os.path.join(resDir,'estSuccess2.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_true2 = pd.read_csv(os.path.join(resDir,'trueSuccess2.csv'), header=None, index_col=None)
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_est_intrp2 = pd.read_csv(os.path.join(resDir,'estSuccess_intrp2.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_true_intrp2 = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp2.csv'), header=None, index_col=None)
+
+                # ------------------------------------------------------------------
+                # Read in results for intersect Ac
+                # ------------------------------------------------------------------
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_est = pd.read_csv(os.path.join(resDir,'estSuccess.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_true = pd.read_csv(os.path.join(resDir,'trueSuccess.csv'), header=None, index_col=None)
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_est_intrp = pd.read_csv(os.path.join(resDir,'estSuccess_intrp.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_true_intrp = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp.csv'), header=None, index_col=None)
+
+                # ------------------------------------------------------------------
+                # Get coverage probabilities for first Ac
+                # ------------------------------------------------------------------
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary
+                covp_est1 = np.mean(obs_est1.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary
+                covp_true1 = np.mean(obs_true1.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary (for coverage assessed using interpolation)
+                covp_est_intrp1 = np.mean(obs_est_intrp1.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary (for coverage assessed using interpolation)
+                covp_true_intrp1 = np.mean(obs_true_intrp1.values,axis=0)[:]
+
+                # ------------------------------------------------------------------
+                # Get coverage probabilities for second Ac
+                # ------------------------------------------------------------------
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary
+                covp_est2 = np.mean(obs_est2.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary
+                covp_true2 = np.mean(obs_true2.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary (for coverage assessed using interpolation)
+                covp_est_intrp2 = np.mean(obs_est_intrp2.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary (for coverage assessed using interpolation)
+                covp_true_intrp2 = np.mean(obs_true_intrp2.values,axis=0)[:]
+
+                # ------------------------------------------------------------------
+                # Get coverage probabilities for intersect
+                # ------------------------------------------------------------------
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary
+                covp_est = np.mean(obs_est.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary
+                covp_true = np.mean(obs_true.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary (for coverage assessed using interpolation)
+                covp_est_intrp = np.mean(obs_est_intrp.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary (for coverage assessed using interpolation)
+                covp_true_intrp = np.mean(obs_true_intrp.values,axis=0)[:]
+
+                # ------------------------------------------------------------------
+                # Get number of subjects and gradient of ramps
+                # ------------------------------------------------------------------
+
+                # Number of subjects
+                nSub = inputs['nSub']
+
+                # distance value
+                distance = np.sum(eval(inputs['mu2']['center'])-eval(inputs['mu1']['center']))
+
+                # ------------------------------------------------------------------
+                # Add coverage probabilities to table for Ac1
+                # ------------------------------------------------------------------
+                # Line for table of estimated boundary results
+                tableLine_est1 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                covp_est1.reshape(1,n_p)),\
+                                                axis=1)
+
+                # Line for table of true boundary results
+                tableLine_true1 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                 covp_true1.reshape(1,n_p)),\
+                                                 axis=1)
+
+                # Line for table of estimated boundary interpolation assessed results
+                tableLine_est_intrp1 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                      covp_est_intrp1.reshape(1,n_p)),\
+                                                      axis=1)
+
+                # Line for table of true boundary interpolation assessed results
+                tableLine_true_intrp1 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                       covp_true_intrp1.reshape(1,n_p)),\
+                                                       axis=1)
+
+                # ------------------------------------------------------------------
+                # Add coverage probabilities to table for Ac2
+                # ------------------------------------------------------------------
+                # Line for table of estimated boundary results
+                tableLine_est2 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                covp_est2.reshape(1,n_p)),\
+                                                axis=1)
+
+                # Line for table of true boundary results
+                tableLine_true2 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                 covp_true2.reshape(1,n_p)),\
+                                                 axis=1)
+
+                # Line for table of estimated boundary interpolation assessed results
+                tableLine_est_intrp2 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                      covp_est_intrp2.reshape(1,n_p)),\
+                                                      axis=1)
+
+                # Line for table of true boundary interpolation assessed results
+                tableLine_true_intrp2 = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                       covp_true_intrp2.reshape(1,n_p)),\
+                                                       axis=1)
+
+                # ------------------------------------------------------------------
+                # Add coverage probabilities to table for intersect
+                # ------------------------------------------------------------------
+                # Line for table of estimated boundary results
+                tableLine_est = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                covp_est.reshape(1,n_p)),\
+                                                axis=1)
+
+                # Line for table of true boundary results
+                tableLine_true = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                 covp_true.reshape(1,n_p)),\
+                                                 axis=1)
+
+                # Line for table of estimated boundary interpolation assessed results
+                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                      covp_est_intrp.reshape(1,n_p)),\
+                                                      axis=1)
+
+                # Line for table of true boundary interpolation assessed results
+                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,distance]]),\
+                                                       covp_true_intrp.reshape(1,n_p)),\
+                                                       axis=1)
+
+                # If this is the first cfg we've looked at, intialize the results tables
+                if first:
+
+                    # Initialize estimated boundary results table
+                    table_est1 = pd.DataFrame(tableLine_est1)
+                    table_est2 = pd.DataFrame(tableLine_est2)
+                    table_est = pd.DataFrame(tableLine_est)
+
+                    # Initialize true boundary results table
+                    table_true1 = pd.DataFrame(tableLine_true1)
+                    table_true2 = pd.DataFrame(tableLine_true2)
+                    table_true = pd.DataFrame(tableLine_true)
+
+                    # Initialize estimated boundary interpolated results table
+                    table_est_intrp1 = pd.DataFrame(tableLine_est_intrp1)
+                    table_est_intrp2 = pd.DataFrame(tableLine_est_intrp2)
+                    table_est_intrp = pd.DataFrame(tableLine_est_intrp)
+
+                    # Initialize true boundary interpolated results table
+                    table_true_intrp1 = pd.DataFrame(tableLine_true_intrp1)
+                    table_true_intrp2 = pd.DataFrame(tableLine_true_intrp2)
+                    table_true_intrp = pd.DataFrame(tableLine_true_intrp)
+
+                else:
+
+                    # Append to existing estimated boundary results table
+                    table_est1 = table_est1.append(pd.DataFrame(tableLine_est1))
+                    table_est2 = table_est2.append(pd.DataFrame(tableLine_est2))
+                    table_est = table_est.append(pd.DataFrame(tableLine_est))
+
+                    # Append to existing true boundary results table
+                    table_true1 = table_true1.append(pd.DataFrame(tableLine_true1))
+                    table_true2 = table_true2.append(pd.DataFrame(tableLine_true2))
+                    table_true = table_true.append(pd.DataFrame(tableLine_true))
+
+                    # Append to existing estimated boundary interpolated results table
+                    table_est_intrp1 = table_est_intrp1.append(pd.DataFrame(tableLine_est_intrp1))
+                    table_est_intrp2 = table_est_intrp2.append(pd.DataFrame(tableLine_est_intrp2))
+                    table_est_intrp = table_est_intrp.append(pd.DataFrame(tableLine_est_intrp))
+
+                    # Append to existing true boundary interpolated results table
+                    table_true_intrp1 = table_true_intrp1.append(pd.DataFrame(tableLine_true_intrp1))
+                    table_true_intrp2 = table_true_intrp2.append(pd.DataFrame(tableLine_true_intrp2))
+                    table_true_intrp = table_true_intrp.append(pd.DataFrame(tableLine_true_intrp))
+
+                # ------------------------------------------------------------------
+                # Get computation times
+                # ------------------------------------------------------------------
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
+
+                # If this is the first cfg we've looked at, intialize the results tables
+                if first:
+
+                    # Initialize time table
+                    table_time = pd.DataFrame(tableLine_time).mean()
+
+                else:
+
+                    # Append to existing time table
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
+
+                # ------------------------------------------------------------------
+                # Delete files
+                # ------------------------------------------------------------------
+                # Delete folder for this simulation
+                shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
+
+                # We are no longer looking at the first configuration file
+                if first:
+                    first = False
+
+            except:
+
+                pass
+
+
+        # ----------------------------------------------------------------------
+        # Sort and save to csv
+        # ----------------------------------------------------------------------
+        # Make final results results directory
+        fResDir = os.path.join(OutDir, 'sim'+str(simNo), 'FinalResults')
+        if not os.path.exists(fResDir):
+            os.mkdir(fResDir)
+
+        # # Save times table
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+
+        # Save estimated boundary results table
+        append_to_file(os.path.join(fResDir,'estBdry1.csv'), table_est1)
+        append_to_file(os.path.join(fResDir,'estBdry2.csv'), table_est2)
+        append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
+
+        # Save true boundary results table
+        append_to_file(os.path.join(fResDir,'trueBdry1.csv'), table_true1)
+        append_to_file(os.path.join(fResDir,'trueBdry2.csv'), table_true2)
+        append_to_file(os.path.join(fResDir,'trueBdry.csv'), table_true)
+
+        # Save estimated boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'estBdry_intrp1.csv'), table_est_intrp1)
+        append_to_file(os.path.join(fResDir,'estBdry_intrp2.csv'), table_est_intrp2)
+        append_to_file(os.path.join(fResDir,'estBdry_intrp.csv'), table_est_intrp)
+
+        # Save true boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'trueBdry_intrp1.csv'), table_true_intrp1)
+        append_to_file(os.path.join(fResDir,'trueBdry_intrp2.csv'), table_true_intrp2)
+        append_to_file(os.path.join(fResDir,'trueBdry_intrp.csv'), table_true_intrp)
+
+        # ----------------------------------------------------------------------
+        # Make figures
+        # ----------------------------------------------------------------------
+
+        # Column headers
+        colhdr = ['cfgID', 'n', 'distance']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+
+        # Assign column headers
+        table_true_intrp1.columns=colhdr
+        table_true_intrp2.columns=colhdr
+        table_true_intrp.columns=colhdr
+        table_est_intrp1.columns=colhdr
+        table_est_intrp2.columns=colhdr
+        table_est_intrp.columns=colhdr
+
+        # List of n and p values
+        n_values = np.unique(table_est_intrp['n'].values)
+        d_values = np.unique(table_est_intrp['distance'].values)
+        p_values = np.linspace(0,1,21)
+
+        # Loop through all values of n
+        for n in n_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('distance')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('distance')
+
+                # Distances
+                d_est_n = table_est_n[['distance']].values
+                p_est_n = table_est_n[['p='+('%.2f' % p)]].values
+                d_true_n = table_true_n[['distance']].values
+                p_true_n = table_true_n[['p='+('%.2f' % p)]].values
+
+                print(d_est_n,p_est_n)
+
+                plt.plot(d_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(d_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(d_est_n), np.max(d_est_n),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
+
+                # Axes
+                plt.xlabel("Distance Between Circles")
+                plt.ylabel("Observed coverage")
+
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_n)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'd_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+                table_est_n1 = table_est_intrp1[table_est_intrp1['n']==n].sort_values('distance')
+                table_true_n1 = table_true_intrp1[table_true_intrp1['n']==n].sort_values('distance')
+
+                # Distances
+                d_est_n1 = table_est_n1[['distance']].values
+                p_est_n1 = table_est_n1[['p='+('%.2f' % p)]].values
+                d_true_n1 = table_true_n1[['distance']].values
+                p_true_n1 = table_true_n1[['p='+('%.2f' % p)]].values
+
+                print(d_est_n1,p_est_n1)
+
+                plt.plot(d_est_n1,p_est_n1,color="red",label="Estimated boundary")
+                plt.plot(d_true_n1,p_true_n1,color="blue",label="True boundary")
+                plt.hlines(p, np.min(d_est_n1), np.max(d_est_n1),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
+
+                # Axes
+                plt.xlabel("Distance Between Circles")
+                plt.ylabel("Observed coverage")
+
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_n1)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'd_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac1.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+                table_est_n2 = table_est_intrp2[table_est_intrp2['n']==n].sort_values('distance')
+                table_true_n2 = table_true_intrp2[table_true_intrp2['n']==n].sort_values('distance')
+
+                # Distances
+                d_est_n2 = table_est_n2[['distance']].values
+                p_est_n2 = table_est_n2[['p='+('%.2f' % p)]].values
+                d_true_n2 = table_true_n2[['distance']].values
+                p_true_n2 = table_true_n2[['p='+('%.2f' % p)]].values
+
+                print(d_est_n2,p_est_n2)
+
+                plt.plot(d_est_n2,p_est_n2,color="red",label="Estimated boundary")
+                plt.plot(d_true_n2,p_true_n2,color="blue",label="True boundary")
+                plt.hlines(p, np.min(d_est_n2), np.max(d_est_n2),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
+
+                # Axes
+                plt.xlabel("Distance Between Circles")
+                plt.ylabel("Observed coverage")
+
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_n2)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'd_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'_Ac2.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+
+        # Loop through all values of distance
+        for d in d_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_d = table_est_intrp[table_est_intrp['distance']==d].sort_values('n')
+                table_true_d = table_true_intrp[table_true_intrp['distance']==d].sort_values('n')
+
+                # n and p for this distance
+                n_est_d = table_est_d[['n']].values
+                p_est_d = table_est_d[['p='+('%.2f' % p)]].values
+                n_true_d = table_true_d[['n']].values
+                p_true_d = table_true_d[['p='+('%.2f' % p)]].values
+
+                plt.plot(n_est_d,p_est_d,color="red",label="Estimated boundary")
+                plt.plot(n_true_d,p_true_d,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_d), np.max(n_est_d),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Distance " + ('%.2f' % d) + ")")
+
+                # Axes
+                plt.xlabel("Number of subjects")
+                plt.ylabel("Observed coverage")
+                
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_d)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_distance'+('%.2f' % d)+'.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+                table_est_d1 = table_est_intrp1[table_est_intrp1['distance']==d].sort_values('n')
+                table_true_d1 = table_true_intrp1[table_true_intrp1['distance']==d].sort_values('n')
+
+                # n and p for this distance
+                n_est_d1 = table_est_d1[['n']].values
+                p_est_d1 = table_est_d1[['p='+('%.2f' % p)]].values
+                n_true_d1 = table_true_d1[['n']].values
+                p_true_d1 = table_true_d1[['p='+('%.2f' % p)]].values
+
+                plt.plot(n_est_d1,p_est_d1,color="red",label="Estimated boundary")
+                plt.plot(n_true_d1,p_true_d1,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_d1), np.max(n_est_d1),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Distance " + ('%.2f' % d) + ")")
+
+                # Axes
+                plt.xlabel("Number of subjects")
+                plt.ylabel("Observed coverage")
+                
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_d1)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_distance'+('%.2f' % d)+'_Ac1.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+                table_est_d2 = table_est_intrp2[table_est_intrp2['distance']==d].sort_values('n')
+                table_true_d2 = table_true_intrp2[table_true_intrp2['distance']==d].sort_values('n')
+
+                # n and p for this distance
+                n_est_d2 = table_est_d2[['n']].values
+                p_est_d2 = table_est_d2[['p='+('%.2f' % p)]].values
+                n_true_d2 = table_true_d2[['n']].values
+                p_true_d2 = table_true_d2[['p='+('%.2f' % p)]].values
+
+                plt.plot(n_est_d2,p_est_d2,color="red",label="Estimated boundary")
+                plt.plot(n_true_d2,p_true_d2,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_d2), np.max(n_est_d2),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, Distance " + ('%.2f' % d) + ")")
+
+                # Axes
+                plt.xlabel("Number of subjects")
+                plt.ylabel("Observed coverage")
+                
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_d2)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_distance'+('%.2f' % d)+'_Ac2.png'))
+
+                # Clear figure
+                plt.clf()
+
+
+    # Simulated over noise variance range
+    if simNo in [35,36]:
+
+        # Variable to check if this is the first file weve looked at
+        first = True
+
+        # Loop through configuration files
+        for cfgFile in cfgFiles:
+
+            # ------------------------------------------------------------------
+            # Load in inputs 
+            # ------------------------------------------------------------------
+            # Read in file
+            with open(cfgFile, 'r') as stream:
+                inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
+            # ------------------------------------------------------------------
+            # Get directory of results for this config file
+            # ------------------------------------------------------------------
+            # Get configuration ID
+            cfgId = int(inputs['cfgId'])
+
+            # Results directory
+            resDir = os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId), 'RawResults')
+
+            # ------------------------------------------------------------------
+            # Get number of p values
+            # ------------------------------------------------------------------ 
+            # Get p values
+            p = eval(inputs['p'])
+
+            # Number of p values
+            n_p = np.prod(p.shape)
+
+            # ------------------------------------------------------------------
+            # Currently there is a try except clause here. The reason for this
+            # is that if a boundary is empty the code will error and no results
+            # will be produced. In such a case, we skip that result.
+            # ------------------------------------------------------------------ 
+            try:
+
+                # ------------------------------------------------------------------
+                # Read in results
+                # ------------------------------------------------------------------
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_est = pd.read_csv(os.path.join(resDir,'estSuccess.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations
+                obs_true = pd.read_csv(os.path.join(resDir,'trueSuccess.csv'), header=None, index_col=None)
+
+                # Read in observed values for the estimated boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_est_intrp = pd.read_csv(os.path.join(resDir,'estSuccess_intrp.csv'), header=None, index_col=None)
+
+                # Read in observed values for the true boundary. This will be a 
+                # boolean array of ones and zeros representing observed violations
+                # across simulations (based on interpolation assessment)
+                obs_true_intrp = pd.read_csv(os.path.join(resDir,'trueSuccess_intrp.csv'), header=None, index_col=None)
+
+                # ------------------------------------------------------------------
+                # Get coverage probabilities
+                # ------------------------------------------------------------------
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary
+                covp_est = np.mean(obs_est.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary
+                covp_true = np.mean(obs_true.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # estimated boundary (for coverage assessed using interpolation)
+                covp_est_intrp = np.mean(obs_est_intrp.values,axis=0)[:]
+
+                # Get the coverage probabilities from the observed results for the
+                # true boundary (for coverage assessed using interpolation)
+                covp_true_intrp = np.mean(obs_true_intrp.values,axis=0)[:]
+
+                # ------------------------------------------------------------------
+                # Get number of subjects and variance mixture of second noise field
+                # ------------------------------------------------------------------
+
+                # Number of subjects
+                nSub = inputs['nSub']
+
+                # Magnitude of second noise field
+                var2 = np.float(inputs['noise2']['mix']['var2'])
+
+                # ------------------------------------------------------------------
+                # Add coverage probabilities to table
+                # ------------------------------------------------------------------
+                # Line for table of estimated boundary results
+                tableLine_est = np.concatenate((np.array([[cfgId,nSub,var2]]),\
+                                                covp_est.reshape(1,n_p)),\
+                                                axis=1)
+
+                # Line for table of true boundary results
+                tableLine_true = np.concatenate((np.array([[cfgId,nSub,var2]]),\
+                                                 covp_true.reshape(1,n_p)),\
+                                                 axis=1)
+
+                # Line for table of estimated boundary interpolation assessed results
+                tableLine_est_intrp = np.concatenate((np.array([[cfgId,nSub,var2]]),\
+                                                      covp_est_intrp.reshape(1,n_p)),\
+                                                      axis=1)
+
+                # Line for table of true boundary interpolation assessed results
+                tableLine_true_intrp = np.concatenate((np.array([[cfgId,nSub,var2]]),\
+                                                       covp_true_intrp.reshape(1,n_p)),\
+                                                       axis=1)
+
+                # If this is the first cfg we've looked at, intialize the results tables
+                if first:
+
+                    # Initialize estimated boundary results table
+                    table_est = pd.DataFrame(tableLine_est)
+
+                    # Initialize true boundary results table
+                    table_true = pd.DataFrame(tableLine_true)
+
+                    # Initialize estimated boundary interpolated results table
+                    table_est_intrp = pd.DataFrame(tableLine_est_intrp)
+
+                    # Initialize true boundary interpolated results table
+                    table_true_intrp = pd.DataFrame(tableLine_true_intrp)
+
+                else:
+
+                    # Append to existing estimated boundary results table
+                    table_est = table_est.append(pd.DataFrame(tableLine_est))
+
+                    # Append to existing true boundary results table
+                    table_true = table_true.append(pd.DataFrame(tableLine_true))
+
+                    # Append to existing estimated boundary interpolated results table
+                    table_est_intrp = table_est_intrp.append(pd.DataFrame(tableLine_est_intrp))
+
+                    # Append to existing true boundary interpolated results table
+                    table_true_intrp = table_true_intrp.append(pd.DataFrame(tableLine_true_intrp))
+
+                # ------------------------------------------------------------------
+                # Get computation times
+                # ------------------------------------------------------------------
+                tableLine_time = pd.read_csv(os.path.join(resDir,'times.csv'), header=None, index_col=None)
+
+                # If this is the first cfg we've looked at, intialize the results tables
+                if first:
+
+                    # Initialize time table
+                    table_time = pd.DataFrame(tableLine_time).mean()
+
+                else:
+
+                    # Append to existing time table
+                    table_time = table_time.append(pd.DataFrame(tableLine_time).mean())
+
+                # ------------------------------------------------------------------
+                # Delete files
+                # ------------------------------------------------------------------
+                # Delete folder for this simulation
+                shutil.rmtree(os.path.join(OutDir, 'sim'+str(simNo), 'cfg' + str(cfgId)))
+
+                # We are no longer looking at the first configuration file
+                if first:
+                    first = False
+
+            except:
+
+                pass
+
+        # ----------------------------------------------------------------------
+        # Sort and save to csv
+        # ----------------------------------------------------------------------
+        # Make final results results directory
+        fResDir = os.path.join(OutDir, 'sim'+str(simNo), 'FinalResults')
+        if not os.path.exists(fResDir):
+            os.mkdir(fResDir)
+
+        # Save times table
+        append_to_file(os.path.join(fResDir,'times.csv'), table_time)
+
+        # Save estimated boundary results table
+        append_to_file(os.path.join(fResDir,'estBdry.csv'), table_est)
+
+        # Save true boundary results table
+        append_to_file(os.path.join(fResDir,'trueBdry.csv'), table_true)
+
+        # Save estimated boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'estBdry_intrp.csv'), table_est_intrp)
+
+        # Save true boundary (with interpolation) results table
+        append_to_file(os.path.join(fResDir,'trueBdry_intrp.csv'), table_true_intrp)
+
+        # ----------------------------------------------------------------------
+        # Make figures
+        # ----------------------------------------------------------------------
+
+        # Column headers
+        colhdr = ['cfgID', 'n', 'var2']+['p='+('%.2f' % p) for p in np.linspace(0,1,21)]
+
+        # Assign column headers
+        table_true_intrp.columns=colhdr
+        table_est_intrp.columns=colhdr
+
+        # List of n and p values
+        n_values = np.unique(table_est_intrp['n'].values)
+        v_values = np.unique(table_est_intrp['var2'].values)
+        p_values = np.linspace(0,1,21)
+
+        # Loop through all values of n
+        for n in n_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_n = table_est_intrp[table_est_intrp['n']==n].sort_values('var2')
+                table_true_n = table_true_intrp[table_true_intrp['n']==n].sort_values('var2')
+
+                # Variances
+                var2_est_n = table_est_n[['var2']].values
+                p_est_n = table_est_n[['p='+('%.2f' % p)]].values
+                var2_true_n = table_true_n[['var2']].values
+                p_true_n = table_true_n[['p='+('%.2f' % p)]].values
+
+                print(var2_est_n,p_est_n)
+
+                plt.plot(var2_est_n,p_est_n,color="red",label="Estimated boundary")
+                plt.plot(var2_true_n,p_true_n,color="blue",label="True boundary")
+                plt.hlines(p, np.min(var2_est_n), np.max(var2_est_n),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, " + str(int(n)) + " subjects)")
+
+                # Axes
+                plt.xlabel("Magitude of second noise field")
+                plt.ylabel("Observed coverage")
+
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_n)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'var2_vs_obsp_truep'+str(np.int(100*p))+'_n'+str(np.int(n))+'.png'))
+
+                # Clear figure
+                plt.clf()
+
+        # Loop through all values of noise variance
+        for v in v_values:
+
+            # Loop through all values of p
+            for p in p_values:
+
+                table_est_v = table_est_intrp[table_est_intrp['var2']==v].sort_values('n')
+                table_true_v = table_true_intrp[table_true_intrp['var2']==v].sort_values('n')
+
+                # n and p for this gradient
+                n_est_v = table_est_v[['n']].values
+                p_est_v = table_est_v[['p='+('%.2f' % p)]].values
+                n_true_v = table_true_v[['n']].values
+                p_true_v = table_true_v[['p='+('%.2f' % p)]].values
+
+                plt.plot(n_est_v,p_est_v,color="red",label="Estimated boundary")
+                plt.plot(n_true_v,p_true_v,color="blue",label="True boundary")
+                plt.hlines(p, np.min(n_est_v), np.max(n_est_v),linestyles='dashed',label="Expected")
+
+                # Title
+                plt.title("Coverage (" + str(np.int(100*p)) + "% probability, second noise variance " + ('%.2f' % v) + ")")
+
+                # Axes
+                plt.xlabel("Number of subjects")
+                plt.ylabel("Observed coverage")
+                
+                # Make axis a bit clearer
+                plt.ylim((np.min(p_true_v)-0.02,1))
+                
+                # Legend
+                plt.legend()
+
+                # Save plots
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_var2'+('%.2f' % m)+'.png'))
+
+                # Clear figure
+                plt.clf()

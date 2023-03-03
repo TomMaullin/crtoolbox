@@ -145,7 +145,16 @@ def get_mu(muSpec, dim):
     if muSpec['type']=='square2D':
 
         # Radius
-        r = muSpec['r']
+        r = muSpec.get('r', 0)
+
+        # Width and height of the rectangle
+        width = muSpec.get('width', 0)
+        height = muSpec.get('height', 0)
+
+        # If width and height are not specified, use radius to calculate them
+        if width == 0 or height == 0:
+            width = 2*r
+            height = 2*r
 
         # Magnitude
         mag = muSpec['mag']
@@ -153,17 +162,20 @@ def get_mu(muSpec, dim):
         # FWHM
         fwhm = muSpec['fwhm']
 
+        # Maximum dimension
+        maxdim = 2*(np.max((width, height))//2+1)
+
         # Adjust dimensions in case signal rolls off edge (we don't want signal to be smoothed
         # on the cutoff at the edge of the image as though there are zeros next to it)
-        adjdim = np.array(dim)+(np.array(dim)>1)*2*r
+        adjdim = np.array(dim)+(np.array(dim)>1)*maxdim
 
         # Work out square center (setting origin to the image center).
         center = np.array([adjdim[-2]//2, adjdim[-1]//2]) + muSpec['center']
 
         # Get an ogrid
-        Y, X = np.ogrid[center[-2]-r:center[-2]+r, center[-1]-r:center[-1]+r]
+        Y, X = np.ogrid[(center[-2]-width//2):(center[-2]+width//2), (center[-1]-height//2):(center[-1]+height//2)]
 
-        # Make unsmoothed square signal
+        # Make unsmoothed rectangle signal
         mu = np.zeros((adjdim[-2],adjdim[-1]))
         mu[...,X,Y]=1
 
@@ -171,7 +183,7 @@ def get_mu(muSpec, dim):
         mu = mag*(smooth_data(mu, 2, fwhm, scaling='max'))
 
         # Recrop to original dimensions again
-        mu = mu[...,r:adjdim[-2]-r,r:adjdim[-1]-r]
+        mu = mu[...,maxdim//2:(adjdim[-2]-maxdim//2),maxdim//2:(adjdim[-1]-maxdim//2)]
 
     # -----------------------------------------------------------------------
     # Give mu the correct dimensions to be broadcasted with the data we are
@@ -262,7 +274,7 @@ def get_noise(noiseSpec, dim):
             c2 = float(noiseSpec['mix']['var2']) 
 
             # Generate noise as a mixture of two gaussians
-            noise = switch*(-1+np.random.randn(*pdim)*c1) + switch*(1 + np.random.randn(*pdim)*c2)
+            noise = switch*np.random.randn(*pdim)*c1 + (1-switch)*np.random.randn(*pdim)*c2
 
     # -----------------------------------------------------------------------
     # Perform smoothing
@@ -418,8 +430,9 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
 
     elif scaling=='max':
 
-        # Rescale noise by dividing by maximum value
-        data = data/np.max(data)
+        # Rescale noise by dividing by maximum value (assuming we have positive values)
+        if np.max(data)!= 0:
+            data = data/np.max(data)
 
     return(data)
 

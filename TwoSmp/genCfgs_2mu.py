@@ -3280,20 +3280,21 @@ def generateCfgs(OutDir, simNo):
 
     # ==========================================================================
     #
-    # Simulation 29: 3 circles, intersection of CRs
+    # Simulation 29: Two rectangles and a circle, intersection of CRs
     #
     # --------------------------------------------------------------------------
     #
     # In this simulation setting, we are interested in comparing the method to
-    # just intersecting CRs. A specially generated signal of three circles 
-    # diagonal is used (one for each condition and one shared) with varying 
-    # signal smoothness, and we run the intersection of CRs method here.
+    # just intersecting CRs. A specially generated signal of rectangles and
+    # circles is used (one rectangle for each condition and one shared circle)
+    # with varying heights on the rectangles. We run the intersection of CRs
+    # method here.
     #
     # ==========================================================================
     if simNo==29:
 
-        # These are our signal smoothness values
-        smooths = np.arange(0.5,16.5,0.5)
+        # These are our signal height values
+        heights = np.arange(0,95,10)
 
         # Create muBoth specification
         muBoth = {}
@@ -3325,28 +3326,34 @@ def generateCfgs(OutDir, simNo):
         inputs['noise2'] = noise2
 
         # Add mu1 type
-        mu1['type'] = 'circle2D' 
+        mu1['type'] = 'square2D' 
 
         # Add mu1 radius
-        mu1['r'] = 16
+        mu1['width'] = 25
 
         # Add mu1 magnitude
         mu1['mag'] = 3
 
         # Add mu1 center
-        mu1['center'] = 'np.array([-30,-30])'
+        mu1['center']= 'np.array([-40, 0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
 
         # Add mu2 type
-        mu2['type'] = 'circle2D' 
+        mu2['type'] = 'square2D' 
 
         # Add mu2 radius
-        mu2['r'] = 16
+        mu2['width'] = 25
 
         # Add mu2 magnitude
         mu2['mag'] = 3
 
         # Add mu2 center
-        mu2['center']= 'np.array([30,30])'
+        mu2['center']= 'np.array([40, 0])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
 
         # Add muBoth type
         muBoth['type'] = 'circle2D' 
@@ -3357,35 +3364,35 @@ def generateCfgs(OutDir, simNo):
         # Add muBoth magnitude
         muBoth['mag'] = 3
 
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
         # Add muBoth center
-        muBoth['center']= 'np.array([0,0])'
+        muBoth['center'] = 'np.array([0,0])'
+
+        # Add muBoth to inputs
+        inputs['muBoth'] = muBoth
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])*2
+        fg_heights = np.array([0,50,90])
 
         # Id for config file
         cfgId = 1
 
         # Loop through all noise magnitude settings
-        for smooth in smooths:
+        for h in heights:
 
-            # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+            # Add mu1 radius
+            mu1['height'] = int(h)
 
-            # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
-
-            # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
+            # Add mu2 radius
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
-
-            # Add muBoth to inputs
-            inputs['muBoth'] = muBoth
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -3397,7 +3404,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3418,22 +3425,24 @@ def generateCfgs(OutDir, simNo):
         del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
+
     # ==========================================================================
     #
-    # Simulation 30: 3 circles, intersection of CRs (Low SNR)
+    # Simulation 30: Two rectangles and a circle, intersection of CRs (Low SNR)
     #
     # --------------------------------------------------------------------------
     #
     # In this simulation setting, we are interested in comparing the method to
-    # just intersecting CRs. A specially generated signal of three circles 
-    # diagonal is used (one for each condition and one shared) with varying 
-    # signal smoothness, and we run the intersection of CRs method here.
+    # just intersecting CRs. A specially generated signal of rectangles and
+    # circles is used (one rectangle for each condition and one shared circle)
+    # with varying heights on the rectangles. We run the intersection of CRs
+    # method here.
     #
     # ==========================================================================
     if simNo==30:
 
-        # These are our signal smoothness values
-        smooths = np.arange(0.5,16.5,0.5)
+        # These are our signal height values
+        heights = np.arange(0,95,10)
 
         # Create muBoth specification
         muBoth = {}
@@ -3465,28 +3474,34 @@ def generateCfgs(OutDir, simNo):
         inputs['noise2'] = noise2
 
         # Add mu1 type
-        mu1['type'] = 'circle2D' 
+        mu1['type'] = 'square2D' 
 
         # Add mu1 radius
-        mu1['r'] = 16
+        mu1['width'] = 25
 
         # Add mu1 magnitude
         mu1['mag'] = 3/4
 
         # Add mu1 center
-        mu1['center'] = 'np.array([-30,-30])'
+        mu1['center']= 'np.array([-40, 0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
 
         # Add mu2 type
-        mu2['type'] = 'circle2D' 
+        mu2['type'] = 'square2D' 
 
         # Add mu2 radius
-        mu2['r'] = 16
+        mu2['width'] = 25
 
         # Add mu2 magnitude
         mu2['mag'] = 3/4
 
         # Add mu2 center
-        mu2['center']= 'np.array([30,30])'
+        mu2['center']= 'np.array([40, 0])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
 
         # Add muBoth type
         muBoth['type'] = 'circle2D' 
@@ -3497,35 +3512,35 @@ def generateCfgs(OutDir, simNo):
         # Add muBoth magnitude
         muBoth['mag'] = 3/4
 
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
         # Add muBoth center
-        muBoth['center']= 'np.array([0,0])'
+        muBoth['center'] = 'np.array([0,0])'
+
+        # Add muBoth to inputs
+        inputs['muBoth'] = muBoth
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])*2
+        fg_heights = np.array([0,50,90])
 
         # Id for config file
         cfgId = 1
 
         # Loop through all noise magnitude settings
-        for smooth in smooths:
+        for h in heights:
 
-            # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+            # Add mu1 radius
+            mu1['height'] = int(h)
 
-            # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
-
-            # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
+            # Add mu2 radius
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
-
-            # Add muBoth to inputs
-            inputs['muBoth'] = muBoth
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -3537,7 +3552,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3557,22 +3572,24 @@ def generateCfgs(OutDir, simNo):
         # Delete fields which vary across simulation
         del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
+
     # ==========================================================================
     #
-    # Simulation 31: 3 circles, intersection of CRs (conjunction method)
+    # Simulation 31: Two rectangles and a circle, intersection of CRs
     #
     # --------------------------------------------------------------------------
     #
     # In this simulation setting, we are interested in comparing the method to
-    # just intersecting CRs. A specially generated signal of three circles 
-    # diagonal is used (one for each condition and one shared) with varying 
-    # signal smoothness, and we run the conjunction method here.
+    # just intersecting CRs. A specially generated signal of rectangles and
+    # circles is used (one rectangle for each condition and one shared circle)
+    # with varying heights on the rectangles. We run the CR conjunction method
+    # here.
     #
     # ==========================================================================
     if simNo==31:
 
-        # These are our signal smoothness values
-        smooths = np.arange(0.5,16.5,0.5)
+        # These are our signal height values
+        heights = np.arange(0,95,10)
 
         # Create muBoth specification
         muBoth = {}
@@ -3602,28 +3619,34 @@ def generateCfgs(OutDir, simNo):
         inputs['noise2'] = noise2
 
         # Add mu1 type
-        mu1['type'] = 'circle2D' 
+        mu1['type'] = 'square2D' 
 
         # Add mu1 radius
-        mu1['r'] = 16
+        mu1['width'] = 25
 
         # Add mu1 magnitude
         mu1['mag'] = 3
 
         # Add mu1 center
-        mu1['center'] = 'np.array([-30,-30])'
+        mu1['center']= 'np.array([-40, 0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
 
         # Add mu2 type
-        mu2['type'] = 'circle2D' 
+        mu2['type'] = 'square2D' 
 
         # Add mu2 radius
-        mu2['r'] = 16
+        mu2['width'] = 25
 
         # Add mu2 magnitude
         mu2['mag'] = 3
 
         # Add mu2 center
-        mu2['center']= 'np.array([30,30])'
+        mu2['center']= 'np.array([40, 0])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
 
         # Add muBoth type
         muBoth['type'] = 'circle2D' 
@@ -3635,34 +3658,34 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3
 
         # Add muBoth center
-        muBoth['center']= 'np.array([0,0])'
+        muBoth['center'] = 'np.array([0,0])'
+
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
+        # Add muBoth to inputs
+        inputs['muBoth'] = muBoth
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])*2
+        fg_heights = np.array([0,50,90])
 
         # Id for config file
         cfgId = 1
 
         # Loop through all noise magnitude settings
-        for smooth in smooths:
+        for h in heights:
 
-            # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+            # Add mu1 radius
+            mu1['height'] = int(h)
 
-            # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
-
-            # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
+            # Add mu2 radius
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
-
-            # Add muBoth to inputs
-            inputs['muBoth'] = muBoth
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -3674,7 +3697,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3695,23 +3718,24 @@ def generateCfgs(OutDir, simNo):
         del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
+
     # ==========================================================================
     #
-    # Simulation 32: 3 circles, intersection of CRs (conjunction method) (Low 
-    # SNR)
+    # Simulation 32: Two rectangles and a circle, intersection of CRs (Low SNR)
     #
     # --------------------------------------------------------------------------
     #
     # In this simulation setting, we are interested in comparing the method to
-    # just intersecting CRs. A specially generated signal of three circles 
-    # diagonal is used (one for each condition and one shared) with varying 
-    # signal smoothness, and we run the conjunction method here.
+    # just intersecting CRs. A specially generated signal of rectangles and
+    # circles is used (one rectangle for each condition and one shared circle)
+    # with varying heights on the rectangles.  We run the CR conjunction method
+    # here.
     #
     # ==========================================================================
     if simNo==32:
 
-        # These are our signal smoothness values
-        smooths = np.arange(0.5,16.5,0.5)
+        # These are our signal height values
+        heights = np.arange(0,95,10)
 
         # Create muBoth specification
         muBoth = {}
@@ -3741,28 +3765,34 @@ def generateCfgs(OutDir, simNo):
         inputs['noise2'] = noise2
 
         # Add mu1 type
-        mu1['type'] = 'circle2D' 
+        mu1['type'] = 'square2D' 
 
         # Add mu1 radius
-        mu1['r'] = 16
+        mu1['width'] = 25
 
         # Add mu1 magnitude
         mu1['mag'] = 3/4
 
         # Add mu1 center
-        mu1['center'] = 'np.array([-30,-30])'
+        mu1['center']= 'np.array([-40, 0])'
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
 
         # Add mu2 type
-        mu2['type'] = 'circle2D' 
+        mu2['type'] = 'square2D' 
 
         # Add mu2 radius
-        mu2['r'] = 16
+        mu2['width'] = 25
 
         # Add mu2 magnitude
         mu2['mag'] = 3/4
 
         # Add mu2 center
-        mu2['center']= 'np.array([30,30])'
+        mu2['center']= 'np.array([40, 0])'
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
 
         # Add muBoth type
         muBoth['type'] = 'circle2D' 
@@ -3774,34 +3804,34 @@ def generateCfgs(OutDir, simNo):
         muBoth['mag'] = 3/4
 
         # Add muBoth center
-        muBoth['center']= 'np.array([0,0])'
+        muBoth['center'] = 'np.array([0,0])'
+
+        # Add muBoth fwhm
+        muBoth['fwhm'] = 'np.array([5,5])'
+
+        # Add muBoth to inputs
+        inputs['muBoth'] = muBoth
 
         # We will generate figures for these settings
-        fg_smooths = np.array([0,2,4,6])*2
+        fg_heights = np.array([0,50,90])
 
         # Id for config file
         cfgId = 1
 
         # Loop through all noise magnitude settings
-        for smooth in smooths:
+        for h in heights:
 
-            # Add mu1 fwhm
-            mu1['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
+            # Add mu1 radius
+            mu1['height'] = int(h)
 
-            # Add mu2 fwhm
-            mu2['fwhm'] = 'np.array([' + str(smooth) + ',' + str(smooth) +'])'
-
-            # Add muBoth fwhm
-            muBoth['fwhm'] = 'np.array([' + str(17-smooth) + ',' + str(17-smooth) +'])'
+            # Add mu2 radius
+            mu2['height'] = int(h)
 
             # Add mu1 to inputs
             inputs['mu1'] = mu1
 
             # Add mu2 to inputs
             inputs['mu2'] = mu2
-
-            # Add muBoth to inputs
-            inputs['muBoth'] = muBoth
 
             # Loop through all nSub settings
             for nSub in nSubs:
@@ -3813,7 +3843,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_heights,h)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3836,19 +3866,251 @@ def generateCfgs(OutDir, simNo):
 
     # ==========================================================================
     #
-    # Simulation 33: Gaussian Mixture
+    # Simulation 33: Circles moving closer (but for intersection)
     #
     # --------------------------------------------------------------------------
     #
-    # In this simulation setting, we are interested in generating noise using
-    # a mixture of gaussians. To do so we vary the variance of one of the 
-    # Gaussians.
+    # In this simulation setting, we are interested in moving two circles of 
+    # equal diameter close to one another. For this reason, we vary the circles
+    # center and, as usual, the number of subjects.
     #
     # ==========================================================================
     if simNo==33:
 
+        inputs['Seperate'] = 1
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+    # ==========================================================================
+    #
+    # Simulation 34: Circles moving closer (but lower fwhm) (but for intersection)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two circles of 
+    # equal diameter close to one another. For this reason, we vary the circles
+    # center and, as usual, the number of subjects. This differs from the 
+    # previous setting in terms of smoothing and fwhm.
+    #
+    # ==========================================================================
+    if simNo==34:
+
+        inputs['Seperate'] = 1
+
+        # These are our circles centers
+        centers = np.arange(-20,32,2)
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # Add mu1 type
+        mu1['type'] = 'circle2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center (we only vary mu2)
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'circle2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # We will generate figures for these settings
+        fg_centers = np.array([-20,0,20,28])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for center in centers:
+
+            # Add mu2 center
+            mu2['center']= 'np.array(['+str(center)+',0])'
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and (center in fg_centers):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu2']['center'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+    
+
+    # ==========================================================================
+    #
+    # Simulation 35: Gaussian Mixture
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in generating noise using
+    # a mixture of gaussians. To do so we generate the noise using two gaussians
+    # with a 50:50 choice.
+    #
+    # ==========================================================================
+    if simNo==35:
+
         # These are our signal smoothness values
-        varlist = np.arange(0.2,2.2,0.2)
+        varlist = np.arange(0,4.2,0.4)
 
         # Create muBoth specification
         muBoth = {}
@@ -3861,13 +4123,6 @@ def generateCfgs(OutDir, simNo):
 
         # Add type for noise 1
         noise1['type'] = 'homogen'
-
-        # Add type for noise 1
-        noise1['distribution'] = 'GaussianMix'
-
-        # Add mixture parameters for noise 1
-        noise1['mix']['var1'] = 1 
-        noise1['mix']['var2'] = 1
 
         # Add type for noise 2
         noise2['type'] = 'homogen'
@@ -3918,7 +4173,7 @@ def generateCfgs(OutDir, simNo):
         inputs['mu2'] = mu2
 
         # We will generate figures for these settings
-        fg_vars = np.array([0,2,4,6])
+        fg_vars = np.arange(0,4.2,1)
 
         # Id for config file
         cfgId = 1
@@ -3928,10 +4183,19 @@ def generateCfgs(OutDir, simNo):
 
             # Add type for noise 1
             noise2['distribution'] = 'GaussianMix'
+            noise2['mix'] = {}
 
             # Add mixture parameters for noise 1
             noise2['mix']['var1'] = 1
-            noise2['mix']['var2'] = var
+            noise2['mix']['var2'] = str(var)
+
+            # Add type for noise 1
+            noise1['distribution'] = 'GaussianMix'
+            noise1['mix'] = {}
+
+            # Add mixture parameters for noise 1
+            noise1['mix']['var1'] = 1
+            noise1['mix']['var2'] = str(var)
 
             # Save noise 2
             inputs['noise2'] = noise2
@@ -3946,7 +4210,7 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                if (nSub in fg_nSubs) and np.any(np.isclose(fg_smooths,smooth)):
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_vars,var)):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=1
@@ -3964,9 +4228,145 @@ def generateCfgs(OutDir, simNo):
                 cfgId = cfgId + 1
 
         # Delete fields which vary across simulation
-        del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+        del noise2['mix']['var1'], noise2['mix']['var2'], noise2['distribution'], noise1['mix']['var1'], noise1['mix']['var2'], noise1['distribution'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
 
+    # ==========================================================================
+    #
+    # Simulation 36: Gaussian Mixture (Low SNR)
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in generating noise using
+    # a mixture of gaussians. To do so we generate the noise using two gaussians
+    # with a 50:50 choice.
+    #
+    # ==========================================================================
+    if simNo==36:
+
+        # These are our signal smoothness values
+        varlist = np.arange(0,4.2,0.4)
+
+        # Create muBoth specification
+        muBoth = {}
+
+        # Add mode
+        inputs['mode'] = 3
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Save noise 1
+        inputs['noise1'] = noise1
+
+        # Add mu1 type
+        mu1['type'] = 'square2D' 
+
+        # Add mu1 fwhm
+        mu1['fwhm'] = 'np.array([5,5])'
+
+        # Add mu1 radius
+        mu1['r'] = 30
+
+        # Add mu1 magnitude
+        mu1['mag'] = 3/4
+
+        # Add mu1 center
+        mu1['center'] = 'np.array([-20,0])'
+
+        # Add mu1 to inputs
+        inputs['mu1'] = mu1
+
+        # Add mu2 type
+        mu2['type'] = 'square2D' 
+
+        # Add mu2 fwhm
+        mu2['fwhm'] = 'np.array([5,5])'
+
+        # Add mu2 radius
+        mu2['r'] = 30
+
+        # Add mu2 magnitude
+        mu2['mag'] = 3/4
+
+        # Add mu2 center
+        mu2['center'] = 'np.array([-20,0])'
+
+        # Add mu2 to inputs
+        inputs['mu2'] = mu2
+
+        # We will generate figures for these settings
+        fg_vars = np.arange(0,4.2,1)
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all noise magnitude settings
+        for var in varlist:
+
+            # Add type for noise 1
+            noise2['distribution'] = 'GaussianMix'
+            noise2['mix'] = {}
+
+            # Add mixture parameters for noise 1
+            noise2['mix']['var1'] = 1
+            noise2['mix']['var2'] = str(var)
+
+            # Add type for noise 1
+            noise1['distribution'] = 'GaussianMix'
+            noise1['mix'] = {}
+
+            # Add mixture parameters for noise 1
+            noise1['mix']['var1'] = 1
+            noise1['mix']['var2'] = str(var)
+
+            # Save noise 2
+            inputs['noise2'] = noise2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_vars,var)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del noise2['mix']['var1'], noise2['mix']['var2'], noise2['distribution'], noise1['mix']['var1'], noise1['mix']['var2'], noise1['distribution'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+<<<<<<< HEAD
 
     # ==========================================================================
     #
@@ -4101,6 +4501,8 @@ def generateCfgs(OutDir, simNo):
         del inputs['mu1']['fwhm'], inputs['mu2']['fwhm'], inputs['muBoth']['fwhm'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
 
     
+=======
+>>>>>>> 9cb9242ec87ae44471bf27af4ed7396b5e989a25
 
     #--------------------------------------------------------------------------------------
     # Save the baseline configuration (Note: This must be the last file output as the bash
