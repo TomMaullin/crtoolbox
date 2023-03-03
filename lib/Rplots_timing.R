@@ -4,7 +4,7 @@
   library(dplyr)
   
   # All simulations
-  simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','M1-M2','M3-M4')
+  simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','23-24','25-26','27-28','29-30','31-32','33-34','35-36','M1-M2','M3-M4')
   
   # All p values we're interested in
   pArray <- c(0.80,0.90,0.95)
@@ -2598,6 +2598,1500 @@
         png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim9.png', sep = ''), width = 900, height = 500,
             units = "px", pointsize = 14, bg = "white", res = 120)
         grid.arrange(sim34_n_vs_cov, ncol=1, nrow=1)
+        dev.off()
+  
+      }
+
+
+
+      if (simNumbers=='23-24'){
+  
+        # ====================================================================================================
+        # Simulation 23: Varying smoothness of signal
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim23_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)       
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim23_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim23_data <- cbind(sim23_data, sim23_data_times)
+  
+        # Name data
+        names(sim23_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0','times')
+     
+        # Reduce data
+        sim23_data <- sim23_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim23_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim23_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+    
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim23_data[(sim23_data$n==reduced_n[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+  
+        xmin <- 0
+        xmax <- 7.8
+  
+        ymin <- max(0,min(sim23_data$times)-10)
+        ymax <- max(sim23_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim23_data[(sim23_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim23_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (High SNR)', x = 'Smoothness of Signals (FWHM)', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 23: Varying smoothness of signal (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim23_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim23_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim23/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim23_data <- cbind(sim23_data, sim23_data_times)
+  
+        # Name data
+        names(sim23_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim23_data <- sim23_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim23_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim23_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim23_data[(sim23_data$Smoothness==reduced_d[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim23_data$times)-10)
+        ymax <- max(sim23_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim23_data[(sim23_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim23_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Smoothness`, color=`Smoothness`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (High SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 24:  Varying Signal Smoothness (Low SNR)
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim24_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim24_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim24_data <- cbind(sim24_data, sim24_data_times)
+  
+        # Name data
+        names(sim24_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim24_data <- sim24_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim24_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim24_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim24_data[(sim24_data$n==reduced_n[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+  
+        xmin <- 0
+        xmax <- 7.8
+  
+        ymin <- max(0,min(sim24_data$times)-10)
+        ymax <- max(sim24_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim24_data[(sim24_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim24_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (Low SNR)', x = 'Smoothness of Signals (FWHM)', y = 'Time (Seconds)')
+  
+  
+        # ====================================================================================================
+        # Simulation 24: Varying Signal Smoothness(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim24_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim24_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim24/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim24_data <- cbind(sim24_data, sim24_data_times)
+  
+        # Name data
+        names(sim24_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim24_data <- sim24_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim24_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim24_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim24_data[(sim24_data$Smoothness==reduced_d[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim24_data$times)-10)
+        ymax <- max(sim24_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim24_data[(sim24_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim24_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Smoothness`, color=`Smoothness`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          labs(title = 'Simulation 10: Varying Signal Smoothness, Square Signal (Low SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+  
+        # ====================================================================================================
+        # Combine Sim 23 and 24 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim10.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 14, bg = "white", res = 120)
+        grid.arrange(sim24_n_vs_cov, sim24_d_vs_cov, sim23_n_vs_cov, sim23_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+
+      if (simNumbers=='25-26'){
+  
+
+        # ====================================================================================================
+        # Simulation 25: Varying smoothness of noise
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim25_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)       
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim25_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim25_data <- cbind(sim25_data, sim25_data_times)
+  
+        # Name data
+        names(sim25_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0','times')
+     
+        # Reduce data
+        sim25_data <- sim25_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim25_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim25_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+    
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim25_data[(sim25_data$n==reduced_n[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+  
+        xmin <- 0
+        xmax <- 7.8
+  
+        ymin <- max(0,min(sim25_data$times)-10)
+        ymax <- max(sim25_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim25_data[(sim25_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim25_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (High SNR)', x = 'Smoothness of Noise (FWHM)', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 25: Varying smoothness of noise (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim25_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim25_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim25/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim25_data <- cbind(sim25_data, sim25_data_times)
+  
+        # Name data
+        names(sim25_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim25_data <- sim25_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim25_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim25_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim25_data[(sim25_data$Smoothness==reduced_d[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim25_data$times)-10)
+        ymax <- max(sim25_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim25_data[(sim25_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim25_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Smoothness`, color=`Smoothness`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (High SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 26:  Varying Noise Smoothness (Low SNR)
+        # ====================================================================================================
+        # Plot: Smoothness vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim26_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim26_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim26_data <- cbind(sim26_data, sim26_data_times)
+  
+        # Name data
+        names(sim26_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim26_data <- sim26_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim26_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim26_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim26_data[(sim26_data$n==reduced_n[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Smoothness),]
+  
+        xmin <- 0
+        xmax <- 7.8
+  
+        ymin <- max(0,min(sim26_data$times)-10)
+        ymax <- max(sim26_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim26_data[(sim26_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Smoothness),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim26_d_vs_cov <- ggplot(tmp, aes(x=`Smoothness`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,7.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (Low SNR)', x = 'Smoothness of Noise (FWHM)', y = 'Time (Seconds)')
+  
+  
+        # ====================================================================================================
+        # Simulation 26: Varying Noise Smoothness(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim26_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim26_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim26/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim26_data <- cbind(sim26_data, sim26_data_times)
+  
+        # Name data
+        names(sim26_data) <- c('cfgId','n', 'Smoothness','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim26_data <- sim26_data[c("n","Smoothness","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim26_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim26_data$Smoothness))
+        reduced_d <- c(0,2,4,6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim26_data[(sim26_data$Smoothness==reduced_d[1]),]
+  
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim26_data$times)-10)
+        ymax <- max(sim26_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim26_data[(sim26_data$Smoothness==d),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Smoothness <- as.factor(tmp$Smoothness)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim26_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Smoothness`, color=`Smoothness`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '2' = 'orange', '4' = 'darkorchid', '6' = 'dodgerblue3'), name = 'Smoothness') +
+          labs(title = 'Simulation 11: Varying Noise Smoothness, Square Signal (Low SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+  
+        # ====================================================================================================
+        # Combine Sim 25 and 26 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim11.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 14, bg = "white", res = 120)
+        grid.arrange(sim26_n_vs_cov, sim26_d_vs_cov, sim25_n_vs_cov, sim25_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+
+
+
+      if (simNumbers=='27-28'){
+        
+        # ====================================================================================================
+        # Simulation 27: Varying Threshold
+        # ====================================================================================================
+        # Plot: Threshold vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim27_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)       
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim27_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim27_data <- cbind(sim27_data, sim27_data_times)
+  
+        # Name data
+        names(sim27_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0','times')
+     
+        # Reduce data
+        sim27_data <- sim27_data[c("n","Threshold","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim27_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique thresholds
+        d <- sort(unique(sim27_data$Threshold))
+        reduced_d <- c(0,0.8,1.6,2.4)
+    
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim27_data[(sim27_data$n==reduced_n[1]),]
+  
+        # sort by threshold
+        tmp <- tmp[order(tmp$Threshold),]
+  
+        xmin <- 0
+        xmax <- 3.2
+  
+        ymin <- max(0,min(sim27_data$times)-10)
+        ymax <- max(sim27_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim27_data[(sim27_data$n==n),]
+          
+          # sort by threshold
+          tmp2 <- tmp2[order(tmp2$Threshold),]
+          
+          # sort by threshold
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim27_d_vs_cov <- ggplot(tmp, aes(x=`Threshold`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,3.2) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (High SNR)', x = 'Threshold (c)', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 27: Varying Threshold (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim27_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim27_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim27_data <- cbind(sim27_data, sim27_data_times)
+  
+        # Name data
+        names(sim27_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim27_data <- sim27_data[c("n","Threshold","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim27_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique thresholds
+        d <- sort(unique(sim27_data$Threshold))
+        reduced_d <- c(0,0.8,1.6,2.4)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim27_data[(abs(sim27_data$Threshold-reduced_d[1]) < 1e-6),]
+  
+        # sort by threshold
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim27_data$times)-10)
+        ymax <- max(sim27_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n # sim27_data$Threshold-0.6 < 1e-6
+          tmp2 <- sim27_data[(abs(sim27_data$Threshold-d) < 1e-6),]
+          
+          # sort by threshold
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by threshold
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Threshold <- as.factor(tmp$Threshold)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim27_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Threshold`, color=`Threshold`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '0.8' = 'orange', '1.6' = 'darkorchid', '2.4' = 'dodgerblue3'), name = 'Threshold') +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (High SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 28:  Varying Threshold (Low SNR)
+        # ====================================================================================================
+        # Plot: Threshold vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim28_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim28_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim28_data <- cbind(sim28_data, sim28_data_times)
+  
+        # Name data
+        names(sim28_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim28_data <- sim28_data[c("n","Threshold","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim28_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique thresholds
+        d <- sort(unique(sim28_data$Threshold))
+        reduced_d <- c(0,0.2,0.4,0.6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim28_data[(sim28_data$n==reduced_n[1]),]
+  
+        # sort by threshold
+        tmp <- tmp[order(tmp$Threshold),]
+  
+        xmin <- 0
+        xmax <- 0.8
+  
+        ymin <- max(0,min(sim28_data$times)-10)
+        ymax <- max(sim28_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim28_data[(sim28_data$n==n),]
+          
+          # sort by threshold
+          tmp2 <- tmp2[order(tmp2$Threshold),]
+          
+          # sort by threshold
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim28_d_vs_cov <- ggplot(tmp, aes(x=`Threshold`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,0.8) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (Low SNR)', x = 'Threshold (c)', y = 'Time (Seconds)')
+  
+        
+        # ====================================================================================================
+        # Simulation 28: Varying Threshold(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim28_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim28_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim28_data <- cbind(sim28_data, sim28_data_times)
+  
+        # Name data
+        names(sim28_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim28_data <- sim28_data[c("n","Threshold","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim28_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique thresholds
+        d <- sort(unique(sim28_data$Threshold))
+        reduced_d <- c(0,0.2,0.4,0.6)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim28_data[(abs(sim28_data$Threshold-reduced_d[1]) < 1e-6),]
+
+        # sort by threshold
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim28_data$times)-10)
+        ymax <- max(sim28_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim28_data[(abs(sim28_data$Threshold-d) < 1e-6),]
+          
+          # sort by threshold
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by threshold
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Threshold <- as.factor(tmp$Threshold)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim28_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Threshold`, color=`Threshold`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '0.2' = 'orange', '0.4' = 'darkorchid', '0.6' = 'dodgerblue3'), name = 'Threshold') +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (Low SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+  
+        # ====================================================================================================
+        # Combine Sim 27 and 28 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim12.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 14, bg = "white", res = 120)
+        grid.arrange(sim28_n_vs_cov, sim28_d_vs_cov, sim27_n_vs_cov, sim27_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+
+      if (simNumbers=='33-34'){
+
+        # ====================================================================================================
+        # Simulation 33: Moving circles closer together (High SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Distance vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim33_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)       
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim33_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim33_data <- cbind(sim33_data, sim33_data_times)
+  
+        # Name data
+        names(sim33_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0','times')
+     
+        # Reduce data
+        sim33_data <- sim33_data[c("n","Distance","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim33_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim33_data$Distance))
+        reduced_d <- c(0,20,40)
+    
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim33_data[(sim33_data$n==reduced_n[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$Distance),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- max(0,min(sim33_data$times)-10)
+        ymax <- max(sim33_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim33_data[(sim33_data$n==n),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$Distance),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim33_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,50) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal, Niave Intersections (High SNR)', x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 33: Moving circles closer together (High SNR), Niave intersections
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim33_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim33_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim33_data <- cbind(sim33_data, sim33_data_times)
+  
+        # Name data
+        names(sim33_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim33_data <- sim33_data[c("n","Distance","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim33_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim33_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim33_data[(sim33_data$Distance==reduced_d[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim33_data$times)-10)
+        ymax <- max(sim33_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim33_data[(sim33_data$Distance==d),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Distance <- as.factor(tmp$Distance)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim33_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Distance`, color=`Distance`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal, Niave Intersections (High SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 34: Moving circles closer together (Low SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Distance vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim34_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim34_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim34_data <- cbind(sim34_data, sim34_data_times)
+  
+        # Name data
+        names(sim34_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim34_data <- sim34_data[c("n","Distance","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim34_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim34_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim34_data[(sim34_data$n==reduced_n[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$Distance),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- max(0,min(sim34_data$times)-10)
+        ymax <- max(sim34_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim34_data[(sim34_data$n==n),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$Distance),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim34_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0,50) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal, Niave Intersections (Low SNR)', x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Time (Seconds)')
+  
+        
+        # ====================================================================================================
+        # Simulation 34: Moving circles closer together (Low SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim34_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim34_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim34_data <- cbind(sim34_data, sim34_data_times)
+  
+        # Name data
+        names(sim34_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim34_data <- sim34_data[c("n","Distance","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim34_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim34_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim34_data[(sim34_data$Distance==reduced_d[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim34_data$times)-10)
+        ymax <- max(sim34_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim34_data[(sim34_data$Distance==d),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Distance <- as.factor(tmp$Distance)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim34_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`Distance`, color=`Distance`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal, Niave Intersections (Low SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Combine Sim 33 and 34 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim13.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 14, bg = "white", res = 120)
+        grid.arrange(sim34_n_vs_cov, sim34_d_vs_cov, sim33_n_vs_cov, sim33_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+
+
+    if (simNumbers=='35-36'){
+
+        # ====================================================================================================
+        # Simulation 35: Varying Noise Mixture (High SNR)
+        # ====================================================================================================
+        # Plot: Noise Mixture vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim35_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)       
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim35_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim35_data <- cbind(sim35_data, sim35_data_times)
+  
+        # Name data
+        names(sim35_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0','times')
+     
+        # Reduce data
+        sim35_data <- sim35_data[c("n","NoiseMix","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim35_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim35_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+    
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim35_data[(sim35_data$n==reduced_n[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$NoiseMix),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- max(0,min(sim35_data$times)-10)
+        ymax <- max(sim35_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim35_data[(sim35_data$n==n),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$NoiseMix),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim35_nm_vs_cov <- ggplot(tmp, aes(x=`NoiseMix`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0.8,4) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (High SNR)', x = 'Second Noise Component', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 35: Varying Noise Mixture (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim35_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim35_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim35_data <- cbind(sim35_data, sim35_data_times)
+  
+        # Name data
+        names(sim35_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim35_data <- sim35_data[c("n","NoiseMix","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim35_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim35_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim35_data[(sim35_data$NoiseMix==reduced_nm[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim35_data$times)-10)
+        ymax <- max(sim35_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (nm in reduced_nm[2:length(reduced_nm)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim35_data[(sim35_data$NoiseMix==nm),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$NoiseMix <- as.factor(tmp$NoiseMix)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim35_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`NoiseMix`, color=`NoiseMix`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0.8' = 'salmon','2' = 'darkorchid','3.2' = 'slategray', '4' = 'indianred1'), name = 'NoiseMix') +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (High SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Simulation 36: Varying Noise Mixture (Low SNR)
+        # ====================================================================================================
+        # Plot: Noise Mixture vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim36_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim36_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim36_data <- cbind(sim36_data, sim36_data_times)
+  
+        # Name data
+        names(sim36_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim36_data <- sim36_data[c("n","NoiseMix","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim36_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim36_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim36_data[(sim36_data$n==reduced_n[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$NoiseMix),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- max(0,min(sim36_data$times)-10)
+        ymax <- max(sim36_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim36_data[(sim36_data$n==n),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$NoiseMix),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim36_nm_vs_cov <- ggplot(tmp, aes(x=`NoiseMix`,y=`times`, group=`n`, color=`n`)) + geom_line() + 
+          xlim(0.8,4) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (Low SNR)', x = 'Second Noise Component', y = 'Time (Seconds)')
+  
+        
+        # ====================================================================================================
+        # Simulation 36: Varying Noise Mixture (Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim36_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Halve the times as we want to average over est and true and times include both
+        sim36_data_times <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', 'times.csv', sep='') ,sep=',', header=FALSE)/2
+
+        sim36_data <- cbind(sim36_data, sim36_data_times)
+  
+        # Name data
+        names(sim36_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0', 'times')
+  
+        # Reduce data
+        sim36_data <- sim36_data[c("n","NoiseMix","times")]
+  
+        # Sort the unique n
+        n <- sort(unique(sim36_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim36_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim36_data[(sim36_data$NoiseMix==reduced_nm[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- max(0,min(sim36_data$times)-10)
+        ymax <- max(sim36_data$times)*1.2
+          
+        # Loop through and add the remaining n
+        for (nm in reduced_nm[2:length(reduced_nm)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim36_data[(sim36_data$NoiseMix==nm),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$NoiseMix <- as.factor(tmp$NoiseMix)
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim36_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=`times`, group=`NoiseMix`, color=`NoiseMix`)) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0.8' = 'salmon','2' = 'darkorchid','3.2' = 'slategray', '4' = 'indianred1'), name = 'NoiseMix') +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (Low SNR)', x = 'Number of Observations', y = 'Time (Seconds)')
+  
+        # ====================================================================================================
+        # Combine Sim 35 and 36 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/Times/sim14.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 14, bg = "white", res = 120)
+        grid.arrange(sim36_n_vs_cov, sim36_nm_vs_cov, sim35_n_vs_cov, sim35_nm_vs_cov, ncol=2, nrow=2)
         dev.off()
   
       }

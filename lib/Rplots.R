@@ -4,7 +4,8 @@
   library(dplyr)
   
   # All simulations
-  simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','23-24','25-26','27-28','29-30','31-32','33-34','M1-M2','M3-M4')
+  #simNoArray = c('1-2','7-8','11-12','15-16','17-18','19-20','21-22','23-24','25-26','27-28','29-30','31-32','33-34','35-36','M1-M2','M3-M4')
+  simNoArray = c('27-28')
   
   # All p values we're interested in
   pArray <- c(0.80,0.90,0.95)
@@ -13,7 +14,7 @@
   nReals <- 2500
   
   # Boundary type
-  bdryType <- 'True'
+  bdryType <- 'Est'
   
   if (bdryType=='Est') {
     bdryStr = 'Estimated Boundary'
@@ -21,7 +22,7 @@
     bdryStr = 'True Boundary'
   }
   
-  simDirs <- c('2smp/Sim1','2smp/Sim2','2smp/Sim7','2smp/Sim8','2smp/Sim11','2smp/Sim12','2smp/Sim15','2smp/Sim16','2smp/Sim17','2smp/Sim18','2smp/Sim19','2smp/Sim20','2smp/Sim21','2smp/Sim22','2smp/Sim23','2smp/Sim24','2smp/Sim25','2smp/Sim26','2smp/Sim27','2smp/Sim28','2smp/Sim29','2smp/Sim30','2smp/Sim31','2smp/Sim32','Msmp/Sim1','Msmp/Sim2','Msmp/Sim3','Msmp/Sim4')
+  simDirs <- c('2smp/Sim1','2smp/Sim2','2smp/Sim7','2smp/Sim8','2smp/Sim11','2smp/Sim12','2smp/Sim15','2smp/Sim16','2smp/Sim17','2smp/Sim18','2smp/Sim19','2smp/Sim20','2smp/Sim21','2smp/Sim22','2smp/Sim23','2smp/Sim24','2smp/Sim25','2smp/Sim26','2smp/Sim27','2smp/Sim28','2smp/Sim29','2smp/Sim30','2smp/Sim31','2smp/Sim32','2smp/Sim33','2smp/Sim34','2smp/Sim35','2smp/Sim36','Msmp/Sim1','Msmp/Sim2','Msmp/Sim3','Msmp/Sim4')
   
   # Relevant parameters
   nReals <- 2500
@@ -3650,7 +3651,1027 @@
         dev.off()
         
       }
+
+
+      if (simNumbers=='27-28'){
+        
+        # ====================================================================================================
+        # Simulation 27: Varying Threshold
+        # ====================================================================================================
+        # Plot: Threshold vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim27_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim27_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.27','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim27_data <- sim27_data[c("n","Threshold",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim27_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim27_data$Threshold))
+        reduced_d <- c(0,0.8,1.6,2.4)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(1-0.5*(1-p))*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim27_data[(sim27_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Threshold),]
+        
+        xmin <- 0
+        xmax <- 3.2
+        
+        ymin <- 0.5
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim27_data[(sim27_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Threshold),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim27_d_vs_cov <- ggplot(tmp, aes(x=`Threshold`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,3.2) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Threshold`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (High SNR)', subtitle = paste('Threshold vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Threshold (c)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 27: Varying Threshold (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim27_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim27/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim27_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.27','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim27_data <- sim27_data[c("n","Threshold",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim27_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesses
+        d <- sort(unique(sim27_data$Threshold))
+        reduced_d <- c(0,0.8,1.6,2.4)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim27_data[(abs(sim27_data$Threshold-reduced_d[1]) < 1e-6),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- min(1-2*(1-p),min(sim27_data[[toString(p)]])-0.03)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim27_data[(abs(sim27_data$Threshold-d) < 1e-6),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Threshold <- as.factor(tmp$Threshold)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim27_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Threshold`, color=`Threshold`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values =  c('0' = 'indianred1', '0.8' = 'orange', '1.6' = 'darkorchid', '2.4' = 'dodgerblue3'), name = 'Threshold') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        # ====================================================================================================
+        # Simulation 28:  Varying Threshold (Low SNR)
+        # ====================================================================================================
+        # Plot: Threshold vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim28_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim28_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.27','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim28_data <- sim28_data[c("n","Threshold",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim28_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim28_data$Threshold))
+        reduced_d <- c(0,0.2,0.4,0.6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim28_data[(sim28_data$n==reduced_n[1]),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$Threshold),]
+        
+        xmin <- 0
+        xmax <- 0.8
+        
+        ymin <- 0.5
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim28_data[(sim28_data$n==n),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$Threshold),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim28_d_vs_cov <- ggplot(tmp, aes(x=`Threshold`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,0.8) + ylim(p-ylimit,min(1,p+ylimit)) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Threshold`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (Low SNR)', subtitle = paste('Threshold vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Threshold (c)', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Simulation 28: Varying Threshold(Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        
+        # Read in data
+        sim28_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim28/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+        
+        # Name data
+        names(sim28_data) <- c('cfgId','n', 'Threshold','0.0','0.05','0.1','0.15','0.2','0.27','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+        
+        # Reduce data
+        sim28_data <- sim28_data[c("n","Threshold",toString(p))]
+        
+        # Sort the unique n
+        n <- sort(unique(sim28_data$n))
+        reduced_n <-c(100,300,500)
+        
+        # Sort the unique smoothnesss
+        d <- sort(unique(sim28_data$Threshold))
+        reduced_d <- c(0,0.2,0.4,0.6)
+        
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+        
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+        
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+        
+        # Reduce to just for some n
+        tmp <- sim28_data[(abs(sim28_data$Threshold-reduced_d[1]) < 1e-6),]
+        
+        # sort by smoothness
+        tmp <- tmp[order(tmp$n),]
+        
+        xmin <- 0
+        xmax <- 500
+        
+        ymin <- min(1-2*(1-p),min(sim28_data[[toString(p)]])-0.03)
+        ymax <- 1
+        
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim28_data[(abs(sim28_data$Threshold-d) < 1e-6),]
+          
+          # sort by smoothness
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by smoothness
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+        
+        # Save n
+        tmp$Threshold <- as.factor(tmp$Threshold)
+        
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+        
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+        
+        # Create plot
+        sim28_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Threshold`, color=`Threshold`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'indianred1', '0.2' = 'orange', '0.4' = 'darkorchid', '0.6' = 'dodgerblue3'), name = 'Threshold') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 12: Varying Threshold, Square Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+        
+        
+        # ====================================================================================================
+        # Combine Sim 27 and 28 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/', toString(100*p), '/', bdryType ,'/sim12.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 12, bg = "white", res = 120)
+        grid.arrange(sim28_n_vs_cov, sim28_d_vs_cov, sim27_n_vs_cov, sim27_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+        
+      }
+
+      if (simNumbers=='33-34'){
   
+        # ====================================================================================================
+        # Simulation 33: Moving circles closer together (High SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Distance vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Read in data
+        sim33_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim33_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim33_data <- sim33_data[c("n","Distance",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim33_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim33_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(1-0.5*(1-p))*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim33_data[(sim33_data$n==reduced_n[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$Distance),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim33_data[(sim33_data$n==n),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$Distance),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim33_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,50) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal (High SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, ', Niave Intersections', sep=''), x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Simulation 33: Moving circles closer together (High SNR), Niave intersections
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim33_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim33/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim33_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim33_data <- sim33_data[c("n","Distance",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim33_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim33_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim33_data[(sim33_data$Distance==reduced_d[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim33_data[(sim33_data$Distance==d),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Distance <- as.factor(tmp$Distance)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim33_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, ', Niave Intersections', sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+  
+        # ====================================================================================================
+        # Simulation 34: Moving circles closer together (Low SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Distance vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim34_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim34_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim34_data <- sim34_data[c("n","Distance",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim34_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim34_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = d, y = rep(p,length(d)))
+        uppline <- data.frame( x = d, y = rep(p+bin_conf,length(d)))
+        lowline <- data.frame( x = d, y = rep(p-bin_conf,length(d)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim34_data[(sim34_data$n==reduced_n[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$Distance),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim34_data[(sim34_data$n==n),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$Distance),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim34_d_vs_cov <- ggplot(tmp, aes(x=`Distance`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0,50) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`Distance`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal (Low SNR)', subtitle = paste('Distance vs Observed Coverage, p = ', toString(p), ', ', bdryStr, ', Niave Intersections', sep=''), x = 'Distance Between Circle Centers (Number of Pixels)', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Simulation 34: Moving circles closer together (Low SNR), Niave Intersections
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Read in data
+        sim34_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim34/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim34_data) <- c('cfgId','n', 'Distance','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim34_data <- sim34_data[c("n","Distance",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim34_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique distances
+        d <- sort(unique(sim34_data$Distance))
+        reduced_d <- c(0,20,40)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim34_data[(sim34_data$Distance==reduced_d[1]),]
+  
+        # sort by distance
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (d in reduced_d[2:length(reduced_d)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim34_data[(sim34_data$Distance==d),]
+          
+          # sort by distance
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by distance
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$Distance <- as.factor(tmp$Distance)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim34_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`Distance`, color=`Distance`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0' = 'salmon','20' = 'darkorchid','40' = 'slategray'), name = 'Distance') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 13: Varying Distance, Circle Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, ', Niave Intersections', sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Combine Sim 33 and 34 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/', toString(100*p), '/', bdryType ,'/sim13.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 12, bg = "white", res = 120)
+        grid.arrange(sim34_n_vs_cov, sim34_d_vs_cov, sim33_n_vs_cov, sim33_d_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+      
+      
+      
+      if (simNumbers=='35-36'){
+  
+        # ====================================================================================================
+        # Simulation 35: Varying Noise Mixture (High SNR)
+        # ====================================================================================================
+        # Plot: Noise Mixture vs coverage
+        # ----------------------------------------------------------------------------------------------------
+        # Reanm in data
+        sim35_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim35_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim35_data <- sim35_data[c("n","NoiseMix",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim35_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim35_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(1-0.5*(1-p))*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = nm, y = rep(p,length(nm)))
+        uppline <- data.frame( x = nm, y = rep(p+bin_conf,length(nm)))
+        lowline <- data.frame( x = nm, y = rep(p-bin_conf,length(nm)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim35_data[(sim35_data$n==reduced_n[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$NoiseMix),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim35_data[(sim35_data$n==n),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$NoiseMix),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim35_nm_vs_cov <- ggplot(tmp, aes(x=`NoiseMix`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0.8,4) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`NoiseMix`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (High SNR)', subtitle = paste('Second Noise Component vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Second Noise Component', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Simulation 35: Varying Noise Mixture (High SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Reanm in data
+        sim35_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim35/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim35_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim35_data <- sim35_data[c("n","NoiseMix",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim35_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim35_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim35_data[(sim35_data$NoiseMix==reduced_nm[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (nm in reduced_nm[2:length(reduced_nm)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim35_data[(sim35_data$NoiseMix==nm),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$NoiseMix <- as.factor(tmp$NoiseMix)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim35_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`NoiseMix`, color=`NoiseMix`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0.8' = 'salmon','2' = 'darkorchid','3.2' = 'slategray', '4' = 'indianred1'), name = 'NoiseMix') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (High SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+  
+        # ====================================================================================================
+        # Simulation 36: Varying Noise Mixture (Low SNR)
+        # ====================================================================================================
+        # Plot: Noise Mixture vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Reanm in data
+        sim36_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim36_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim36_data <- sim36_data[c("n","NoiseMix",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim36_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim36_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = nm, y = rep(p,length(nm)))
+        uppline <- data.frame( x = nm, y = rep(p+bin_conf,length(nm)))
+        lowline <- data.frame( x = nm, y = rep(p-bin_conf,length(nm)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim36_data[(sim36_data$n==reduced_n[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$NoiseMix),]
+  
+        xmin <- 0
+        xmax <- 50
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (n in reduced_n[2:length(reduced_n)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim36_data[(sim36_data$n==n),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$NoiseMix),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$n <- as.factor(tmp$n)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim36_nm_vs_cov <- ggplot(tmp, aes(x=`NoiseMix`,y=.data[[toString(p)]], group=`n`, color=`n`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(0.8,4) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('100' = 'salmon','300' = 'darkorchid','500' = 'slategray'), name = 'n') +
+          geom_line(aes(x=`NoiseMix`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (Low SNR)', subtitle = paste('Second Noise Component vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Second Noise Component', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Simulation 36: Varying Noise Mixture (Low SNR)
+        # ====================================================================================================
+        # Plot: Number of observations vs coverage
+        # ----------------------------------------------------------------------------------------------------
+  
+        # Reanm in data
+        sim36_data <- read.csv(file = paste('/home/tommaullin/Documents/ConfRes/FinalSims/2smp/Sim36/FullResults/', tolower(bdryType), 'Bdry_intrp.csv', sep='') ,sep=',', header=FALSE)
+  
+        # Name data
+        names(sim36_data) <- c('cfgId','n', 'NoiseMix','0.0','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','1.0')
+  
+        # Reduce data
+        sim36_data <- sim36_data[c("n","NoiseMix",toString(p))]
+  
+        # Sort the unique n
+        n <- sort(unique(sim36_data$n))
+        reduced_n <-c(100,300,500)
+  
+        # Sort the unique noise mixtures
+        nm <- sort(unique(sim36_data$NoiseMix))
+        reduced_nm <- c(0.8,2,3.2,4)
+  
+        # Binomial confidence line
+        bin_conf <- qnorm(p)*sqrt(p*(1-p)/nReals)
+  
+        # Lines for band
+        midline <- data.frame( x = n, y = rep(p,length(n)))
+        uppline <- data.frame( x = n, y = rep(p+bin_conf,length(n)))
+        lowline <- data.frame( x = n, y = rep(p-bin_conf,length(n)))
+  
+        # -------------------------------------------------------
+        # Reformat data
+        # -------------------------------------------------------
+  
+        # Reduce to just for some n
+        tmp <- sim36_data[(sim36_data$NoiseMix==reduced_nm[1]),]
+  
+        # sort by noise mixture
+        tmp <- tmp[order(tmp$n),]
+  
+        xmin <- 0
+        xmax <- 500
+  
+        ymin <- 1-2*(1-p)
+        ymax <- 1
+          
+        # Loop through and add the remaining n
+        for (nm in reduced_nm[2:length(reduced_nm)]){
+          
+          # Reduce to just for some n
+          tmp2 <- sim36_data[(sim36_data$NoiseMix==nm),]
+          
+          # sort by noise mixture
+          tmp2 <- tmp2[order(tmp2$n),]
+          
+          # sort by noise mixture
+          tmp <- rbind(tmp,tmp2)
+          
+        }
+  
+        # Save n
+        tmp$NoiseMix <- as.factor(tmp$NoiseMix)
+  
+        # Save line parameters 
+        tmp$truep <- p
+        tmp$lowp <- p-bin_conf
+        tmp$uppp <- p+bin_conf
+  
+        # -------------------------------------------------------
+        # Make plot
+        # -------------------------------------------------------
+  
+        # Create plot
+        sim36_n_vs_cov <- ggplot(tmp, aes(x=`n`,y=.data[[toString(p)]], group=`NoiseMix`, color=`NoiseMix`)) + 
+          geom_ribbon(aes(ymin=p-bin_conf, ymax=p+bin_conf), alpha=0.05, fill='turquoise4', colour = NA) + geom_line() + 
+          xlim(40,500) + ylim(ymin,ymax) + 
+          scale_color_manual(values = c('0.8' = 'salmon','2' = 'darkorchid','3.2' = 'slategray', '4' = 'indianred1'), name = 'NoiseMix') +
+          geom_line(aes(x=`n`,y=`truep`),linetype="dashed",color="black",size=0.1) +
+          labs(title = 'Simulation 14: Varying Noise Mixture, Circle Signal (Low SNR)', subtitle = paste('Number of Observations vs Observed Coverage, p = ', toString(p), ', ', bdryStr, sep=''), x = 'Number of Observations', y = 'Observed Coverage')
+  
+  
+        # ====================================================================================================
+        # Combine Sim 35 and 36 plots
+        # ====================================================================================================
+        
+        png(filename = paste('/home/tommaullin/Documents/ConfRes/FinalSims/', toString(100*p), '/', bdryType ,'/sim14.png', sep = ''), width = 1800, height = 1000,
+            units = "px", pointsize = 12, bg = "white", res = 120)
+        grid.arrange(sim36_n_vs_cov, sim36_nm_vs_cov, sim35_n_vs_cov, sim35_nm_vs_cov, ncol=2, nrow=2)
+        dev.off()
+  
+      }
+        
     }
   
   }
