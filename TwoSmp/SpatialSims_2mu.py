@@ -2305,10 +2305,10 @@ def SpatialSims_2mu_seperate(ipath):
         estBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_estBdry_cap1 & bdry_lowerCheck_estBdry_cap2,axis=(1))) & \
                                      (np.all(bdry_upperCheck_estBdry_cap1 | bdry_upperCheck_estBdry_cap2,axis=(1)))
 
-        if np.all(inputs['mu2']['center']==inputs['mu1']['center']):
-            with open(os.path.join(simDir,'print.txt'), 'a+') as f:
-                print('cap check shapes: ', bdry_lowerCheck_trueBdry_cap1.shape, bdry_lowerCheck_trueBdry_cap2.shape, bdry_upperCheck_trueBdry_cap1.shape, bdry_upperCheck_trueBdry_cap2.shape,file=f)
-                print('cap checks: ', bdry_lowerCheck_trueBdry_cap1, bdry_lowerCheck_trueBdry_cap2, bdry_upperCheck_trueBdry_cap1, bdry_upperCheck_trueBdry_cap2,file=f)
+        # if np.all(inputs['mu2']['center']==inputs['mu1']['center']):
+        #     with open(os.path.join(simDir,'print.txt'), 'a+') as f:
+        #         print('cap check shapes: ', bdry_lowerCheck_trueBdry_cap1.shape, bdry_lowerCheck_trueBdry_cap2.shape, bdry_upperCheck_trueBdry_cap1.shape, bdry_upperCheck_trueBdry_cap2.shape,file=f)
+        #         print('cap checks: ', bdry_lowerCheck_trueBdry_cap1, bdry_lowerCheck_trueBdry_cap2, bdry_upperCheck_trueBdry_cap1, bdry_upperCheck_trueBdry_cap2,file=f)
 
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using interpolated
