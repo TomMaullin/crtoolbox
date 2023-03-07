@@ -2361,18 +2361,19 @@ def SpatialSims_2mu_seperate(ipath):
 
         if np.all(inputs['mu2']['center']==inputs['mu1']['center']):
             with open(os.path.join(simDir,'print.txt'), 'a+') as f:
-                print('noncap check shapes: ', bdry_lowerCheck_trueBdry1.shape, bdry_lowerCheck_trueBdry2.shape, bdry_upperCheck_trueBdry1.shape, bdry_upperCheck_trueBdry2.shape, file=f)
-                print('noncap checks: ', bdry_lowerCheck_trueBdry1, bdry_lowerCheck_trueBdry2, bdry_upperCheck_trueBdry1, bdry_upperCheck_trueBdry2, file=f)
+                #print('noncap check shapes: ', bdry_lowerCheck_trueBdry1.shape, bdry_lowerCheck_trueBdry2.shape, bdry_upperCheck_trueBdry1.shape, bdry_upperCheck_trueBdry2.shape, file=f)
+                #print('noncap checks: ', bdry_lowerCheck_trueBdry1, bdry_lowerCheck_trueBdry2, bdry_upperCheck_trueBdry1, bdry_upperCheck_trueBdry2, file=f)
+                print('intrp checks', trueBdry_success_intrp1[r,:],trueBdry_success_intrp2[r,:],trueBdry_success_intrp[r,:])
 
-    if np.all(inputs['mu2']['center']==inputs['mu1']['center']):
+    # if np.all(inputs['mu2']['center']==inputs['mu1']['center']):
 
-        with open(os.path.join(simDir,'print.txt'), 'a+') as f:
-            print('trueBdry_success1', trueBdry_success1, file=f)
-            print('trueBdry_success2', trueBdry_success2, file=f)
-            print('trueBdry_success', trueBdry_success, file=f)
-            print('trueBdry_success_intrp1', trueBdry_success_intrp1, file=f)
-            print('trueBdry_success_intrp2', trueBdry_success_intrp2, file=f)
-            print('trueBdry_success_intrp', trueBdry_success_intrp, file=f)
+    #     with open(os.path.join(simDir,'print.txt'), 'a+') as f:
+    #         print('trueBdry_success1', trueBdry_success1, file=f)
+    #         print('trueBdry_success2', trueBdry_success2, file=f)
+    #         print('trueBdry_success', trueBdry_success, file=f)
+    #         print('trueBdry_success_intrp1', trueBdry_success_intrp1, file=f)
+    #         print('trueBdry_success_intrp2', trueBdry_success_intrp2, file=f)
+    #         print('trueBdry_success_intrp', trueBdry_success_intrp, file=f)
 
 
     # For the interpolated boundary success checks, we still need to do the 
