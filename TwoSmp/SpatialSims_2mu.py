@@ -2305,6 +2305,9 @@ def SpatialSims_2mu_seperate(ipath):
         estBdry_success_intrp[r,:] = (np.all(bdry_lowerCheck_estBdry_cap1 & bdry_lowerCheck_estBdry_cap2,axis=(1))) & \
                                      (np.all(bdry_upperCheck_estBdry_cap1 | bdry_upperCheck_estBdry_cap2,axis=(1)))
 
+        print('cap check shapes: ', bdry_lowerCheck_trueBdry_cap1.shape, bdry_lowerCheck_trueBdry_cap2.shape, bdry_upperCheck_trueBdry_cap1.shape, bdry_upperCheck_trueBdry_cap2.shape)
+        print('cap checks: ', bdry_lowerCheck_trueBdry_cap1, bdry_lowerCheck_trueBdry_cap2, bdry_upperCheck_trueBdry_cap1, bdry_upperCheck_trueBdry_cap2)
+
         # -------------------------------------------------------------------
         # Check whether there were any boundary violations using interpolated
         # boundary values (checking if voxels had values corresponding to no
@@ -2353,6 +2356,17 @@ def SpatialSims_2mu_seperate(ipath):
         # Record if we saw a violation in the estimated boundary based sets
         estBdry_success_intrp1[r,:] = np.all(bdry_lowerCheck_estBdry1,axis=(1)) & np.all(bdry_upperCheck_estBdry1,axis=(1)) # : AXES WONT WORK FOR 3D ATM
         estBdry_success_intrp2[r,:] = np.all(bdry_lowerCheck_estBdry2,axis=(1)) & np.all(bdry_upperCheck_estBdry2,axis=(1)) # : AXES WONT WORK FOR 3D ATM
+
+        print('noncap check shapes: ', bdry_lowerCheck_trueBdry1.shape, bdry_lowerCheck_trueBdry2.shape, bdry_upperCheck_trueBdry1.shape, bdry_upperCheck_trueBdry2.shape)
+        print('noncap checks: ', bdry_lowerCheck_trueBdry1, bdry_lowerCheck_trueBdry2, bdry_upperCheck_trueBdry1, bdry_upperCheck_trueBdry2)
+
+    if inputs['mu2']['center']==inputs['mu1']['center']:
+        print('trueBdry_success1', trueBdry_success1)
+        print('trueBdry_success2', trueBdry_success2)
+        print('trueBdry_success', trueBdry_success)
+        print('trueBdry_success_intrp1', trueBdry_success_intrp1)
+        print('trueBdry_success_intrp2', trueBdry_success_intrp2)
+        print('trueBdry_success_intrp', trueBdry_success_intrp)
 
 
     # For the interpolated boundary success checks, we still need to do the 
