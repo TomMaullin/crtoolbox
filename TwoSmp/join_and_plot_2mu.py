@@ -4164,7 +4164,7 @@ def joinAndPlot(OutDir, simNo):
                 plt.legend()
 
                 # Save plots
-                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_var2'+('%.2f' % m)+'.png'))
+                plt.savefig(os.path.join(fResDir, 'n_vs_obsp_truep'+str(np.int(100*p))+'_var2'+('%.2f' % v)+'.png'))
 
                 # Clear figure
                 plt.clf()

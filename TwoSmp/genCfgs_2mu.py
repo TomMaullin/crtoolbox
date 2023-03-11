@@ -2203,7 +2203,6 @@ def generateCfgs(OutDir, simNo):
                 inputs['cfgId'] = int(cfgId)
 
                 # Record if we want to save figures for this design or not
-                print(grad, fg_grads, grad in fg_grads)
                 if (nSub in fg_nSubs) and np.any(np.isclose(fg_grads,grad)):
 
                     # In this case we do want to save  figures
@@ -2213,8 +2212,6 @@ def generateCfgs(OutDir, simNo):
 
                     # In this case we do want to save  figures
                     inputs['figGen']=0
-
-                print(inputs['figGen'])
 
                 # Save the yml
                 with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
@@ -4364,6 +4361,232 @@ def generateCfgs(OutDir, simNo):
 
         # Delete fields which vary across simulation
         del noise2['mix']['var1'], noise2['mix']['var2'], noise2['distribution'], noise1['mix']['var1'], noise1['mix']['var2'], noise1['distribution'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
+    # ==========================================================================
+    #
+    # Simulation 37: Opposing ramps, niave intersections, high SNR 
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two ramps facing
+    # in opposite directions closer to one another. We raise the ramps signals 
+    # and, as usual, the number of subjects. In this simulation we test the
+    # niave intersections idea.
+    #
+    # ==========================================================================
+    if simNo==37:
+
+        # These are our k values
+        ks = np.arange(0.1,2.1,0.1)
+
+        # Add threshold c
+        inputs['c'] = 2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        inputs['Seperate'] = 1
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # We will generate figures for these settings
+        fg_ks = np.array([0.5,1,1.5,2])
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for k in ks:
+
+            # Add mu1 type
+            mu1['type'] = 'ramp2D'
+
+            # Add mu1 fwhm
+            mu1['orient'] = 'horizontal'
+
+            # Add mu1 a
+            mu1['a'] = '%.15f' % k
+
+            # Add mu1 b
+            mu1['b'] = '%.15f' % (4+k)
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 type
+            mu2['type'] = 'ramp2D'
+
+            # Add mu2 fwhm
+            mu2['orient'] = 'horizontal'
+
+            # Add mu2 a
+            mu2['a'] = '%.15f' % (4+k)
+
+            # Add mu2 b
+            mu2['b'] = '%.15f' % k
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_ks,k)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['a'], inputs['mu1']['b'], inputs['mu2']['a'], inputs['mu2']['b'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
+
+    # ==========================================================================
+    #
+    # Simulation 38: Opposing ramps, niave intersections, low SNR 
+    #
+    # --------------------------------------------------------------------------
+    #
+    # In this simulation setting, we are interested in moving two ramps facing
+    # in opposite directions closer to one another. We raise the ramps signals 
+    # and, as usual, the number of subjects. In this simulation we test the
+    # niave intersections idea.
+    #
+    # ==========================================================================
+    if simNo==38:
+
+        # These are our k values
+        ks = np.arange(0.1,2.1,0.1)/4
+
+        # Add threshold c
+        inputs['c'] = 1/2
+
+        # Add mode
+        inputs['mode'] = 3
+
+        inputs['Seperate'] = 1
+
+        # Add FWHM for noise
+        noise1['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 1
+        noise1['type'] = 'homogen'
+
+        # Add FWHM  for noise 2
+        noise2['FWHM'] = '[0, 3, 3]'
+
+        # Add type for noise 2
+        noise2['type'] = 'homogen'
+
+        # Save noises
+        inputs['noise1'] = noise1
+        inputs['noise2'] = noise2
+
+        # We will generate figures for these settings
+        fg_ks = np.array([0.5,1,1.5,2])/4
+
+        # Id for config file
+        cfgId = 1
+
+        # Loop through all center settings
+        for k in ks:
+
+            # Add mu1 type
+            mu1['type'] = 'ramp2D'
+
+            # Add mu1 fwhm
+            mu1['orient'] = 'horizontal'
+
+            # Add mu1 a
+            mu1['a'] = '%.15f' % k
+
+            # Add mu1 b
+            mu1['b'] = '%.15f' % (1+k)
+
+            # Add mu1 to inputs
+            inputs['mu1'] = mu1
+
+            # Add mu2 type
+            mu2['type'] = 'ramp2D'
+
+            # Add mu2 fwhm
+            mu2['orient'] = 'horizontal'
+
+            # Add mu2 a
+            mu2['a'] = '%.15f' % (1+k)
+
+            # Add mu2 b
+            mu2['b'] = '%.15f' % k
+
+            # Add mu2 to inputs
+            inputs['mu2'] = mu2
+
+            # Loop through all nSub settings
+            for nSub in nSubs:
+
+                # Add nSub to inputs
+                inputs['nSub'] = int(nSub)
+
+                # Save cfg ID (handy to have around)
+                inputs['cfgId'] = int(cfgId)
+
+                # Record if we want to save figures for this design or not
+                if (nSub in fg_nSubs) and np.any(np.isclose(fg_ks,k)):
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=1
+
+                else:
+
+                    # In this case we do want to save  figures
+                    inputs['figGen']=0
+
+                # Save the yml
+                with open(os.path.join(simDir,'cfgs','cfg'+str(cfgId)+'.yml'), 'w') as outfile:
+                    yaml.dump(inputs, outfile, default_flow_style=False)
+
+                # Incremement cfgID
+                cfgId = cfgId + 1
+
+        # Delete fields which vary across simulation
+        del inputs['mu1']['a'], inputs['mu1']['b'], inputs['mu2']['a'], inputs['mu2']['b'], inputs['figGen'], inputs['cfgId'], inputs['nSub']
+
+
 
 
 
