@@ -2,10 +2,10 @@ import os
 import sys
 import time
 import numpy as np
-from boundary import *
-from fileio import *
+from lib.boundary import *
+from lib.fileio import *
 from bootstrap import *
-from set_theory import powerset
+from lib.set_theory import powerset
 import yaml
 import matplotlib.pyplot as plt
 

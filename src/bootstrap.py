@@ -2,14 +2,37 @@ import os
 import sys
 import time
 import numpy as np
-from boundary import *
-from set_theory import powerset
-from fileio import *
+from lib.boundary import *
+from lib.set_theory import powerset
+from lib.fileio import *
 import yaml
 import matplotlib.pyplot as plt
-# m, nReals, pVals, resid_vals (resids_dFcHat_partitioned)
 
 def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
+    """
+    Calculate bootstrap residuals along boundary segments and compute
+    the quantile values based on the bootstrap distribution.
+    
+    Parameters:
+    -----------
+    resid_vals : dict
+        Dictionary containing the residuals of boundary values.
+    resid_weights : dict
+        Dictionary containing the weights of residuals.
+    m : int
+        Number of conditions.
+    n_boot : int
+        Number of bootstrap iterations.
+    p : array_like
+        Percentile values for calculating quantiles.
+    n_sub : int
+        Number of subjects.
+        
+    Returns:
+    --------
+    a : ndarray
+        Array of quantile values.
+    """
 
     # Work out number of p values
     nPvals = len(p)
