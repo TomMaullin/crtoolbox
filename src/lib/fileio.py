@@ -2,6 +2,8 @@ import os
 import time
 import pandas as pd
 import numpy as np
+from PIL import Image
+import nibabel as nib
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -14,6 +16,167 @@ import numpy as np
 # Author: Tom Maullin (Last edited 10/11/2020)
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+""" 
+Read images from a filename.
+
+Parameters:
+-----------
+fname : str
+    filename
+
+Returns:
+--------
+img : array
+    image
+"""
+def read_image(fname):
+
+    # If the image can be loaded in with the Image package then load it in
+    try:
+
+        # Load in image
+        img = Image.open(fname)
+
+        # If the image is RGB convert it to greyscale
+        if img.mode == 'RGB':
+
+            # Convert to greyscale
+            img = img.convert('L')
+
+        # Convert to array
+        img = np.array(img)
+
+    except:
+
+        # If the image cannot be loaded in with the Image package then try with
+        # neuroimaging packages
+        try:
+
+            # Load in image
+            img = nib.load(fname)
+
+            # Convert to array
+            img = np.array(img.dataobj)
+
+        except:
+
+            # Print error
+            print("Error loading image: " + fname)
+
+    # Return image
+    return img
+
+
+
+""" 
+Read images from a list of filenames.
+
+Parameters:
+-----------
+fnames : list
+    list of filenames
+
+Returns:
+--------
+imgs : array
+    array of images
+"""
+def read_images(fnames):
+
+    # Loop through files
+    for i in range(0, len(fnames)):
+
+        # Read in image
+        img = read_image(fnames[i])
+
+        # Check if we are on the first image
+        if i == 0:
+
+            # Initialize array
+            imgs = np.zeros((len(fnames), img.shape[0], img.shape[1]))
+
+            # Record image size
+            img_size = img.shape
+
+        else:
+
+            # Check if image is the same size as the first image
+            if img.shape != img_size:
+
+                # Print error
+                print("Error: Images are not all the same size")
+
+                # Exit
+                exit()
+
+        # Save image
+        imgs[i,...] = img
+
+    return imgs
+
+
+""" 
+Read images from a list of filenames one by one and retrieve the elements at
+the given indices.
+
+Parameters:
+-----------
+fnames : list
+    List of filenames.
+indices : array
+    Array of indices to retrieve.
+
+Returns:
+--------
+elements : array
+    Array of elements at the given indices.
+"""
+def read_images_elements(fnames, indices):
+
+    # Check if indices are flattened or not
+    if len(indices.shape) > 1:
+            
+        # Flatten indices
+        indices = indices.flatten()
+
+    # Loop through files
+    for i in range(0, len(fnames)):
+
+        # Read in image
+        img = read_image(fnames[i])
+
+        # Check if we are on the first image
+        if i == 0:
+
+            # Initialize array
+            elements = np.zeros((len(fnames), len(indices)))
+
+            # Record image size
+            img_size = img.shape
+
+        else:
+
+            # Check if image is the same size as the first image
+            if img.shape != img_size:
+
+                # Print error
+                print("Error: Images are not all the same size")
+
+                # Exit
+                exit()
+
+        # Flatten image
+        img = img.flatten()
+
+        # Save elements
+        elements[i,...] = img[indices]
+
+    return elements
+
+
 
 # ============================================================================
 #
@@ -143,17 +306,14 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
     # Check whether the NIFTI exists already
     if os.path.isfile(fname):
 
-        # Load in NIFTI
-        img = nib.load(fname)
-
         # Work out dim if we don't already have it
-        dim = img.shape
+        dim = nib.Nifti1Image.from_filename(fname, mmap=False).shape
 
         # Work out data
-        data = img.get_fdata()
+        data = nib.Nifti1Image.from_filename(fname, mmap=False).get_fdata().copy()
 
         # Work out affine
-        affine = img.affine
+        affine = nib.Nifti1Image.from_filename(fname, mmap=False).affine.copy()
         
     else:
 
@@ -221,17 +381,13 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
         data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
                                                  int(dim[1]),
                                                  int(dim[2]))
-
-
-    # Make NIFTI
-    nifti = nib.Nifti1Image(data_out, affine, header=hdr)
     
     # Save NIFTI
-    nib.save(nifti, fname)
+    nib.save(nib.Nifti1Image(data_out, affine, header=hdr), fname)
 
     # Delete lock file, so other jobs know they can now write to the
     # file
     os.remove(fname + ".lock")
     os.close(f)
 
-    del nifti, fname, data_out, affine
+    del fname, data_out, affine, data, dim

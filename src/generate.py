@@ -20,25 +20,35 @@ import matplotlib.pyplot as plt
 #
 # ===============================================================================
 
+"""
+This function generates confidence regions for conjunction inference. 
 
-# ===============================================================================
-#
-#
-#
-# -------------------------------------------------------------------------------
-#
-# The below function takes the following inputs:
-#
-# -------------------------------------------------------------------------------
-#
-# data - shape (number of samples, number of  subjects, *dim)
-#
-# -------------------------------------------------------------------------------
-#
-# And returns the following outputs:
-#
-# ===============================================================================
+Inputs:
+    data: A numpy array of shape (m,n_sub,x,y,z) where m is the number of 
+          fields, n_sub is the number of subjects, and x,y,z are the image
+          dimensions.
+    c: A float representing the threshold for the conjunction inference.
+    p: An array of floats representing the desired coverage of the confidence
+       regions.
+    mask: A numpy array of shape (x,y,z) representing the mask for the data. This
+          is not currently implemented.
+    n_boot: An integer representing the number of bootstrap samples to use.
+    tau: A string representing the value of tau to use as a function of n_sub; it
+         defaults to 1/sqrt(n_sub).
+
+Outputs:
+    FcHat_plus: A numpy array of shape (len(p), x,y,z) representing the upper confidence
+                region for the conjunction inference.
+    FcHat_minus: A numpy array of shape (len(p), x,y,z) representing the lower confidence
+                region for the conjunction inference.
+    FcHat: A numpy array of shape (x,y,z) representing the estimated conjunction region.
+    a_est: A numpy array of shape (len(p)) representing the estimated quantiles used to
+           generate the confidence regions.  
+"""
 def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
+
+    # Timing
+    t1 = time.time()
 
 
     # Work out m, the number of samples we are considering
@@ -63,9 +73,16 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # Obtain sigma
     sigmas = np.std(data, axis=1).reshape(m,*image_dim)
 
+    # Timing 
+    t2 = time.time()
+    print('Time taken to estimate mu and sigma: ', t2-t1)
+
     # -------------------------------------------------------------------
     # Boundary locations and values
     # -------------------------------------------------------------------
+
+    # Timing
+    t1 = time.time()
 
     # Make a structure to hold the estimated boundary weights in array form 
     est_bdry_weights_concat = {}
@@ -108,6 +125,12 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Delete values as we no longer need them
         del AcHat_bdry_vals_concat
 
+    # Timing
+    t2 = time.time()    
+    print('Time taken to estimate boundary locations and weights: ', t2-t1)
+
+    # Timing
+    t1 = time.time()
 
     # -------------------------------------------------------------------
     # Get minimum fields
@@ -166,9 +189,16 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # Delete data as it is longer needed
     del data, resid
 
+    # Timing
+    t2 = time.time()
+    print('Time taken get resids: ', t2-t1)
+
     # -------------------------------------------------------------------
     # Boundary partitions 
     # -------------------------------------------------------------------
+
+    # Timing
+    t1 = time.time()
 
     # Get list of possible alphas to be considered
     alphas=list(powerset(np.arange(m)+1))
@@ -215,9 +245,16 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save locations
         dalphaFcHat_locs[np.array2string(alpha)] = dalphaFcHat_loc
 
+    # Timing
+    t2 = time.time()
+    print('Time taken to get boundary partitions: ', t2-t1)
+
     # -------------------------------------------------------------------
     # Get residuals and muhat along boundary partitions
     # -------------------------------------------------------------------
+
+    # Timing
+    t1 = time.time()
 
     # Empty dicts for residuals and muHat
     resids_dFcHat_partitioned = {}
@@ -258,9 +295,16 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save muhat for alpha
         muHat_dFcHat_partitioned[np.array2string(alpha)] = muHat_dalphaFcHat
 
+    # Timing
+    t2 = time.time()
+    print('Time taken to get resids and muhat along boundary partitions: ', t2-t1)
+
     # -------------------------------------------------------------------
     # Get weights from muhat along boundary partitions for interpolation
     # -------------------------------------------------------------------
+
+    # Timing
+    t1 = time.time()
 
     # Empty dicts for weights
     weights_dFcHat = {}
@@ -286,6 +330,10 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save weights
         weights_dFcHat[np.array2string(alpha)] = weights_dalphaFcHat
 
+    # Timing
+    t2 = time.time()
+    print('Time taken to get weights along boundary partitions: ', t2-t1)
+
     # -------------------------------------------------------------------
     # Estimated excursion sets
     # -------------------------------------------------------------------
@@ -299,7 +347,14 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------
     # Perform Bootstrap 
     # -------------------------------------------------------------------
+    # Timing
+    t1 = time.time()
+
     a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, weights_dFcHat, m, n_boot, p, n_sub)
+
+    # Timing
+    t2 = time.time()
+    print('Time taken to bootstrap: ', t2-t1)
 
     # -------------------------------------------------------------------
     # Get FcHat^{+/-}
@@ -317,4 +372,4 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     FcHat_pm_estBdry = stat >= a_estBdry
 
     # Return result
-    return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...].reshape(np.prod(a_estBdry.shape)))
+    return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...].reshape(np.prod(a_estBdry[:,1,...].shape)))

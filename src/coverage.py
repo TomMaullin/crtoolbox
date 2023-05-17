@@ -9,7 +9,32 @@ from lib.set_theory import powerset
 import yaml
 import matplotlib.pyplot as plt
 
+"""
+Function to check for inclusion violations of the estimated boundary. This
+function takes in FcHat^+, FcHat^-, the original data, means, threshold, 
+tau and the quantile levels, a. It returns an array of binary variables
+indicating whether or not a violation was observed for each quantile.
 
+Inputs:
+    FcHat_plus: Inner confidence region
+    FcHat_minus: Outer confidence region
+    datas: Original data
+    mus: Means
+    c: Threshold
+    tau: Transformed sample size
+    a: Quantile levels
+
+Outputs:
+    success: Binary variable indicating whether or not a violation was 
+             observed for each quantile (using either the binary maps or
+             intepolation).
+    dict_success: Dictionary of binary variables indicating whether or not
+                  a violation was observed for each quantile. The keys are:
+     - binary_success: Binary variable indicating whether or not a violation
+                       was observed based solely on the binary maps.
+     - interp_success: Binary variable indicating whether or not a violation
+                       was observed based solely on interpolation.
+"""
 def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
     # -------------------------------------------------------------------
@@ -52,8 +77,6 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
     # Obtain statistic, g
     g = ((muHats-c)/(sigmas*tau))
-
-    print('MARKER 1: ', muHats,c,sigmas,tau)
 
     # -------------------------------------------------------------------
     # Boundary locations for FcHat
