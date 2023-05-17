@@ -153,11 +153,8 @@ def regression(yfiles, X, out_dir, chunk_size=20):
     # Check if n_imgs matches number of rows in design matrix
     if n_imgs != n:
             
-        # Print error
-        print("Error: Number of images does not match number of rows in design matrix")
-
-        # Exit
-        exit()
+        # Raise error
+        raise ValueError("Number of images does not match number of rows in design matrix")
 
     # Get number of columns in design matrix
     p = X.shape[1]
@@ -178,8 +175,8 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         n_chunk = end - i
 
         # Initialize arrays
-        y_chunk = np.zeros((n_chunk, 1, img_size[0], img_size[1], img_size[2]))
-        X_chunk = np.zeros((n_chunk, p, 1, 1, 1))
+        y_chunk = np.zeros((img_size[0], img_size[1], img_size[2], n_chunk, 1))
+        X_chunk = np.zeros((1, 1, 1, n_chunk, p))
 
         # Loop through images in chunk        
         for j in range(0, n_chunk):
@@ -188,19 +185,19 @@ def regression(yfiles, X, out_dir, chunk_size=20):
             img = read_image(yfiles[i + j])
 
             # Add image to array
-            y_chunk[j, 0:, :, :, :] = img
+            y_chunk[:, :, :, j, 0:] = img
 
             # Add design matrix to array
-            X_chunk[j, :, 0:, 0:, 0:] = X[i + j, :]
+            X_chunk[0:, 0:, 0:, j, :] = X[i + j, :]
 
         # Compute X'X for chunk
-        XtX_chunk = X_chunk.transpose(1,0,2,3,4) @ X_chunk
+        XtX_chunk = X_chunk.transpose(0,1,2,4,3) @ X_chunk
 
         # Compute X'y for chunk
-        Xty_chunk = X_chunk.transpose(1,0,2,3,4) @ y_chunk
+        Xty_chunk = X_chunk.transpose(0,1,2,4,3) @ y_chunk
 
         # Compute y'y for chunk
-        yty_chunk = y_chunk.transpose(1,0,2,3,4) @ y_chunk
+        yty_chunk = y_chunk.transpose(0,1,2,4,3) @ y_chunk
 
         # Add X'X and X'y for chunk to total
         if i == 0:
@@ -219,23 +216,27 @@ def regression(yfiles, X, out_dir, chunk_size=20):
     beta = np.linalg.inv(XtX) @ Xty
 
     # Compute sum of squared errors
-    ete = yty - beta.transpose(1,0,2,3,4) @ Xty
+    ete = yty - beta.transpose(0,1,2,4,3) @ Xty
 
-    # Compute sigma squared
-    sigma2 = ete / n
+    # Compute sigma
+    sigma = np.sqrt(ete / n)
 
     # Loop through beta coefficients
     for i in range(0, p):
 
         # Write beta coefficient to file
-        addBlockToNifti(os.path.join(out_dir,"data","beta"+str(i)+".nii"), 
-                        beta[i, 0, :, :, :], np.arange(np.prod(img_size)), 
+        addBlockToNifti(os.path.join(out_dir,"data","betahat"+str(i)+".nii"), 
+                        beta[:, :, :, i, 0], np.arange(np.prod(img_size)), 
                         volInd=0,dim=img_size)
-        
-    # Write sigma squared to file
-    addBlockToNifti(os.path.join(out_dir,"data","sigma2.nii"),
-                    sigma2[0, 0, :, :, :], np.arange(np.prod(img_size)),
-                    volInd=0,dim=img_size)
+
+
+        # Compute varbeta
+        varbeta = sigma*np.sqrt(np.linalg.pinv(XtX)[...,i,i])
+
+        # Write var beta to file
+        addBlockToNifti(os.path.join(out_dir,"data","var_betahat"+str(i)+".nii"),
+                        varbeta, np.arange(np.prod(img_size)),
+                        volInd=0,dim=img_size)
 
     # Loop through images creating residuals
     for i in range(0, n_imgs):
@@ -244,16 +245,16 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         img = read_image(yfiles[i])
 
         # Compute residuals
-        res = img - X[i, :] @ beta
+        res = img - (X[..., i:(i+1), :] @ beta)[..., :, 0]
 
         # Write residuals to file
         addBlockToNifti(os.path.join(out_dir,"data","res"+str(i)+".nii"), 
-                        res, np.arange(np.prod(img_size)), 
+                        res[...,0], np.arange(np.prod(img_size)), 
                         volInd=0,dim=img_size)
         
     # Return filenames
-    return [os.path.join(out_dir,"data","beta"+str(i)+".nii") for i in range(0, p)], \
-            os.path.join(out_dir,"data","sigma2.nii"), \
+    return [os.path.join(out_dir,"data","betahat"+str(i)+".nii") for i in range(0, p)], \
+           [os.path.join(out_dir,"data","var_betahat"+str(i)+".nii") for i in range(0, p)], \
            [os.path.join(out_dir,"data","res"+str(i)+".nii") for i in range(0, n_imgs)]
         
         

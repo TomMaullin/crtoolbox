@@ -119,24 +119,21 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Save X
     # -----------------------------------------------------
 
+    # Reshape X
+    X = X.reshape(n,p)
+
     # Write out Z in full to a csv file
-    pd.DataFrame(X.reshape(n,p)).to_csv(os.path.join(OutDir,"data","X.csv"), header=None, index=None)
+    pd.DataFrame(X).to_csv(os.path.join(OutDir,"data","X.csv"), header=None, index=None)
 
     # -----------------------------------------------------
     # Save beta
     # -----------------------------------------------------
-
-    # Create empty list to store beta filenames
-    betafiles = []
 
     # Truncate beta
     beta = beta[10:(dim[0]-10),10:(dim[1]-10),10:(dim[2]-10),:,:]
 
     # Loop through beta values
     for i in np.arange(p):
-
-        # Add current beta filename to list
-        betafiles.append(os.path.join(OutDir,"data","beta"+str(i)+".nii"))
 
         # Save beta to nifti
         addBlockToNifti(os.path.join(OutDir,"data","beta"+str(i)+".nii"), beta[...,i,0], np.arange(np.prod(origdim)), volInd=0,dim=origdim)
@@ -150,7 +147,7 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
 
     with open(os.path.join(OutDir,"data",'Yfiles.txt'), 'a') as f:
 
-        # Loop through listing mask files in text file
+        # Loop through listing y files in text file
         for i in np.arange(n):
 
             # Add current Y filename to list
@@ -162,7 +159,29 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
             else:
                 f.write(os.path.join(OutDir,"data","Y"+str(i)+".nii"))
 
-    return Yfiles, X, beta
+    # -----------------------------------------------------
+    # betafiles storage
+    # -----------------------------------------------------
+
+    # Create empty list to store beta filenames
+    betafiles = []
+
+    with open(os.path.join(OutDir,"data",'betafiles.txt'), 'a') as f:
+
+        # Loop through listing beta files in text file
+        for i in np.arange(p):
+
+            # Add current beta filename to list
+            betafiles.append(os.path.join(OutDir,"data","beta"+str(i)+".nii"))
+
+            # Write filename to text file
+            if i < p-1:
+                f.write(os.path.join(OutDir,"data","beta"+str(i)+".nii") + os.linesep)
+            else:
+                f.write(os.path.join(OutDir,"data","beta"+str(i)+".nii"))
+
+
+    return Yfiles, betafiles, X
 
 
 def get_random_mask(dim):
@@ -260,10 +279,10 @@ def get_beta(p, dim):
         distance = sum((g - c)**2 for g, c in zip(ogrid, center))
 
         # Create the sphere and rescale
-        beta_p = np.array(np.sqrt(distance) < r, dtype='float')*3
+        beta_p = np.array(np.sqrt(distance) < r, dtype='float')
 
         # Smooth the sphere
-        beta_p = smooth_data(beta_p, 3, [fwhm]*3, trunc=6, scaling='kernel')
+        beta_p = smooth_data(beta_p, 3, [fwhm]*3, trunc=6, scaling='max')*3
     
         # Concatenate betas along additional first axis
         if i == 0:
@@ -290,7 +309,7 @@ def get_sigma2(v):
     """
 
     # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 10#np.ones(v).reshape(v,1)
+    sigma2 = 100#np.ones(v).reshape(v,1)
 
     # Return sigma
     return(sigma2)

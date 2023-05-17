@@ -17,22 +17,20 @@ import nibabel as nib
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
-""" 
-Read images from a filename.
-
-Parameters:
------------
-fname : str
-    filename
-
-Returns:
---------
-img : array
-    image
-"""
 def read_image(fname):
+    """ 
+    Read images from a filename.
+
+    Parameters:
+    -----------
+    fname : str
+        filename
+
+    Returns:
+    --------
+    img : array
+        image
+    """
 
     # If the image can be loaded in with the Image package then load it in
     try:
@@ -71,20 +69,26 @@ def read_image(fname):
 
 
 
-""" 
-Read images from a list of filenames.
-
-Parameters:
------------
-fnames : list
-    list of filenames
-
-Returns:
---------
-imgs : array
-    array of images
-"""
 def read_images(fnames):
+    """ 
+    Read images from a list of filenames.
+
+    Parameters:
+    -----------
+    fnames : list
+        list of filenames
+
+    Returns:
+    --------
+    imgs : array
+        array of images
+    """
+
+    # Check if we have a single filename or a list of filenames
+    if isinstance(fnames, str):
+            
+        # Convert to list
+        fnames = [fnames]
 
     # Loop through files
     for i in range(0, len(fnames)):
@@ -95,16 +99,28 @@ def read_images(fnames):
         # Check if we are on the first image
         if i == 0:
 
-            # Initialize array
-            imgs = np.zeros((len(fnames), img.shape[0], img.shape[1]))
-
             # Record image size
             img_size = img.shape
 
+            # Remove dimensions of length 1
+            img_size = tuple([x for x in img_size if x != 1])
+
+            # Record size of collection of images
+            imgs_size = img_size + (len(fnames),)
+
+            # Initialize array
+            imgs = np.zeros(imgs_size, dtype=img.dtype)
+
         else:
 
+            # Record new image size
+            img_size_new = img.shape
+
+            # Remove dimensions of length 1
+            img_size_new = tuple([x for x in img_size_new if x != 1])
+
             # Check if image is the same size as the first image
-            if img.shape != img_size:
+            if img_size_new != img_size:
 
                 # Print error
                 print("Error: Images are not all the same size")
@@ -113,28 +129,28 @@ def read_images(fnames):
                 exit()
 
         # Save image
-        imgs[i,...] = img
+        imgs[...,i] = img.reshape(imgs[...,i].shape)
 
     return imgs
 
 
-""" 
-Read images from a list of filenames one by one and retrieve the elements at
-the given indices.
-
-Parameters:
------------
-fnames : list
-    List of filenames.
-indices : array
-    Array of indices to retrieve.
-
-Returns:
---------
-elements : array
-    Array of elements at the given indices.
-"""
 def read_images_elements(fnames, indices):
+    """ 
+    Read images from a list of filenames one by one and retrieve the elements at
+    the given indices.
+
+    Parameters:
+    -----------
+    fnames : list
+        List of filenames.
+    indices : array
+        Array of indices to retrieve.
+
+    Returns:
+    --------
+    elements : array
+        Array of elements at the given indices.
+    """
 
     # Check if indices are flattened or not
     if len(indices.shape) > 1:
@@ -178,24 +194,22 @@ def read_images_elements(fnames, indices):
 
 
 
-# ============================================================================
-#
-# This function takes in the data `data` and appends it to the csv file
-# `fname`. If the file does not exist already it creates it. A file lock 
-# system is also implemented to ensure the file is not edited by multiple
-# jobs at the same time.
-#
-# ----------------------------------------------------------------------------
-#
-# This function takes the following inputs:
-#
-# ----------------------------------------------------------------------------
-#
-# - `fname`: The filename of the file we wish to append data to.
-# - `data`: The data we wish to append to the file.
-#
-# ============================================================================
 def append_to_file(fname, data, remove=False):
+    """
+    This function takes in the data `data` and appends it to the csv file
+    `fname`. If the file does not exist already it creates it. A file lock 
+    system is also implemented to ensure the file is not edited by multiple
+    jobs at the same time.
+
+    Parameters:
+    -----------
+    - `fname`: The filename of the file we wish to append data to.
+    - `data`: The data we wish to append to the file.
+
+    Returns:
+    --------
+    - `None`
+    """
 
     # Check if file is in use
     fileLocked = True
@@ -236,13 +250,20 @@ def append_to_file(fname, data, remove=False):
     # file
     os.remove(fname + ".lock")
 
-# ============================================================================
-#
-# The below function takes in a string representing a vector and returns the
-# vector as an array.
-#
-# ============================================================================
+
 def str2vec(c):
+    """
+    The below function takes in a string representing a vector and returns the
+    vector as an array.
+
+    Parameters:
+    -----------
+    - `c`: A string representing a vector.
+
+    Returns:
+    --------
+    - `c`: The vector as an array.
+    """
 
     c = str(c)
     c = c.replace("'", "")
@@ -258,35 +279,34 @@ def str2vec(c):
         
     return(eval(cf))
 
-# ============================================================================
-#
-# The below function adds a block of voxels to a pre-existing NIFTI or creates
-# a NIFTI of specified dimensions if not.
-#
-# ----------------------------------------------------------------------------
-#
-# This function takes the following inputs:
-#
-# ----------------------------------------------------------------------------
-#
-# - `fname`: An absolute path to the Nifti file.
-# - `block`: The block of values to write to the NIFTI.
-# - `blockInds`: The indices representing the 3D coordinates `block` should be 
-#                written to in the NIFTI. (Note: It is assumed if the NIFTI is
-#                4D we assume that the indices we want to write to in each 3D
-#                volume/slice are the same across all 3D volumes/slices).
-# - `dim` (optional): If creating the NIFTI image for the first time, the 
-#                     dimensions of the NIFTI image must be specified.
-# - `volInd` (optional): If we only want to write to one 3D volume/slice,
-#                        within a 4D file, this specifies the index of the
-#                        volume of interest.
-# - `aff` (optional): If creating the NIFTI image for the first time, the 
-#                     affine of the NIFTI image must be specified.
-# - `hdr` (optional): If creating the NIFTI image for the first time, the 
-#                     header of the NIFTI image must be specified.
-#
-# ============================================================================
+
 def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=None):
+    """
+    The below function adds a block of voxels to a pre-existing NIFTI or creates
+    a NIFTI of specified dimensions if not.
+
+    Parameters:
+    -----------
+    - `fname`: An absolute path to the Nifti file.
+    - `block`: The block of values to write to the NIFTI.
+    - `blockInds`: The indices representing the 3D coordinates `block` should be 
+                written to in the NIFTI. (Note: It is assumed if the NIFTI is
+                4D we assume that the indices we want to write to in each 3D
+                volume/slice are the same across all 3D volumes/slices).
+    - `dim` (optional): If creating the NIFTI image for the first time, the 
+                        dimensions of the NIFTI image must be specified.
+    - `volInd` (optional): If we only want to write to one 3D volume/slice,
+                        within a 4D file, this specifies the index of the
+                        volume of interest.
+    - `aff` (optional): If creating the NIFTI image for the first time, the 
+                        affine of the NIFTI image must be specified.
+    - `hdr` (optional): If creating the NIFTI image for the first time, the 
+                        header of the NIFTI image must be specified.
+
+    Returns:
+    --------
+    - `None`
+    """
 
     # Check if file is in use
     fileLocked = True

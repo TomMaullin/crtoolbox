@@ -71,16 +71,10 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
         # and resid_FsdGcHat_bdry_concat)
         boot_vars = boot_vars.reshape((*boot_vars.shape),1)
         
-        # -------------------------------------------------------------------------
-        # Bootstrap residuals along dalphaFc
-        # -------------------------------------------------------------------------
-        boot_resids_dFcHat = {}
-
         # Loop through boundary partitions
         for alpha in alphas:
 
-            # New empty dicts for FcHat
-            boot_resids_dalphaFcHat = {}
+            print('alpha: ', alpha)
 
             # New empty dict for gi along dalphaFcHat
             boot_g_dalphaFcHat = {}
@@ -106,6 +100,10 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # Get gi along dalpha FcHat
                 # ------------------------------------------------------
 
+                print(boot_residsi_dalphaFcHat.shape)
+
+                t1 = time.time()
+
                 # Sum across subjects to get the bootstrapped a values along
                 # the boundary of dalphaFcHat. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. 
@@ -124,6 +122,15 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # Divide by the boostrap standard deviation of mui
                 boot_gi_dalphaFcHat = boot_gi_dalphaFcHat/boot_sigmai_dalphaFcHat
 
+                t2 = time.time()
+                print('time for version 1 ', t2-t1)
+
+                t1 = time.time()
+                boot_gi_dalphaFcHat = np.sum(boot_residsi_dalphaFcHat, axis=0)/(
+                    np.sqrt(n_sub)*np.std(boot_residsi_dalphaFcHat, axis=0, ddof=1))
+                t2 = time.time()
+                print('time for version 2 ', t2-t1)
+                
                 # ------------------------------------------------------
                 # Interpolate along dalpha FcHat
                 # ------------------------------------------------------
@@ -194,6 +201,7 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # Update the minimum value we've seen
                 min_supg_dFcHat['max'][b] = np.maximum(min_supg_dFcHat['max'][b],min_supg_dFcHat[np.array2string(alpha)][b])
 
+    # MARKER UP TO HERE
     # -------------------------------------------------------------------
     # Obtaining a from percentiles of the max distribution
     # -------------------------------------------------------------------
@@ -204,10 +212,10 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
     # If we have recorded values get their quantiles
     if (np.prod(min_supg_dFcHat['max'].shape) > 0):
         # Get the a estimates for the estimated boundary
-        a = np.percentile(min_supg_dFcHat['max'], 100*p).reshape(nPvals,1,1,1) # [pvals, 1, [1 for _ in dim>1]]
+        a = np.percentile(min_supg_dFcHat['max'], 100*p).reshape(nPvals,1)
     else:
         # Set to inf by default
-        a = np.Inf*np.ones((nPvals,1,1,1))
+        a = np.Inf*np.ones((nPvals,1))
 
     # Reformat them to an array form useful for boolean operation
     a = np.concatenate((-a,a),axis=1)

@@ -6,80 +6,70 @@ import matplotlib.colors as mcolors
 from generate import *
 from lib.fileio import *
 
-# ============================================================================
-# 
-# Given a field, threshold and dimension, the below function derives pairs of
-# neighbouring pixels which lie inside and outside of the excursion set given
-# by {pixels in field: field at pixel > c}.
-#
-# ----------------------------------------------------------------------------
-#
-# This function takes in the following inputs:
-#
-# ----------------------------------------------------------------------------
-#
-#  - field: An image of a field  from which we wish to obtain an image of the
-#           boundary of the excursion set (for example, if we want the boundary 
-#           set {pixels : mean at pixel = c}, then `field' should be an image
-#           of the mean.
-#  - c: The value c with which to threshold the field (e.g. we are interested
-#       in the set {pixels : field at pixel = c}.
-#  - d: The dimension along which to derive boundary values (for example, in 
-#       2D if dimension = 0, this function will return horizontal pairs of
-#       neighbouring pixels which lie inside and outside the boundary
-#       respectively, whereas if dimension = 1, the returned pairs will be
-#       vertical). Note: d is zero indexed.
-#  - mask: A binary image showing pixels which should be ignored during
-#          computation, or ``masked out". For example, if we are interested in
-#          fMRI BOLD signal over the brain, the mask might be only the pixels
-#          which lie inside the brain, as our signal is meaningless for pixels
-#          outside this region.
-#
-# ----------------------------------------------------------------------------
-#
-# This function gives as outputs:
-#
-# ----------------------------------------------------------------------------
-#
-#  - Four binary images 1-0 images of;
-#    - bottom_bdry_inner: The pixels which lie inside the excursion set at the
-#                         `bottom' in dimension d (e.g. the points labelled `3'
-#                         in the below image).
-#    - bottom_bdry_outer: The pixels which lie outside the excursion set at the
-#                         `bottom' in dimension d (e.g. the points labelled `4'
-#                         in the below image).
-#    - top_bdry_inner: The pixels which lie inside the excursion set at the
-#                      `top' in dimension d (e.g. the points labelled `2' in 
-#                      the below image).
-#    - top_bdry_outer: The pixels which lie outside the excursion set at the
-#                      `top' in dimension d (e.g. the points labelled `1' in 
-#                      the below image).
-#      _______________________________________________________________
-#     |                                                               |    
-#     |               11111111111111111111111                         |   | 
-#     |            111222222222222222222222221                        |   |  
-#     |           1222                       21                       |   |
-#     |           2                           2111                    |   |
-#     |          1                             2221                   |   |
-#     |          2                                21                  |   |
-#     |         |                                  21                 |   |
-#     |         \                                   2|                |   |  d
-#     |          |               A_c                 |                |   |
-#     |          |3                                  |                |   |
-#     |           43                                 3                |   |
-#     |            43                               34                |   |
-#     |             43                             34                 |   |
-#     |              43                           34                  |   |
-#     |               433                      3334                   |   |
-#     |                443                    3444                    |  \|/
-#     |                  4333333333333333333334                       |   V
-#     |                   44444444444444444444                        |
-#     |_______________________________________________________________|   
-#      Fig A. An image of the boundary values returned along dimension d for
-#      an excursion set, A_c.
-#
-# ============================================================================
 def get_bdry_map(field, c, d, mask=None): 
+    """
+    Given a field, threshold and dimension, the below function derives pairs of
+    neighbouring pixels which lie inside and outside of the excursion set given
+    by {pixels in field: field at pixel > c}.
+
+    Parameters: 
+    -----------
+    - field: An image of a field  from which we wish to obtain an image of the
+            boundary of the excursion set (for example, if we want the boundary 
+            set {pixels : mean at pixel = c}, then `field' should be an image
+            of the mean.
+    - c: The value c with which to threshold the field (e.g. we are interested
+        in the set {pixels : field at pixel = c}.
+    - d: The dimension along which to derive boundary values (for example, in 
+        2D if dimension = 0, this function will return horizontal pairs of
+        neighbouring pixels which lie inside and outside the boundary
+        respectively, whereas if dimension = 1, the returned pairs will be
+        vertical). Note: d is zero indexed.
+    - mask: A binary image showing pixels which should be ignored during
+            computation, or ``masked out". For example, if we are interested in
+            fMRI BOLD signal over the brain, the mask might be only the pixels
+            which lie inside the brain, as our signal is meaningless for pixels
+            outside this region.
+
+    Returns:
+    --------
+    - Four binary images 1-0 images of;
+    - bottom_bdry_inner: The pixels which lie inside the excursion set at the
+                            `bottom' in dimension d (e.g. the points labelled `3'
+                            in the below image).
+    - bottom_bdry_outer: The pixels which lie outside the excursion set at the
+                            `bottom' in dimension d (e.g. the points labelled `4'
+                            in the below image).
+    - top_bdry_inner: The pixels which lie inside the excursion set at the
+                        `top' in dimension d (e.g. the points labelled `2' in 
+                        the below image).
+    - top_bdry_outer: The pixels which lie outside the excursion set at the
+                        `top' in dimension d (e.g. the points labelled `1' in 
+                        the below image).
+        _______________________________________________________________
+        |                                                               |    
+        |               11111111111111111111111                         |   | 
+        |            111222222222222222222222221                        |   |  
+        |           1222                       21                       |   |
+        |           2                           2111                    |   |
+        |          1                             2221                   |   |
+        |          2                                21                  |   |
+        |         |                                  21                 |   |
+        |         \                                   2|                |   |  d
+        |          |               A_c                 |                |   |
+        |          |3                                  |                |   |
+        |           43                                 3                |   |
+        |            43                               34                |   |
+        |             43                             34                 |   |
+        |              43                           34                  |   |
+        |               433                      3334                   |   |
+        |                443                    3444                    |  \|/
+        |                  4333333333333333333334                       |   V
+        |                   44444444444444444444                        |
+        |_______________________________________________________________|   
+        Fig A. An image of the boundary values returned along dimension d for
+        an excursion set, A_c.
+    """
 
     # Get field dimensions
     dim = field.shape
@@ -173,49 +163,37 @@ def get_bdry_map(field, c, d, mask=None):
 
     return(bottom_bdry_inner, bottom_bdry_outer, top_bdry_inner, top_bdry_outer)
 
-# ============================================================================
-# 
-# Given a field and a threshold, the below function returns all pairs of 
-# neighbouring pixels which lie inside and outside of the excursion set given
-# by {pixels in field: field at pixel > c}, respectively.
-#
-# ----------------------------------------------------------------------------
-#
-# This function takes in the following inputs:
-#
-# ----------------------------------------------------------------------------
-#
-#  - field: An image of a field  from which we wish to obtain an image of the
-#           boundary of the excursion set (for example, if we want the boundary 
-#           set {pixels : mean at pixel = c}, then `field' should be an image
-#           of the mean.
-#  - c: The value c with which to threshold the field (e.g. we are interested
-#       in the set {pixels : field at pixel = c}.
-#
-#  - mask: A binary image showing pixels which should be ignored during
-#          computation, or ``masked out". For example, if we are interested in
-#          fMRI BOLD signal over the brain, the mask might be only the pixels
-#          which lie inside the brain, as our signal is meaningless for pixels
-#          outside this region.
-#
-# ----------------------------------------------------------------------------
-#
-# This function gives as outputs:
-#
-# ----------------------------------------------------------------------------
-#
-#  - A dictionary of boundary maps. For each dimension (e.g. if the image is 
-#    2D, for the first and second dimension) the dictionary contains another 
-#    dictionary consisting of voxel pairs. The format of the dictionary for
-#    each dimension is identical to the output of `get_bdry_map` (see above
-#    documentation). For example
-#       
-#        output[d]['bottom']['inner'] returns the pixels which lie inside the
-#        excursion set at the `bottom' in dimension d (c.f. Fig A. in the
-#        documentation of `get_bdry_maps')
-#
-# ============================================================================
 def get_bdry_maps(field, c, mask=None):
+    """
+    Given a field and a threshold, the below function returns all pairs of 
+    neighbouring pixels which lie inside and outside of the excursion set given
+    by {pixels in field: field at pixel > c}, respectively.
+
+    Parameters:
+    ----------
+    - field: An image of a field  from which we wish to obtain an image of the
+            boundary of the excursion set (for example, if we want the boundary 
+            set {pixels : mean at pixel = c}, then `field' should be an image
+            of the mean.
+    - c: The value c with which to threshold the field (e.g. we are interested
+        in the set {pixels : field at pixel = c}.
+
+    - mask: A binary image showing pixels which should be ignored during
+            computation, or ``masked out". For example, if we are interested in
+            fMRI BOLD signal over the brain, the mask might be only the pixels
+            which lie inside the brain, as our signal is meaningless for pixels
+            outside this region.
+
+    Returns:
+    -------
+    - A dictionary of boundary maps. For each dimension (e.g. if the image is 
+      2D, for the first and second dimension) the dictionary contains another 
+      dictionary consisting of voxel pairs. The format of the dictionary for
+      each dimension is identical to the output of `get_bdry_map` (see above
+      documentation). For example, output[d]['bottom']['inner'] returns the
+      pixels which lie inside the excursion set at the `bottom' in dimension
+      d (c.f. Fig A. in the documentation of `get_bdry_maps')
+    """
 
     # Shape of field
     shape = np.array(field.shape)

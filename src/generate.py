@@ -10,26 +10,18 @@ import yaml
 import matplotlib.pyplot as plt
 
 
-# ===============================================================================
-#
-# This file contains the central functions for generating confidence regions for
-# conjunction inference. This code was last updated on 13/11/2022
-#
-# Author: Tom Maullin 
-# Contact: TomMaullin@gmail.com
-#
-# ===============================================================================
-
 """
 This function generates confidence regions for conjunction inference. 
 
 Inputs:
-    data: A numpy array of shape (m,n_sub,x,y,z) where m is the number of 
-          fields, n_sub is the number of subjects, and x,y,z are the image
-          dimensions.
+    betahat_files: A list of strings representing the paths to the betahat files.
+    sigmahat_file: A string representing the path to the sigmahat file.
+    resid_files: A list of strings representing the paths to the residual files.
     c: A float representing the threshold for the conjunction inference.
     p: An array of floats representing the desired coverage of the confidence
        regions.
+    m: An integer representing the number of fields we're estimating the conjunction
+       of.
     mask: A numpy array of shape (x,y,z) representing the mask for the data. This
           is not currently implemented.
     n_boot: An integer representing the number of bootstrap samples to use.
@@ -44,46 +36,49 @@ Outputs:
     FcHat: A numpy array of shape (x,y,z) representing the estimated conjunction region.
     a_est: A numpy array of shape (len(p)) representing the estimated quantiles used to
            generate the confidence regions.  
-"""
-def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
+""" 
+def generate_CRs(mean_fname, sig_fname, res_fnames, c, p, m=1, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
 
-    # Timing
-    t1 = time.time()
-
-
-    # Work out m, the number of samples we are considering
-    m = data.shape[0]
+    # MARKER: For now just treating the case m=1
 
     # Get number of subjects
-    n_sub = data.shape[1]
+    n_sub = len(res_fnames)
+
+    # Read in mean and sigma
+    muHats = read_images(mean_fname).transpose(3,0,1,2) # MARKER THIS AND THE RESID LINE ASSUMES 3D IMAGES
+    sigmas = read_images(sig_fname).transpose(3,0,1,2)
 
     # Get image dimensions
-    image_dim = data.shape[2:]
+    image_dim = muHats.shape[1:]
+    D = len(image_dim)
 
     # Evaulate tau
     tau = eval(tau)
 
-    # -------------------------------------------------------------------
-    # Mean and standard deviation estimates
-    # -------------------------------------------------------------------
+    # If there is no mask, make one from the zero set in sigma
+    if mask is None:
 
-    # Obtain mu estimate
-    muHats = np.mean(data, axis=1).reshape(m,*image_dim)
+        # Loop through m
+        for i in np.arange(m):
 
-    # Obtain sigma
-    sigmas = np.std(data, axis=1).reshape(m,*image_dim)
+            # Get sigma for this field
+            sigma = sigmas[i,...]
 
-    # Timing 
-    t2 = time.time()
-    print('Time taken to estimate mu and sigma: ', t2-t1)
+            # Get mask
+            mask_current = sigma != 0
 
-    # -------------------------------------------------------------------
+            # If this is the first iteration, initialize mask
+            if i == 0:
+
+                mask = mask_current
+
+            # Otherwise, take the intersection of the current mask and the previous mask
+            else:
+
+                mask = np.logical_and(mask, mask_current)
+    
+
     # Boundary locations and values
-    # -------------------------------------------------------------------
-
-    # Timing
-    t1 = time.time()
-
     # Make a structure to hold the estimated boundary weights in array form 
     est_bdry_weights_concat = {}
 
@@ -99,7 +94,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Boundary locations for AcHati
         # -------------------------------------------------------------------
         # Get boolean maps for the boundary of AcHat
-        AcHat_bdry_map = get_bdry_maps(muHat, c)
+        AcHat_bdry_map = get_bdry_maps(muHat, c, mask)
 
         # Get coordinates for the boundary of AcHat
         AcHat_bdry_locs = get_bdry_locs(AcHat_bdry_map)
@@ -125,12 +120,6 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Delete values as we no longer need them
         del AcHat_bdry_vals_concat
 
-    # Timing
-    t2 = time.time()    
-    print('Time taken to estimate boundary locations and weights: ', t2-t1)
-
-    # Timing
-    t1 = time.time()
 
     # -------------------------------------------------------------------
     # Get minimum fields
@@ -143,7 +132,7 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # Boundary locations for FcHat
     # -------------------------------------------------------------------
     # Get boolean map for the boundary of FcHat
-    FcHat_bdry_map = get_bdry_maps(cap_muHat, c)
+    FcHat_bdry_map = get_bdry_maps(cap_muHat, c, mask)
 
     # Get coordinates for the boundary of FcHat
     FcHat_bdry_locs = get_bdry_locs(FcHat_bdry_map)
@@ -167,11 +156,20 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Residuals along dFcHat
         # -------------------------------------------------------------------
 
-        # Obtain residuals
-        resid = (data[i,...]-muHats[i,...])/sigmas[i,...]
+        # Loop through subjects
+        for j in np.arange(n_sub):
+        
+            # Obtain residuals
+            resid = read_images(res_fnames[j]).transpose(3,0,1,2)
 
-        # Residuals along FcHat boundary
-        resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
+            # Residuals along FcHat boundary for current subject
+            current_resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
+
+            # Concatenate residuals
+            if j == 0:
+                resid_dFcHat_concat = current_resid_dFcHat_concat
+            else:
+                resid_dFcHat_concat = np.concatenate((resid_dFcHat_concat, current_resid_dFcHat_concat), axis=0)
 
         # Save residuals
         resids_dFcHat['field'+str(i+1)] = resid_dFcHat_concat
@@ -186,19 +184,13 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save mu
         muHat_dFcHat['field'+str(i+1)] = muHat_dFcHat_concat
 
-    # Delete data as it is longer needed
-    del data, resid
-
-    # Timing
-    t2 = time.time()
-    print('Time taken get resids: ', t2-t1)
+    # Delete residual as it is longer needed
+    del resid
 
     # -------------------------------------------------------------------
     # Boundary partitions 
     # -------------------------------------------------------------------
 
-    # Timing
-    t1 = time.time()
 
     # Get list of possible alphas to be considered
     alphas=list(powerset(np.arange(m)+1))
@@ -245,16 +237,9 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save locations
         dalphaFcHat_locs[np.array2string(alpha)] = dalphaFcHat_loc
 
-    # Timing
-    t2 = time.time()
-    print('Time taken to get boundary partitions: ', t2-t1)
-
     # -------------------------------------------------------------------
     # Get residuals and muhat along boundary partitions
     # -------------------------------------------------------------------
-
-    # Timing
-    t1 = time.time()
 
     # Empty dicts for residuals and muHat
     resids_dFcHat_partitioned = {}
@@ -295,16 +280,9 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save muhat for alpha
         muHat_dFcHat_partitioned[np.array2string(alpha)] = muHat_dalphaFcHat
 
-    # Timing
-    t2 = time.time()
-    print('Time taken to get resids and muhat along boundary partitions: ', t2-t1)
-
     # -------------------------------------------------------------------
     # Get weights from muhat along boundary partitions for interpolation
     # -------------------------------------------------------------------
-
-    # Timing
-    t1 = time.time()
 
     # Empty dicts for weights
     weights_dFcHat = {}
@@ -330,10 +308,6 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
         # Save weights
         weights_dFcHat[np.array2string(alpha)] = weights_dalphaFcHat
 
-    # Timing
-    t2 = time.time()
-    print('Time taken to get weights along boundary partitions: ', t2-t1)
-
     # -------------------------------------------------------------------
     # Estimated excursion sets
     # -------------------------------------------------------------------
@@ -347,14 +321,15 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
     # -------------------------------------------------------------------
     # Perform Bootstrap 
     # -------------------------------------------------------------------
-    # Timing
-    t1 = time.time()
+    
 
+
+    # MARKER UP TO HERE
     a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, weights_dFcHat, m, n_boot, p, n_sub)
 
-    # Timing
-    t2 = time.time()
-    print('Time taken to bootstrap: ', t2-t1)
+    # Reshape a_estBdry to be the same dimensions as before, followed by 1 
+    # for each dimension of the field
+    a_estBdry = a_estBdry.reshape(a_estBdry.shape+tuple(np.ones(D,dtype=int)))
 
     # -------------------------------------------------------------------
     # Get FcHat^{+/-}
@@ -365,11 +340,9 @@ def generate_CRs(data, c, p, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)'):
 
     # Take minimum over i
     stat = np.amin(g,axis=0)
-    stat = stat.reshape(stat.shape[-2],stat.shape[-1])
 
     # Obtain FcHat^+ and FcHat^- based on a from the estimated boundary. This variable
     # has axes corresponding to [pvalue, plus/minus, field dimensions]
     FcHat_pm_estBdry = stat >= a_estBdry
-
     # Return result
     return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...].reshape(np.prod(a_estBdry[:,1,...].shape)))
