@@ -100,10 +100,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # Get gi along dalpha FcHat
                 # ------------------------------------------------------
 
-                print(boot_residsi_dalphaFcHat.shape)
-
-                t1 = time.time()
-
                 # Sum across subjects to get the bootstrapped a values along
                 # the boundary of dalphaFcHat. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. 
@@ -121,15 +117,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
 
                 # Divide by the boostrap standard deviation of mui
                 boot_gi_dalphaFcHat = boot_gi_dalphaFcHat/boot_sigmai_dalphaFcHat
-
-                t2 = time.time()
-                print('time for version 1 ', t2-t1)
-
-                t1 = time.time()
-                boot_gi_dalphaFcHat = np.sum(boot_residsi_dalphaFcHat, axis=0)/(
-                    np.sqrt(n_sub)*np.std(boot_residsi_dalphaFcHat, axis=0, ddof=1))
-                t2 = time.time()
-                print('time for version 2 ', t2-t1)
                 
                 # ------------------------------------------------------
                 # Interpolate along dalpha FcHat
