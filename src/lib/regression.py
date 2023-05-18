@@ -190,6 +190,8 @@ def regression(yfiles, X, out_dir, chunk_size=20):
             # Add design matrix to array
             X_chunk[0:, 0:, 0:, j, :] = X[i + j, :]
 
+        print('chunk shapes: ', y_chunk.shape, X_chunk.shape)
+
         # Compute X'X for chunk
         XtX_chunk = X_chunk.transpose(0,1,2,4,3) @ X_chunk
 
@@ -212,8 +214,12 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         Xty = Xty + Xty_chunk
         yty = yty + yty_chunk
 
+    print('chunk check: ', np.allclose(XtX, X.reshape((1, 1, 1, n, p)).transpose(0,1,2,4,3) @ X.reshape((1, 1, 1, n, p))))
+
     # Compute beta
-    beta = np.linalg.inv(XtX) @ Xty
+    beta = np.linalg.pinv(XtX) @ Xty
+
+    print('beta shape', beta.shape)
 
     # Compute sum of squared errors
     ete = yty - beta.transpose(0,1,2,4,3) @ Xty

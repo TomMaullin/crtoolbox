@@ -74,12 +74,16 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Get beta
     beta = get_beta(p, dim)
 
+    print('beta shape (reg): ', beta.shape)
+
     # -----------------------------------------------------
     # Obtain Y
     # -----------------------------------------------------
 
     # Work out Xbeta
     Xbeta = X @ beta
+
+    print('Xbeta shape (reg): ', Xbeta.shape)
 
     # Loop through subjects generating nifti images
     for i in np.arange(n):    
@@ -90,11 +94,11 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
         # Get epsiloni
         epsiloni = get_epsilon(v, 1).reshape(dim)
 
+        # Smooth epsiloni
+        epsiloni = smooth_data(epsiloni, 3, [fwhm]*3, trunc=6, scaling='kernel').reshape(dim)
+
         # Add epsilon to Yi
         Yi = Yi + epsiloni
-
-        # Smooth Y_i
-        Yi = smooth_data(Yi, 3, [fwhm]*3, trunc=6, scaling='kernel').reshape(dim)
 
         # Obtain mask
         if mask_type == 'random':
@@ -128,6 +132,9 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # -----------------------------------------------------
     # Save beta
     # -----------------------------------------------------
+
+    # Mask beta
+    beta = beta*mask.reshape(mask.shape + (1,1))
 
     # Truncate beta
     beta = beta[10:(dim[0]-10),10:(dim[1]-10),10:(dim[2]-10),:,:]
@@ -270,7 +277,7 @@ def get_beta(p, dim):
         center = np.array([np.random.uniform(low=0.4*dim[i],high=0.6*dim[i]) for i in np.arange(len(dim))])
 
         # Generate a random radius between 5 and 12
-        r = np.random.uniform(low=5,high=40)
+        r = np.random.uniform(low=5,high=10)
 
         # Create an ogrid
         ogrid = np.meshgrid(*[np.arange(d) for d in dim], indexing='ij')
@@ -309,7 +316,7 @@ def get_sigma2(v):
     """
 
     # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 100#np.ones(v).reshape(v,1)
+    sigma2 = 5#np.ones(v).reshape(v,1)
 
     # Return sigma
     return(sigma2)
@@ -441,28 +448,16 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         # Create the D_nz dimensional grid
         grids = np.meshgrid(*phis);
 
-        # Initialize normalizing constant
-        ss = 1
+        # Compute the outer product of all the kernels
+        kernel_outer_product = np.outer(phis[0], phis[1])
+        for j in range(2, D_nz):
+            kernel_outer_product = np.outer(kernel_outer_product, phis[j])
 
-        # Loop through axes and take products
-        for j in np.arange(D_nz-1):
+        # Calculate the rescaling factor
+        ss = np.sum(kernel_outer_product**2)
 
-            # Smoothing kernel along plane (j,j+1)
-            product_gridj = (grids[j]*(grids[j+1]*np.ones(grids[0].shape)).T)
-
-            # Get normalizing constant along this plane
-            ssj = np.sum((product_gridj)**2)
-
-            # Add to running smoothing constant the sum of squares of this kernel
-            # (Developer note: This is the normalizing constant. When you smooth
-            # you are mutliplying everything by a grid of values along each dimension.
-            # To restandardize you then need to take the sum the squares of this grid
-            # and squareroot it. You then divide your data by this number at the end.
-            # This must be done once for every dimension, hence the below product.)
-            ss = ssj*ss
-
-        # Rescale noise
-        data = data/np.sqrt(ss)
+        # Rescale the data
+        data = data / np.sqrt(ss)
 
     elif scaling=='max':
 
