@@ -407,7 +407,7 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
 
     # Delete lock file, so other jobs know they can now write to the
     # file
-    os.remove(fname + ".lock")
     os.close(f)
+    os.remove(fname + ".lock")
 
     del fname, data_out, affine, data, dim
