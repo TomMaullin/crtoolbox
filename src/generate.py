@@ -325,7 +325,10 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, c, p, m=1, mask=None, n_boot
 
 
     # MARKER UP TO HERE
+    t1 = time.time()
     a_estBdry = bootstrap_resids(resids_dFcHat_partitioned, weights_dFcHat, m, n_boot, p, n_sub)
+    t2 = time.time()
+    print('numpy time: ', t2-t1)
 
     # Reshape a_estBdry to be the same dimensions as before, followed by 1 
     # for each dimension of the field
@@ -335,8 +338,13 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, c, p, m=1, mask=None, n_boot
     # Get FcHat^{+/-}
     # -------------------------------------------------------------------
 
+    # Create empty g array
+    g = np.zeros(muHats.shape)
+
+    mask = np.broadcast_to(mask, muHats.shape)
+
     # Get the statistic field which defined Achat^{+/-,i}
-    g = ((muHats-c)/(sigmas*tau))
+    g[mask] = ((muHats[mask]-c)/(sigmas[mask]*tau))
 
     # Take minimum over i
     stat = np.amin(g,axis=0)
@@ -344,5 +352,9 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, c, p, m=1, mask=None, n_boot
     # Obtain FcHat^+ and FcHat^- based on a from the estimated boundary. This variable
     # has axes corresponding to [pvalue, plus/minus, field dimensions]
     FcHat_pm_estBdry = stat >= a_estBdry
+
+    # Apply mask
+    FcHat_pm_estBdry = FcHat_pm_estBdry*mask
+
     # Return result
     return(FcHat_pm_estBdry[:,0,...], FcHat_pm_estBdry[:,1,...], FcHat, a_estBdry[:,1,...].reshape(np.prod(a_estBdry[:,1,...].shape)))
