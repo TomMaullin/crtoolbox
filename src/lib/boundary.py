@@ -126,7 +126,6 @@ def get_bdry_map(field, c, d, mask=None):
     # If we have a mask we need to apply it
     if mask is not None:
 
-        print('applying mask')
         mask = mask.reshape(field.shape)
         bottom_bdry = bottom_bdry*mask[np.ix_(*down_indices)]
 
@@ -279,7 +278,25 @@ def get_bdry_maps(field, c, mask=None):
 #    of the excursion set {pixels : field at pixel = c}
 #
 # ============================================================================
-def get_bdry_map_combined(field, c, mask=None):
+def get_bdry_map_combined(field, c=None, mask=None):
+
+    # Check if the field is a string
+    if isinstance(field, str):
+
+        # Read in field
+        field = read_image(field)
+
+    # Check if the mask is a string
+    if isinstance(mask, str):
+
+        # Read in mask
+        mask = read_image(mask)
+
+    # If c is not provided, assume we have been given a binary image already
+    if c is None:
+        
+        # Set c to 0.5
+        c = 0.5
 
     # Shape of field
     shape = np.array(field.shape)

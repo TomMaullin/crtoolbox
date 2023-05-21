@@ -38,13 +38,8 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     """
 
     # Check if data directory exists
-    if not os.path.exists(os.path.join(OutDir,"data")):
-        os.mkdir(os.path.join(OutDir,"data"))
-
-    # If it does exist, delete it and create a new one
-    else:
-        shutil.rmtree(os.path.join(OutDir,"data"))
-        os.mkdir(os.path.join(OutDir,"data"))
+    if not os.path.exists(OutDir):
+        os.mkdir(OutDir)
 
     # Make sure in numpy format (added 20 for smoothing)
     origdim = np.array(dim)
@@ -74,16 +69,12 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Get beta
     beta = get_beta(p, dim)
 
-    print('beta shape (reg): ', beta.shape)
-
     # -----------------------------------------------------
     # Obtain Y
     # -----------------------------------------------------
 
     # Work out Xbeta
     Xbeta = X @ beta
-
-    print('Xbeta shape (reg): ', Xbeta.shape)
 
     # Loop through subjects generating nifti images
     for i in np.arange(n):    
@@ -117,17 +108,10 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
         Yi = Yi[10:(dim[0]-10),10:(dim[1]-10),10:(dim[2]-10)]
 
         # Output Yi
-        addBlockToNifti(os.path.join(OutDir,"data","Y"+str(i)+".nii"), Yi, np.arange(np.prod(origdim)), volInd=0,dim=origdim)
-
-    # -----------------------------------------------------
-    # Save X
-    # -----------------------------------------------------
+        addBlockToNifti(os.path.join(OutDir,"Y"+str(i)+".nii"), Yi, np.arange(np.prod(origdim)), volInd=0,dim=origdim)
 
     # Reshape X
     X = X.reshape(n,p)
-
-    # Write out Z in full to a csv file
-    pd.DataFrame(X).to_csv(os.path.join(OutDir,"data","X.csv"), header=None, index=None)
 
     # -----------------------------------------------------
     # Save beta
@@ -143,7 +127,7 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     for i in np.arange(p):
 
         # Save beta to nifti
-        addBlockToNifti(os.path.join(OutDir,"data","beta"+str(i)+".nii"), beta[...,i,0], np.arange(np.prod(origdim)), volInd=0,dim=origdim)
+        addBlockToNifti(os.path.join(OutDir,"beta"+str(i)+".nii"), beta[...,i,0], np.arange(np.prod(origdim)), volInd=0,dim=origdim)
 
     # -----------------------------------------------------
     # Yfiles storage
@@ -152,19 +136,11 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Create empty list to store Y filenames
     Yfiles = []
 
-    with open(os.path.join(OutDir,"data",'Yfiles.txt'), 'a') as f:
+    # Loop through listing y files in text file
+    for i in np.arange(n):
 
-        # Loop through listing y files in text file
-        for i in np.arange(n):
-
-            # Add current Y filename to list
-            Yfiles.append(os.path.join(OutDir,"data","Y"+str(i)+".nii"))
-
-            # Write filename to text file
-            if i < n-1:
-                f.write(os.path.join(OutDir,"data","Y"+str(i)+".nii") + os.linesep)
-            else:
-                f.write(os.path.join(OutDir,"data","Y"+str(i)+".nii"))
+        # Add current Y filename to list
+        Yfiles.append(os.path.join(OutDir,"Y"+str(i)+".nii"))
 
     # -----------------------------------------------------
     # betafiles storage
@@ -173,19 +149,11 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Create empty list to store beta filenames
     betafiles = []
 
-    with open(os.path.join(OutDir,"data",'betafiles.txt'), 'a') as f:
+    # Loop through listing beta files in text file
+    for i in np.arange(p):
 
-        # Loop through listing beta files in text file
-        for i in np.arange(p):
-
-            # Add current beta filename to list
-            betafiles.append(os.path.join(OutDir,"data","beta"+str(i)+".nii"))
-
-            # Write filename to text file
-            if i < p-1:
-                f.write(os.path.join(OutDir,"data","beta"+str(i)+".nii") + os.linesep)
-            else:
-                f.write(os.path.join(OutDir,"data","beta"+str(i)+".nii"))
+        # Add current beta filename to list
+        betafiles.append(os.path.join(OutDir,"beta"+str(i)+".nii"))
 
 
     return Yfiles, betafiles, X
@@ -274,9 +242,15 @@ def get_beta(p, dim):
 
         # Without assuming the number of dimension, for each dimension,
         # generate a random coordinate near the center
+        # if i == 0:
+        #     center = np.array([50,50,70])
+        # else:
         center = np.array([np.random.uniform(low=0.4*dim[i],high=0.6*dim[i]) for i in np.arange(len(dim))])
 
         # Generate a random radius between 5 and 12
+        # if i == 0:
+        #     r = 10
+        # else:
         r = np.random.uniform(low=5,high=10)
 
         # Create an ogrid
@@ -448,16 +422,29 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         # Create the D_nz dimensional grid
         grids = np.meshgrid(*phis);
 
-        # Compute the outer product of all the kernels
-        kernel_outer_product = np.outer(phis[0], phis[1])
-        for j in range(2, D_nz):
-            kernel_outer_product = np.outer(kernel_outer_product, phis[j])
+        # Calculate the outer product of the kernels
+        if D_nz == 1:
 
-        # Calculate the rescaling factor
-        ss = np.sum(kernel_outer_product**2)
+            # In case of only one dimension being smoothed, kernel_outer_product is simply the kernel itself.
+            kernel_outer_product = phis[0]
 
-        # Rescale the data
-        data = data / np.sqrt(ss)
+            # Calculate the rescaling factor
+            ss = np.sum(kernel_outer_product**2)
+
+            # Rescale the data
+            data = data / np.sqrt(ss)
+
+        elif D_nz > 1:
+
+            kernel_outer_product = np.outer(phis[0], phis[1])
+            for j in range(2, D_nz):
+                kernel_outer_product = np.outer(kernel_outer_product, phis[j])
+
+            # Calculate the rescaling factor
+            ss = np.sum(kernel_outer_product**2)
+
+            # Rescale the data
+            data = data / np.sqrt(ss)
 
     elif scaling=='max':
 

@@ -49,20 +49,31 @@ def read_image(fname):
 
     except:
 
-        # If the image cannot be loaded in with the Image package then try with
-        # neuroimaging packages
+        # Try loading it in as a npy file
         try:
 
             # Load in image
-            img = nib.load(fname)
-
-            # Convert to array
-            img = np.array(img.dataobj)
+            img = np.load(fname)
 
         except:
 
-            # Print error
-            print("Error loading image: " + fname)
+            # If the image cannot be loaded in with the Image package then try with
+            # neuroimaging packages
+            try:
+
+                # Load in image
+                img = nib.load(fname)
+
+                # Convert to array
+                img = np.array(img.dataobj)
+
+            except:
+
+                # Raise error
+                raise ValueError("Error: Image cannot be loaded in")
+
+    # Squeeze dimensions of length 1
+    img = img.squeeze()
 
     # Return image
     return img
@@ -122,11 +133,8 @@ def read_images(fnames):
             # Check if image is the same size as the first image
             if img_size_new != img_size:
 
-                # Print error
-                print("Error: Images are not all the same size")
-
-                # Exit
-                exit()
+                # Raise error
+                raise ValueError("Error: Images are not all the same size")
 
         # Save image
         imgs[...,i] = img.reshape(imgs[...,i].shape)
@@ -178,11 +186,8 @@ def read_images_elements(fnames, indices):
             # Check if image is the same size as the first image
             if img.shape != img_size:
 
-                # Print error
-                print("Error: Images are not all the same size")
-
-                # Exit
-                exit()
+                # raise error
+                raise ValueError("Error: Images are not all the same size")
 
         # Flatten image
         img = img.flatten()
@@ -192,7 +197,34 @@ def read_images_elements(fnames, indices):
 
     return elements
 
+# Helper function to remove files
+def remove_files(file_list):
+    """
+    This function takes in a list of files and removes them.
+    
+    Parameters:
+    -----------
+    - `file_list`: A list of files to remove.
+    
+    Returns:
+    --------
+    - `None`
+    """
 
+    # Check if we have a single filename or a list of filenames
+    if not isinstance(file_list, list):
+
+        # Convert to list
+        file_list = [file_list]
+    
+    # Loop through files
+    for file in file_list:
+
+        # Check if file exists
+        if os.path.exists(file):
+
+            # Remove file
+            os.remove(file)
 
 def append_to_file(fname, data, remove=False):
     """

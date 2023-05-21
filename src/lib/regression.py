@@ -51,8 +51,8 @@ def read_images_mean_std(fnames, mean_zero=False):
                 # Check if image is the same size as the first image
                 if img.shape != img_size:
 
-                    # Print error
-                    print("Error: Images are not all the same size")
+                    # Raise error
+                    raise ValueError("Error: Images are not all the same size")
 
                     # Exit
                     exit()
@@ -165,6 +165,9 @@ def regression(yfiles, X, out_dir, chunk_size=20):
     # Get image size
     img_size = img.shape
 
+    # Get the dimension of the image
+    D = len(img_size)
+
     # Read in images in chunks
     for i in range(0, n_imgs, chunk_size):
 
@@ -175,8 +178,8 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         n_chunk = end - i
 
         # Initialize arrays
-        y_chunk = np.zeros((img_size[0], img_size[1], img_size[2], n_chunk, 1))
-        X_chunk = np.zeros((1, 1, 1, n_chunk, p))
+        y_chunk = np.zeros(img_size + (n_chunk, 1))
+        X_chunk = np.zeros(tuple((1 for i in range(D))) + (n_chunk, p))
 
         # Loop through images in chunk        
         for j in range(0, n_chunk):
@@ -185,23 +188,21 @@ def regression(yfiles, X, out_dir, chunk_size=20):
             img = read_image(yfiles[i + j])
 
             # Add image to array
-            y_chunk[:, :, :, j, 0:] = img
+            y_chunk[..., j, 0] = img
 
             # Add design matrix to array
-            X_chunk[0:, 0:, 0:, j, :] = X[i + j, :]
-
-        print('chunk shapes: ', y_chunk.shape, X_chunk.shape)
+            X_chunk[..., j, :] = X[i + j, :]
 
         # Compute X'X for chunk
-        XtX_chunk = X_chunk.transpose(0,1,2,4,3) @ X_chunk
+        XtX_chunk = X_chunk.swapaxes(-1,-2) @ X_chunk
 
         # Compute X'y for chunk
-        Xty_chunk = X_chunk.transpose(0,1,2,4,3) @ y_chunk
+        Xty_chunk = X_chunk.swapaxes(-1,-2) @ y_chunk
 
         # Compute y'y for chunk
-        yty_chunk = y_chunk.transpose(0,1,2,4,3) @ y_chunk
+        yty_chunk = y_chunk.swapaxes(-1,-2) @ y_chunk
 
-        # Add X'X and X'y for chunk to total
+        # Add X'X, X'y and y'y for chunk to total
         if i == 0:
 
             # Initialize arrays
@@ -214,35 +215,55 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         Xty = Xty + Xty_chunk
         yty = yty + yty_chunk
 
-    print('chunk check: ', np.allclose(XtX, X.reshape((1, 1, 1, n, p)).transpose(0,1,2,4,3) @ X.reshape((1, 1, 1, n, p))))
-
     # Compute beta
     beta = np.linalg.pinv(XtX) @ Xty
 
-    print('beta shape', beta.shape)
-
     # Compute sum of squared errors
-    ete = yty - beta.transpose(0,1,2,4,3) @ Xty
+    ete = yty - beta.swapaxes(-1,-2) @ Xty
 
     # Compute sigma
     sigma = np.sqrt(ete / n)
 
+    # Empty stores for filenames
+    beta_files = []
+    var_beta_files = []
+    resid_files = []
+
     # Loop through beta coefficients
     for i in range(0, p):
-
-        # Write beta coefficient to file
-        addBlockToNifti(os.path.join(out_dir,"data","betahat"+str(i)+".nii"), 
-                        beta[:, :, :, i, 0], np.arange(np.prod(img_size)), 
-                        volInd=0,dim=img_size)
-
 
         # Compute varbeta
         varbeta = sigma*np.sqrt(np.linalg.pinv(XtX)[...,i,i])
 
-        # Write var beta to file
-        addBlockToNifti(os.path.join(out_dir,"data","var_betahat"+str(i)+".nii"),
-                        varbeta, np.arange(np.prod(img_size)),
-                        volInd=0,dim=img_size)
+        # If the image is 3D then output nifti image
+        if D == 3:
+
+            # Write beta coefficient to file
+            addBlockToNifti(os.path.join(out_dir,"betahat"+str(i)+".nii"), 
+                            beta[..., i, 0], np.arange(np.prod(img_size)), 
+                            volInd=0,dim=img_size)
+
+            # Write var beta to file
+            addBlockToNifti(os.path.join(out_dir,"var_betahat"+str(i)+".nii"),
+                            varbeta, np.arange(np.prod(img_size)),
+                            volInd=0,dim=img_size)
+            
+            # Add filenames to list
+            beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".nii"))
+            var_beta_files.append(os.path.join(out_dir,"var_betahat"+str(i)+".nii"))
+            
+        # Otherwise output as a numpy array
+        else:
+
+            # Write beta coefficient to file
+            np.save(os.path.join(out_dir,"betahat"+str(i)+".npy"), beta[..., i, 0])
+
+            # Write var beta to file
+            np.save(os.path.join(out_dir,"var_betahat"+str(i)+".npy"), varbeta)
+
+            # Add filenames to list
+            beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".npy"))
+            var_beta_files.append(os.path.join(out_dir,"var_betahat"+str(i)+".npy"))
 
     # Loop through images creating residuals
     for i in range(0, n_imgs):
@@ -251,16 +272,37 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         img = read_image(yfiles[i])
 
         # Compute residuals
-        res = img - (X[..., i:(i+1), :] @ beta)[..., :, 0]
+        res = img - (X[..., i:(i+1), :] @ beta)[..., 0, 0]
 
-        # Write residuals to file
-        addBlockToNifti(os.path.join(out_dir,"data","res"+str(i)+".nii"), 
-                        res[...,0], np.arange(np.prod(img_size)), 
-                        volInd=0,dim=img_size)
+        # If the image is 3D then output nifti image
+        if D == 3:
+
+            # Write residuals to file
+            addBlockToNifti(os.path.join(out_dir,"res"+str(i)+".nii"), 
+                            res, np.arange(np.prod(img_size)), 
+                            volInd=0,dim=img_size)
+            
+            # Add filenames to list
+            resid_files.append(os.path.join(out_dir,"res"+str(i)+".nii"))
+
+        # Otherwise output as a numpy array
+        else:
+
+            # Write residuals to file
+            np.save(os.path.join(out_dir,"res"+str(i)+".npy"), res)
+
+            # Add filenames to list
+            resid_files.append(os.path.join(out_dir,"res"+str(i)+".npy"))
+
+    # Check if there is only one beta file 
+    if len(beta_files) == 1:
+
+        # Change beta_files to a string
+        beta_files = beta_files[0]
+
+        # Change var_beta_files to a string
+        var_beta_files = var_beta_files[0]
         
     # Return filenames
-    return [os.path.join(out_dir,"data","betahat"+str(i)+".nii") for i in range(0, p)], \
-           [os.path.join(out_dir,"data","var_betahat"+str(i)+".nii") for i in range(0, p)], \
-           [os.path.join(out_dir,"data","res"+str(i)+".nii") for i in range(0, n_imgs)]
-        
+    return beta_files, var_beta_files, resid_files  
         

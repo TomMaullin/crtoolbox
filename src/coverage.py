@@ -6,8 +6,6 @@ from lib.boundary import *
 from lib.fileio import *
 from bootstrap import *
 from lib.set_theory import powerset
-import yaml
-import matplotlib.pyplot as plt
 
 """
 Function to check for inclusion violations of the estimated boundary. This
