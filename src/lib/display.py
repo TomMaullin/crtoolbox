@@ -402,9 +402,13 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
             # Create a normalized color bar
             norm = colors.Normalize(vmin=vmin, vmax=vmax)
 
+            # Create a ScalarMappable and initialize its data array
+            sm = cm.ScalarMappable(norm=norm, cmap=cmap)
+            sm.set_array(volume)
+
             # Add colorbar
             if colorbar:
-                plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap))
+                plt.colorbar(sm)
             
             # If its a 2D image, add a title
             if D == 2:
