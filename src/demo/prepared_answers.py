@@ -52,3 +52,9 @@ betahat_files, std_beta_files, resid_files = regression(y_files, X, out_dir)
 # ----------------------------------------------------------------------------------------------
 # Have a look at these CRs by writing some code in the box below.
 # ----------------------------------------------------------------------------------------------
+display_crs(estimated_ac_file, upper_cr_file, lower_cr_file, mask_file)
+
+
+
+
+

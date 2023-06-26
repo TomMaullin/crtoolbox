@@ -26,8 +26,12 @@ Inputs:
     mask: A numpy array of shape (x,y,z) representing the mask for the data. This
           is not currently implemented.
     n_boot: An integer representing the number of bootstrap samples to use.
-    tau: A string representing the value of tau to use as a function of n_sub; it
-         defaults to 1/sqrt(n_sub).
+    X: a numpy array of shape (n,p) representing the design matrix in a regression 
+       context. If this is None then a vector of ones is used, and a simple mean
+       model is assumed.
+    L: a numpy array of shape (p,1) representing the contrast matrix in a regression
+       model. If this is None then a (1,1) matrix with a single entry of 1 is used,
+       and a simple mean model is assumed.
     output: A boolean representing whether to output the confidence regions as nifti
 
 Outputs:
@@ -38,7 +42,7 @@ Outputs:
     FcHat_files: A string representing the path to the estimated conjunction region.
     a_estBdry: A numpy array of shape (n_boot,) representing the bootstrap quantiles.
 """ 
-def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=None, n_boot=5000, tau='1/np.sqrt(n_sub)', output=True):
+def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=None, n_boot=5000, X=None, L=None, output=True):
 
     # If p is not an array, make it one
     if not isinstance(p, np.ndarray):    
@@ -55,8 +59,16 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=Non
     image_dim = muHats.shape[1:]
     D = len(image_dim)
 
-    # Evaulate tau
-    tau = eval(tau)
+    # If X is none, make it a vector of ones
+    if X is None:
+        X = np.ones((n_sub,1))
+
+    # If L is none, make it a vector of ones
+    if L is None:
+        L = np.ones((1,1))
+
+    # Work out tau
+    tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
 
     # If there is no mask, make one from the zero set in sigma
     if mask is None:
@@ -152,6 +164,13 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=Non
         
             # Obtain residuals
             resid = cycle_axes(read_images(res_fnames[j]))
+
+            # Get non-zero sigma values
+            sigma = sigmas[i,...].reshape(resid.shape) # MARKER MOVE OUTSIDE LOOP
+            sig_mask = sigma != 0
+
+            # Standardize residuals
+            resid[sig_mask] = resid[sig_mask]/sigma[sig_mask]
 
             # Residuals along FcHat boundary for current subject
             current_resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)
@@ -317,6 +336,9 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=Non
 
         # Loop through alpha values saving confidence regions
         for i in np.arange(len(p)):
+
+            # Round p[i] to 2 decimal places
+            p[i] = np.round(p[i],2)
 
             # If D is 3, output nifti image
             if D == 3:

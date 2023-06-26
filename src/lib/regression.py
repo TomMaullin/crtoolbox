@@ -226,14 +226,30 @@ def regression(yfiles, X, out_dir, chunk_size=20):
 
     # Empty stores for filenames
     beta_files = []
-    var_beta_files = []
     resid_files = []
+    sigma_file = []
+
+    # If the image is 3D then output nifti image
+    if D == 3:
+
+        # Write sigma to file
+        addBlockToNifti(os.path.join(out_dir,"sigma.nii"), sigma,
+                        np.arange(np.prod(img_size)), volInd=0,dim=img_size)
+        
+        # Add filename to list
+        sigma_file = os.path.join(out_dir,"sigma.nii")
+
+    # Otherwise output as a numpy array
+    else:
+
+        # Write sigma to file
+        np.save(os.path.join(out_dir,"sigma.npy"), sigma)
+
+        # Add filename to list
+        sigma_file = os.path.join(out_dir,"sigma.npy")
 
     # Loop through beta coefficients
     for i in range(0, p):
-
-        # Compute varbeta
-        varbeta = sigma*np.sqrt(np.linalg.pinv(XtX)[...,i,i])
 
         # If the image is 3D then output nifti image
         if D == 3:
@@ -242,15 +258,9 @@ def regression(yfiles, X, out_dir, chunk_size=20):
             addBlockToNifti(os.path.join(out_dir,"betahat"+str(i)+".nii"), 
                             beta[..., i, 0], np.arange(np.prod(img_size)), 
                             volInd=0,dim=img_size)
-
-            # Write var beta to file
-            addBlockToNifti(os.path.join(out_dir,"var_betahat"+str(i)+".nii"),
-                            varbeta, np.arange(np.prod(img_size)),
-                            volInd=0,dim=img_size)
             
             # Add filenames to list
             beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".nii"))
-            var_beta_files.append(os.path.join(out_dir,"var_betahat"+str(i)+".nii"))
             
         # Otherwise output as a numpy array
         else:
@@ -258,12 +268,8 @@ def regression(yfiles, X, out_dir, chunk_size=20):
             # Write beta coefficient to file
             np.save(os.path.join(out_dir,"betahat"+str(i)+".npy"), beta[..., i, 0])
 
-            # Write var beta to file
-            np.save(os.path.join(out_dir,"var_betahat"+str(i)+".npy"), varbeta)
-
             # Add filenames to list
             beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".npy"))
-            var_beta_files.append(os.path.join(out_dir,"var_betahat"+str(i)+".npy"))
 
     # Loop through images creating residuals
     for i in range(0, n_imgs):
@@ -272,7 +278,7 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         img = read_image(yfiles[i])
 
         # Compute residuals
-        res = img - (X[..., i:(i+1), :] @ beta)[..., 0, 0]
+        res = (img - (X[..., i:(i+1), :] @ beta)[..., 0, 0])
 
         # If the image is 3D then output nifti image
         if D == 3:
@@ -299,10 +305,7 @@ def regression(yfiles, X, out_dir, chunk_size=20):
 
         # Change beta_files to a string
         beta_files = beta_files[0]
-
-        # Change var_beta_files to a string
-        var_beta_files = var_beta_files[0]
         
     # Return filenames
-    return beta_files, var_beta_files, resid_files  
+    return beta_files, sigma_file, resid_files  
         

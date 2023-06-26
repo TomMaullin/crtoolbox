@@ -16,11 +16,15 @@ indicating whether or not a violation was observed for each quantile.
 Inputs:
     FcHat_plus: Inner confidence region
     FcHat_minus: Outer confidence region
-    datas: Original data
-    mus: Means
+    muhats: Estimated means
+    sigmas: Estimated standard deviations
+    mus: Original means
+    n: Number of subjects
     c: Threshold
-    tau: Transformed sample size
     a: Quantile levels
+    m: Number of conditions
+    X: Design matrix (optional)
+    L: Contrast matrix (optional)
 
 Outputs:
     success: Binary variable indicating whether or not a violation was 
@@ -33,16 +37,99 @@ Outputs:
      - interp_success: Binary variable indicating whether or not a violation
                        was observed based solely on interpolation.
 """
-def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
+def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1, X=None, L=None):
 
     # -------------------------------------------------------------------
-    # Get Muhat and Sigma
+    # Check if a is an array
     # -------------------------------------------------------------------
-    muHats = np.mean(datas,axis=1)
-    sigmas = np.std(datas,axis=1)
 
-    # Number of conditions
-    m = datas.shape[0]
+    # If a is not an array
+    if not isinstance(a, np.ndarray):
+            
+        # Make it one
+        a = np.array([a])
+
+    # -------------------------------------------------------------------
+    # Load in data if necessary
+    # -------------------------------------------------------------------
+
+    # If muhats is a string, assume it is a filename and load it in
+    if isinstance(muhats, str):
+            
+        # Load in muhats
+        muhats = read_image(muhats)
+
+    # If sigmas is a string, assume it is a filename and load it in
+    if isinstance(sigmas, str):
+                
+        # Load in sigmas
+        sigmas = read_image(sigmas)
+
+    # If mus is a string, assume it is a filename and load it in
+    if isinstance(mus, str):
+
+        # Load in mus
+        mus = read_image(mus)
+
+    # If FcHat_plus is a string, assume it is a filename and load it in
+    if isinstance(FcHat_plus, str):
+        
+        # Load in FcHat_plus
+        FcHat_plus = read_image(FcHat_plus)
+
+    # If FcHat_minus is a string, assume it is a filename and load it in    
+    if isinstance(FcHat_minus, str):
+            
+        # Load in FcHat_minus
+        FcHat_minus = read_image(FcHat_minus)
+
+    # -------------------------------------------------------------------
+    # Reshape data if necessary
+    # -------------------------------------------------------------------
+
+    # If the first dimension of muhats is not m
+    if muhats.shape[0] != m:
+
+        # Reshape muhats so that the leading dimension is 1
+        muhats = muhats.reshape((1,) + muhats.shape)
+
+    # If the first dimension of sigmas is not m
+    if sigmas.shape[0] != m:
+            
+        # Reshape sigmas so that the leading dimension is 1
+        sigmas = sigmas.reshape((1,) + sigmas.shape)
+
+    # If mus has fewer dimensions than muhats
+    if mus.ndim < muhats.ndim:
+
+        # Reshape mus so that the leading dimension is 1
+        mus = mus.reshape((1,) + mus.shape)
+
+    # If the first dimension of FcHat_plus is not len(a)
+    if FcHat_plus.shape[0] != len(a):
+
+        # Reshape FcHat_plus so that the leading dimension is len(a)
+        FcHat_plus = FcHat_plus.reshape((len(a),) + FcHat_plus.shape)
+    
+    # If the first dimension of FcHat_minus is not len(a)
+    if FcHat_minus.shape[0] != len(a):
+            
+        # Reshape FcHat_minus so that the leading dimension is len(a)
+        FcHat_minus = FcHat_minus.reshape((len(a),) + FcHat_minus.shape)
+
+    # Get number of dimensions
+    D = mus.ndim - 1
+
+    # If X is none, make it a vector of ones
+    if X is None:
+        X = np.ones((n,1))
+
+    # If L is none, make it a vector of ones
+    if L is None:
+        L = np.ones((1,1))
+
+    # Work out tau
+    tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
 
     # -------------------------------------------------------------------
     # Get minimum field
@@ -66,15 +153,18 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
     # has axes corresponding to [pvalue, field dimensions]
     Fc_sub_FcHatm = Fc & ~FcHat_minus
 
+    # Get a tuple of the form (1,...,D)
+    D_tuple = tuple(np.arange(D)+1)
+
     # Record if we saw a violation in the estimated boundary based sets
-    binary_success = 1-(np.any(FcHatp_sub_Fc,axis=(1,2)) | np.any(Fc_sub_FcHatm,axis=(1,2)))# : AXES WONT WORK FOR 3D ATM
+    binary_success = 1-(np.any(FcHatp_sub_Fc,axis=D_tuple) | np.any(Fc_sub_FcHatm,axis=D_tuple))
 
     # -------------------------------------------------------------------
     # Get stat along the Fc boundary
     # -------------------------------------------------------------------
 
     # Obtain statistic, g
-    g = ((muHats-c)/(sigmas*tau))
+    g = ((muhats-c)/(sigmas*tau))
 
     # -------------------------------------------------------------------
     # Boundary locations for FcHat
@@ -88,7 +178,6 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
     # Empty dict to store mu along true boundary
     mu_dFc = {}
-
 
     # Loop through fields
     for i in (np.arange(m)+1):
@@ -109,7 +198,6 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
 
     # Locations of the dalpha boundaries
     dalphaFc_locs = {}
-    dalphaFcHat_locs = {}
 
     # Loop through alphas
     for alpha in alphas:
@@ -233,17 +321,11 @@ def check_violations(FcHat_plus, FcHat_minus, datas, mus, c, tau, a):
         # Obtain Mu along Fc
         mu_dFc[str(i)] = get_bdry_values_concat(mus[i-1,...], Fc_bdry_locs)
 
-    # Empty dict to store interpolate g along true boundary
-    g_dFc_interp = {}
-
     # Boolean to tell us if this is the first alpha we've looked at
     Firstalpha = True
 
     # Interpolate g
     for alpha in alphas:
-
-        # Initial structure to hold interpolated g
-        g_dalphaFc_interp = {}
 
         # Boolean to tell us if this is the first value of i we're looking at
         Firsti = True
