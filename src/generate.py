@@ -33,6 +33,18 @@ Inputs:
        model. If this is None then a (1,1) matrix with a single entry of 1 is used,
        and a simple mean model is assumed.
     output: A boolean representing whether to output the confidence regions as nifti
+            files.
+    mode: A string representing the type of CRs to generate. This can be 'sss' for the
+          method of Sommerfeld, Sain and Schwartzman (2018), or 'cohens' for the cohens
+          d method of Bowring et al. (2019). 
+    method: An integer representing the method to use for the cohens d method. This can
+            be 1, 2 or 3. The three algoirthms are those listed in the 
+            following manuscript:
+                https://doi.org/10.1016/j.neuroimage.2020.117477
+            (c.f. Section 2.6)
+            Method 2 is used by default following the recommendations of the above
+            reference. This argument is not needed for 'sss' mode.
+            Note: Method 3 is not currently implemented.
 
 Outputs:
     FcHat_plus_files: A list of strings representing the paths to the upper confidence
@@ -42,7 +54,13 @@ Outputs:
     FcHat_files: A string representing the path to the estimated conjunction region.
     a_estBdry: A numpy array of shape (n_boot,) representing the bootstrap quantiles.
 """ 
-def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=None, n_boot=5000, X=None, L=None, output=True):
+def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=None, 
+                 p=0.95, m=1, mask=None, n_boot=5000, X=None, L=None, output=True, 
+                 mode='sss', method=2):
+
+    # Check if the mode is valid
+    if mode not in ['sss', 'cohens']:
+        raise ValueError('Invalid mode. Must be one of sss or cohens.')
 
     # If p is not an array, make it one
     if not isinstance(p, np.ndarray):    
@@ -53,7 +71,47 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=Non
 
     # Read in mean and sigma
     muHats = cycle_axes(read_images(mean_fname))
-    sigmas = cycle_axes(read_images(sig_fname))
+    
+    # If the mode is cohens, adjust c
+    if mode == 'cohens':
+
+        # Adjust c
+        c = 1/(1-3/(4*n_sub - 5)) * c
+
+        # If the method is 1, set sigma to the correct value
+        if method == 1:
+
+            # Set sigma to the square root of the 1 plus d squared over 2
+            sigma = np.sqrt(1 + muHats**2/2)
+
+        # If the method is 2, check the sigma file was provided
+        elif method == 2:
+
+            # Check sigma file was provided
+            if sig_fname is None:
+
+                raise ValueError('Sigma file must be provided for Cohens d method 2.')
+            
+            else:
+            
+                sigmas = cycle_axes(read_images(sig_fname))
+            
+        # If the method is 3, raise an error as it is not currently implemented
+        elif method == 3:
+
+            raise NotImplementedError('Method 3 for Cohens d is not implemented.')
+            
+    # If the mode is sss, check sigma file was provided
+    elif mode == 'sss':
+
+        # Check sigma file was provided
+        if sig_fname is None:
+
+            raise ValueError('Sigma file must be provided for SSS method.')
+    
+        else:
+        
+            sigmas = cycle_axes(read_images(sig_fname))
 
     # Get image dimensions
     image_dim = muHats.shape[1:]
@@ -165,12 +223,15 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir, c, p, m=1, mask=Non
             # Obtain residuals
             resid = cycle_axes(read_images(res_fnames[j]))
 
-            # Get non-zero sigma values
-            sigma = sigmas[i,...].reshape(resid.shape) # MARKER MOVE OUTSIDE LOOP
-            sig_mask = sigma != 0
+            # If the mode is sss, we need to standardize the residuals
+            if mode == 'sss':
 
-            # Standardize residuals
-            resid[sig_mask] = resid[sig_mask]/sigma[sig_mask]
+                # Get non-zero sigma values
+                sigma = sigmas[i,...].reshape(resid.shape) # MARKER MOVE OUTSIDE LOOP
+                sig_mask = sigma != 0
+
+                # Standardize residuals
+                resid[sig_mask] = resid[sig_mask]/sigma[sig_mask]
 
             # Residuals along FcHat boundary for current subject
             current_resid_dFcHat_concat = get_bdry_values_concat(resid, FcHat_bdry_locs)

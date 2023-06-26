@@ -74,7 +74,7 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # -----------------------------------------------------
 
     # Work out Xbeta
-    Xbeta = X @ beta
+    Xbeta = X @ beta # MARKER MOVE INTO LOOP FOR MEMORY EFFICIENCY
 
     # Loop through subjects generating nifti images
     for i in np.arange(n):    
