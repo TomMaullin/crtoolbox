@@ -3,8 +3,8 @@ import os
 import time
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from generate import *
-from lib.fileio import *
+from crtoolbox.generate import *
+from crtoolbox.lib.fileio import *
 
 def get_bdry_map(field, c, d, mask=None): 
     """

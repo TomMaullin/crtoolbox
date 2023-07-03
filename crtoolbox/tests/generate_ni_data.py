@@ -9,7 +9,7 @@ import os
 import glob
 import shutil
 import yaml
-from lib.fileio import *
+from crtoolbox.lib.fileio import *
 import time
 import pandas as pd
 from scipy import ndimage

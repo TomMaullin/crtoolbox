@@ -2,10 +2,10 @@ import os
 import sys
 import time
 import numpy as np
-from lib.boundary import *
-from lib.fileio import *
-from bootstrap import *
-from lib.set_theory import powerset
+from crtoolbox.lib.boundary import *
+from crtoolbox.lib.fileio import *
+from crtoolbox.bootstrap import *
+from crtoolbox.lib.set_theory import powerset
 import yaml
 import matplotlib.pyplot as plt
 

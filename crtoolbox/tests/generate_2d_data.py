@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from tests.generate_ni_data import smooth_data
+from crtoolbox.tests.generate_ni_data import smooth_data
 from matplotlib import pyplot as plt
 
 class Signal:

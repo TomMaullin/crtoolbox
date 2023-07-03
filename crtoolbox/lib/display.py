@@ -1,7 +1,6 @@
 import os
 import numpy as np
-from lib.fileio import read_image
-from skimage import io
+from crtoolbox.lib.fileio import read_image
 import plotly.graph_objects as go
 import nibabel as nib
 import matplotlib.pyplot as plt

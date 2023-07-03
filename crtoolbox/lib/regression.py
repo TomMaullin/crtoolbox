@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import nibabel as nib
-from lib.fileio import read_image
-from tests.generate_ni_data import addBlockToNifti
+from crtoolbox.lib.fileio import read_image
+from crtoolbox.tests.generate_ni_data import addBlockToNifti
 
 """ 
 Read images from a list of filenames one by one and compute their mean and standard
