@@ -39,7 +39,7 @@ Returns:
 def cohens(data_fnames, X, out_dir, method=2):
 
     # Get mean and standard deviation images
-    mean_fname, std_fname, resid_files = regression(data_fnames, X, out_dir)  
+    mean_fname, std_fname, resid_files = regression(data_fnames, X, out_dir)  # MARKER - Currently not accounting for choice of contrast
 
     # Remove the residual files
     remove_files(resid_files)  
