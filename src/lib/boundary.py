@@ -493,8 +493,8 @@ def get_bdry_values(field, bdry_locs):
 
             # Get inner and outer boundary values in this dimension and
             # direction            
-            inner_vals = field[...,(*bdry_locs[d][direction]['inner'])]
-            outer_vals = field[...,(*bdry_locs[d][direction]['outer'])]
+            inner_vals = field[(...,*bdry_locs[d][direction]['inner'])]
+            outer_vals = field[(...,*bdry_locs[d][direction]['outer'])]
 
             # Record boundary values
             bdry_vals[d][direction]['inner'] = inner_vals
@@ -727,12 +727,12 @@ def get_bdry_values_concat(field, bdry_locs):
 
             # Get inner and outer boundary values in this dimension and
             # direction            
-            inner_vals = field[...,(*bdry_locs[d][direction]['inner'])]
-            outer_vals = field[...,(*bdry_locs[d][direction]['outer'])]
+            inner_vals = field[(...,*bdry_locs[d][direction]['inner'])]
+            outer_vals = field[(...,*bdry_locs[d][direction]['outer'])]
 
             # Reshape for concatenation
-            inner_vals = inner_vals.reshape((*inner_vals.shape),1)
-            outer_vals = outer_vals.reshape((*outer_vals.shape),1)
+            inner_vals = inner_vals.reshape(tuple(inner_vals.shape) + (1,))
+            outer_vals = outer_vals.reshape(tuple(outer_vals.shape) + (1,))
             
             # If this is the first edge we've looked at initialise 
             # concatenated interpolated boundary array
@@ -773,8 +773,8 @@ def get_bdry_weights_concat(bdry_vals_concat,c):
         bdry_weights_outer_concat= (c-outer_vals)/(inner_vals-outer_vals)
 
         # Work out weights
-        bdry_weights_inner_concat = bdry_weights_inner_concat.reshape((*bdry_weights_inner_concat.shape),1)
-        bdry_weights_outer_concat = bdry_weights_outer_concat.reshape((*bdry_weights_outer_concat.shape),1)
+        bdry_weights_inner_concat = bdry_weights_inner_concat.reshape(*bdry_weights_inner_concat.shape,1)
+        bdry_weights_outer_concat = bdry_weights_outer_concat.reshape(*bdry_weights_outer_concat.shape,1)
 
     # In case we had 2 values which were the same (can happen when looking down
     # on ramp)
