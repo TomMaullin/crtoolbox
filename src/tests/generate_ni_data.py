@@ -14,7 +14,7 @@ import time
 import pandas as pd
 from scipy import ndimage
 
-def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
+def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed', sigma=5):
     """
     Generates simulated data with the specified dimensions and other parameters.
     
@@ -30,6 +30,8 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
         Output directory path where the generated data will be saved.
     mask_type : str
         Type of mask to be used. Must be either "random" or "fixed".
+    sigma : float
+        Standard deviation of the noise to be added to the data.
 
     Returns
     -------
@@ -73,17 +75,14 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed'):
     # Obtain Y
     # -----------------------------------------------------
 
-    # Work out Xbeta
-    Xbeta = X @ beta # MARKER MOVE INTO LOOP FOR MEMORY EFFICIENCY
-
     # Loop through subjects generating nifti images
     for i in np.arange(n):    
 
         # Initialize Yi to Xi times beta
-        Yi = Xbeta[...,i,0]
+        Yi = (X[...,i:(i+1),:] @ beta)[...,0,0]
 
         # Get epsiloni
-        epsiloni = get_epsilon(v, 1).reshape(dim)
+        epsiloni = get_epsilon(v, 1, sigma).reshape(dim)
 
         # Smooth epsiloni
         epsiloni = smooth_data(epsiloni, 3, [fwhm]*3, trunc=6, scaling='kernel').reshape(dim)
@@ -274,28 +273,7 @@ def get_beta(p, dim):
     # Return beta
     return(beta)
 
-
-def get_sigma2(v):
-    """
-    Generates sigma2.
-
-    Parameters
-    ----------
-    v : int
-        Number of voxels.
-
-    Returns
-    -------
-    sigma2 : scalar sigma2
-    """
-
-    # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 5#np.ones(v).reshape(v,1)
-
-    # Return sigma
-    return(sigma2)
-
-def get_epsilon(v,n):
+def get_epsilon(v,n,sigma):
     """
     Generates epsilon, the random error term.
 
@@ -305,6 +283,8 @@ def get_epsilon(v,n):
         Number of voxels.
     n : int
         Number of observations.
+    sigma : scalar sigma
+        Standard deviation of the error term.
 
     Returns
     -------
@@ -312,7 +292,7 @@ def get_epsilon(v,n):
     """
 
     # Get sigma2
-    sigma2 = get_sigma2(v)
+    sigma2 = sigma**2
 
     # Make epsilon.
     epsilon = sigma2*np.random.randn(v,n)

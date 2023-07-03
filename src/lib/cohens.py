@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import nibabel as nib
-from lib.fileio import read_image
+from lib.fileio import read_image, remove_files
 from tests.generate_ni_data import addBlockToNifti
 from lib.regression import *
 
@@ -39,7 +39,10 @@ Returns:
 def cohens(data_fnames, X, out_dir, method=2):
 
     # Get mean and standard deviation images
-    mean_fname, std_fname, _ = regression(data_fnames, X, out_dir)    
+    mean_fname, std_fname, resid_files = regression(data_fnames, X, out_dir)  
+
+    # Remove the residual files
+    remove_files(resid_files)  
 
     # Check if output directory exists
     if not os.path.exists(out_dir):
@@ -282,7 +285,11 @@ def cohens(data_fnames, X, out_dir, method=2):
     else:
         
         # Throw error
-        raise ValueError("Invalid method specified. Must be 1, 2 or 3.")    
+        raise ValueError("Invalid method specified. Must be 1, 2 or 3.")   
+
+    # We no longer need the original mean and std files
+    remove_files(mean_fname)
+    remove_files(std_fname) 
 
     # Return list of cohen's d residual filenames
     return d_fname, cohen_fnames, cohen_sigma_fname
