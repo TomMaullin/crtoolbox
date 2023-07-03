@@ -2,6 +2,6 @@ matplotlib
 numpy
 pandas
 nibabel
-nilean
+nilearn
 pyyaml
 plotly
