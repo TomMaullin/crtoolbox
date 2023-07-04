@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="crtoolbox",
-    version="0.1.5",
+    version="0.1.6",
     author="Tom Maullin",
     author_email="TomMaullin@gmail.com",
     description="The Confidence Regions Toolbox",
@@ -17,6 +17,9 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/tommaullin/crtoolbox",
     packages=find_packages(),
+    package_data={
+        'crtoolbox.tests': ['mask.nii'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
