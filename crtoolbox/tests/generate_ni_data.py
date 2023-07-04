@@ -14,7 +14,7 @@ import time
 import pandas as pd
 from scipy import ndimage
 
-def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed', sigma=5):
+def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed', sigma=3):
     """
     Generates simulated data with the specified dimensions and other parameters.
     
