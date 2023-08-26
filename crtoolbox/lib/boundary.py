@@ -549,7 +549,7 @@ def get_bdry_values(field, bdry_locs):
 #                   for raw effect size images).
 #
 #     mu
-#      |                                         mu(s)=c       . straight line 
+#      |                                         mu(s)         . straight line 
 #      |                                             /     .    between pixel 1 
 #      |                                            /  .          and pixel 2
 #  p2 _| _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ________ ./
