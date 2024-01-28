@@ -117,6 +117,10 @@ def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1,
         # Reshape FcHat_minus so that the leading dimension is len(a)
         FcHat_minus = FcHat_minus.reshape((len(a),) + FcHat_minus.shape)
 
+    # Ensure files are boolean
+    FcHat_plus = FcHat_plus > 0.5
+    FcHat_minus = FcHat_minus > 0.5
+
     # Get number of dimensions
     D = mus.ndim - 1
 
