@@ -239,6 +239,10 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         # Add filename to list
         sigma_file = os.path.join(out_dir,"sigma.nii")
 
+        # Write sigma to file
+        addBlockToNifti(os.path.join(out_dir,"mask.nii"), sigma != 0,
+                        np.arange(np.prod(img_size)), volInd=0,dim=img_size)
+
     # Otherwise output as a numpy array
     else:
 
@@ -247,6 +251,9 @@ def regression(yfiles, X, out_dir, chunk_size=20):
 
         # Add filename to list
         sigma_file = os.path.join(out_dir,"sigma.npy")
+
+        # Write sigma to file
+        np.save(os.path.join(out_dir,"mask.npy"), sigma != 0)
 
     # Loop through beta coefficients
     for i in range(0, p):

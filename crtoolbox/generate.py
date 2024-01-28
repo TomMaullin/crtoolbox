@@ -122,11 +122,14 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
     # Check if the mask is a filename or a numpy array.
     if isinstance(mask, str) and os.path.isfile(mask):
 
+        print('here1')
+
         # If mask is a filename, read in the file
         mask = (cycle_axes(read_images(mask)) > 0.5).reshape(sigmas[0,...].shape)
 
     # If there is no mask, make one from the zero set in sigma
     if mask is None:
+        print('here2')
 
         mask = np.ones(sigmas[0,...].shape)
 
