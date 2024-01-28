@@ -26,6 +26,7 @@ Inputs:
     mask: A numpy array of shape (x,y,z) representing the mask for the data. This
           is not currently implemented.
     n_boot: An integer representing the number of bootstrap samples to use.
+    tau: Image or scalar of tau_n values
     X: a numpy array of shape (n,p) representing the design matrix in a regression 
        context. If this is None then a vector of ones is used, and a simple mean
        model is assumed.
@@ -55,8 +56,8 @@ Outputs:
     a_estBdry: A numpy array of shape (n_boot,) representing the bootstrap quantiles.
 """ 
 def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=None, 
-                 p=0.95, m=1, mask=None, n_boot=5000, X=None, L=None, output=True, 
-                 mode='sss', method=2):
+                 p=0.95, m=1, mask=None, n_boot=5000, tau=None, X=None, L=None,
+                 output=True, mode='sss', method=2):
 
     # Check if the mode is valid
     if mode not in ['sss', 'cohens']:
@@ -71,7 +72,7 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
 
     # Read in mean and sigma
     muHats = cycle_axes(read_images(mean_fname))
-    
+
     # If the mode is cohens, adjust c
     if mode == 'cohens':
 
@@ -117,39 +118,67 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
     image_dim = muHats.shape[1:]
     D = len(image_dim)
 
-    # If X is none, make it a vector of ones
-    if X is None:
-        X = np.ones((n_sub,1))
 
-    # If L is none, make it a vector of ones
-    if L is None:
-        L = np.ones((1,1))
+    # Check if the mask is a filename or a numpy array.
+    if isinstance(mask, str) and os.path.isfile(mask):
 
-    # Work out tau
-    tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
+        print('here1')
+
+        # If mask is a filename, read in the file
+        mask = (cycle_axes(read_images(mask)) > 0.5).reshape(sigmas[0,...].shape)
 
     # If there is no mask, make one from the zero set in sigma
     if mask is None:
+        print('here2')
 
-        # Loop through m
-        for i in np.arange(m):
+        mask = np.ones(sigmas[0,...].shape)
 
-            # Get sigma for this field
-            sigma = sigmas[i,...]
+    # Loop through m
+    for i in np.arange(m):
 
-            # Get mask
-            mask_current = sigma != 0
+        # Get sigma for this field
+        sigma = sigmas[i,...]
 
-            # If this is the first iteration, initialize mask
-            if i == 0:
+        # Get mask
+        mask_current = sigma != 0
 
-                mask = mask_current
-
-            # Otherwise, take the intersection of the current mask and the previous mask
-            else:
-
-                mask = np.logical_and(mask, mask_current)
+        # Take the intersection of the current mask and the previous mask
+        mask = np.logical_and(mask, mask_current)
     
+    # If tau is none
+    if tau is None:
+
+        # If X is none, make it a vector of ones
+        if X is None:
+            X = np.ones((n_sub,1))
+
+        # If L is none, make it a vector of ones
+        if L is None:
+            L = np.ones((1,1))
+
+        # Work out tau
+        tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
+
+    # else tau must either be a scalar or numpy array
+    else:
+
+        # Check if tau is a scalar or a numpy array
+        if isinstance(tau, (int, float, complex)) and not isinstance(tau, bool):
+
+            pass
+
+        elif isinstance(tau, np.ndarray):
+
+            pass
+        
+        elif isinstance(tau, str):
+
+            # If tau is a filename, read in the file
+            tau = cycle_axes(read_images(tau))
+
+        else:
+            raise TypeError("tau must be either a scalar or a numpy array")
+
 
     # Boundary locations and values
     # Make a structure to hold the estimated boundary weights in array form 
@@ -375,7 +404,7 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
     mask = np.broadcast_to(mask, muHats.shape)
 
     # Get the statistic field which defined Achat^{+/-,i}
-    g[mask] = ((muHats[mask]-c)/(sigmas[mask]*tau))
+    g[mask] = ((muHats[mask]-c)/(tau*sigmas)[mask])
 
     # Take minimum over i
     stat = np.amin(g,axis=0)
@@ -394,6 +423,15 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
         FcHat_plus_files = []
         FcHat_minus_files = []
         FcHat_files = []
+        
+        # If D is 3, work out image affine
+        if D == 3:
+
+            # Read in zeroth resid
+            zeroth_resid = nib.load(res_fnames[0])
+
+            # Get affine
+            affine = zeroth_resid.affine
 
         # Loop through alpha values saving confidence regions
         for i in np.arange(len(p)):
@@ -404,18 +442,26 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
             # If D is 3, output nifti image
             if D == 3:
 
+                # Check if previous file exists and if so delete it
+                if os.path.exists(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii")):
+                    os.remove(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"))
+
                 # Save upper confidence region
                 addBlockToNifti(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"),
-                                FcHat_pm_estBdry[i,0,...], np.arange(np.prod(image_dim)),
-                                volInd=0,dim=image_dim)
+                                FcHat_pm_estBdry[i,1,...], np.arange(np.prod(image_dim)),
+                                volInd=0,dim=image_dim,aff=affine)
+
+                # Check if previous file exists and if so delete it
+                if os.path.exists(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii")):
+                    os.remove(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"))
                 
                 # Save filename
                 FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"))
                 
                 # Save lower confidence region
                 addBlockToNifti(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"),
-                                FcHat_pm_estBdry[i,1,...], np.arange(np.prod(image_dim)),
-                                volInd=0,dim=image_dim)
+                                FcHat_pm_estBdry[i,0,...], np.arange(np.prod(image_dim)),
+                                volInd=0,dim=image_dim,aff=affine)
                 
                 # Save filename
                 FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"))
@@ -425,25 +471,29 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
 
                 # Save upper confidence region
                 np.save(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".npy"),
-                        FcHat_pm_estBdry[i,0,...])
+                        FcHat_pm_estBdry[i,1,...])
                 
                 # Save filename
                 FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".npy"))
 
                 # Save lower confidence region
                 np.save(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".npy"),
-                        FcHat_pm_estBdry[i,1,...])
+                        FcHat_pm_estBdry[i,0,...])
                 
                 # Save filename
                 FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".npy"))
             
         # If D is 3, output nifti image
         if D == 3:
-                
+               
+            # Check if previous file exists and if so delete it
+            if os.path.exists(os.path.join(out_dir,"Estimated_Ac.nii")):
+                os.remove(os.path.join(out_dir,"Estimated_Ac.nii"))
+ 
             # Save estimated conjunction region
             addBlockToNifti(os.path.join(out_dir,"Estimated_Ac.nii"),
                             FcHat, np.arange(np.prod(image_dim)),
-                            volInd=0,dim=image_dim)
+                            volInd=0,dim=image_dim,aff=affine)
             
             # Save filename
             FcHat_files.append(os.path.join(out_dir,"Estimated_Ac.nii"))

@@ -37,7 +37,7 @@ Outputs:
      - interp_success: Binary variable indicating whether or not a violation
                        was observed based solely on interpolation.
 """
-def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1, X=None, L=None):
+def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1, X=None, L=None, tau=None):
 
     # -------------------------------------------------------------------
     # Check if a is an array
@@ -117,6 +117,10 @@ def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1,
         # Reshape FcHat_minus so that the leading dimension is len(a)
         FcHat_minus = FcHat_minus.reshape((len(a),) + FcHat_minus.shape)
 
+    # Ensure files are boolean
+    FcHat_plus = FcHat_plus > 0.5
+    FcHat_minus = FcHat_minus > 0.5
+
     # Get number of dimensions
     D = mus.ndim - 1
 
@@ -129,7 +133,8 @@ def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1,
         L = np.ones((1,1))
 
     # Work out tau
-    tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
+    if tau is None:
+        tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
 
     # -------------------------------------------------------------------
     # Get minimum field

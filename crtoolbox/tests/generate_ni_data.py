@@ -291,11 +291,8 @@ def get_epsilon(v,n,sigma):
     epsilon : numpy array for epsilon of dimensions (v,n,1).
     """
 
-    # Get sigma2
-    sigma2 = sigma**2
-
     # Make epsilon.
-    epsilon = sigma2*np.random.randn(v,n)
+    epsilon = sigma*np.random.randn(v,n)
 
     # Reshape to dimensions for broadcasting
     epsilon = epsilon.reshape(v, n, 1)
