@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="crtoolbox",
-    version="0.1.6",
+    version="0.1.7",
     author="Tom Maullin",
     author_email="TomMaullin@gmail.com",
     description="The Confidence Regions Toolbox",
