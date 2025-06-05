@@ -96,7 +96,7 @@ def generate_data(n, p, OutDir, dim=np.array([100,100,100]), mask_type='fixed', 
             mask = get_random_mask(dim).reshape(Yi.shape)
         elif mask_type == 'fixed':
             # Get mask from file
-            mask = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_data()
+            mask = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_fdata()
         else:
             raise ValueError('mask_type must be either "random" or "fixed".')
 
@@ -177,7 +177,7 @@ def get_random_mask(dim):
     fwhm = 10
 
     # Load analysis mask
-    mask = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_data()
+    mask = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_fdata()
 
     # Add some noise and smooth
     mask = smooth_data(mask + 8*np.random.randn(*(mask.shape)), 3, [fwhm]*3)
@@ -244,7 +244,7 @@ def get_beta(p, dim):
         # if i == 0:
         #     center = np.array([50,50,70])
         # else:
-        center = np.array([np.random.uniform(low=0.4*dim[i],high=0.6*dim[i]) for i in np.arange(len(dim))])
+        center = np.array([np.random.uniform(low=0.2*dim[i],high=0.8*dim[i]) for i in np.arange(len(dim))])
 
         # Generate a random radius between 5 and 12
         # if i == 0:

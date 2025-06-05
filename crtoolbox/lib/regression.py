@@ -168,6 +168,9 @@ def regression(yfiles, X, out_dir, chunk_size=20):
     # Get the dimension of the image
     D = len(img_size)
 
+    # Create an array to store na sum
+    na_sum = np.zeros(img_size)
+
     # Read in images in chunks
     for i in range(0, n_imgs, chunk_size):
 
@@ -199,8 +202,17 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         # Compute X'y for chunk
         Xty_chunk = X_chunk.swapaxes(-1,-2) @ y_chunk
 
+        # Handle NaNs in Xty_chunk
+        Xty_chunk[np.isnan(Xty_chunk)] = 0  # Handle NaNs
+
         # Compute y'y for chunk
         yty_chunk = y_chunk.swapaxes(-1,-2) @ y_chunk
+
+        # Handle NaNs in yty_chunk
+        yty_chunk[np.isnan(yty_chunk)] = 0  # Handle NaNs
+
+        # Compute na_sum for chunk
+        na_sum_chunk = np.squeeze(np.sum(np.isnan(y_chunk), axis=-2, keepdims=True))
 
         # Add X'X, X'y and y'y for chunk to total
         if i == 0:
@@ -215,14 +227,30 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         Xty = Xty + Xty_chunk
         yty = yty + yty_chunk
 
+        # Add to na_sum
+        na_sum = na_sum + na_sum_chunk
+
+
+    # Missing data threshold
+    mt = 0.05
+
+    # Create mask using na_sum
+    mask = (na_sum < n_imgs*mt)
+
     # Compute beta
     beta = np.linalg.pinv(XtX) @ Xty
+
+    # Apply mask to beta
+    beta[~mask] = np.nan
 
     # Compute sum of squared errors
     ete = yty - beta.swapaxes(-1,-2) @ Xty
 
     # Compute sigma
     sigma = np.sqrt(ete / n)
+
+    # Apply mask to sigma
+    sigma[~mask] = np.nan
 
     # Empty stores for filenames
     beta_files = []
@@ -239,8 +267,12 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         # Add filename to list
         sigma_file = os.path.join(out_dir,"sigma.nii")
 
-        # Write sigma to file
-        addBlockToNifti(os.path.join(out_dir,"mask.nii"), sigma != 0,
+        # Write mask to file
+        addBlockToNifti(os.path.join(out_dir,"mask.nii"), np.abs(sigma) > 1e-8,
+                        np.arange(np.prod(img_size)), volInd=0,dim=img_size)
+        
+        # Write na_sum to file
+        addBlockToNifti(os.path.join(out_dir,"na_sum.nii"), na_sum,
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
 
     # Otherwise output as a numpy array
@@ -286,6 +318,9 @@ def regression(yfiles, X, out_dir, chunk_size=20):
 
         # Compute residuals
         res = (img - (X[..., i:(i+1), :] @ beta)[..., 0, 0])
+
+        # Apply mask to residuals
+        res[~mask] = np.nan
 
         # If the image is 3D then output nifti image
         if D == 3:

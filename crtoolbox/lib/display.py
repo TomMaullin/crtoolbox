@@ -9,6 +9,35 @@ from matplotlib import colors
 
 def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display='Fancy', slice=None):
     """
+    Display a 3D volume in 2D slices using Plotly.
+    Parameters:
+    -----------
+    volume_file : str or numpy array
+        Path to the volume file or a numpy array representing the volume.
+    mask : str or numpy array, optional
+        Path to the mask file or a numpy array representing the mask. If None, a mask will be created based on the volume.
+    bg : str or numpy array, optional
+        Path to the background file or a numpy array representing the background. If None, an empty background will be created.
+    mode : str, optional
+        View mode. Options are 'Sagittal', 'Coronal' or 'Axial'. Default is 'Sagittal'.
+    display : str, optional
+        Display mode. Options are 'Fancy' or 'Simple'. Default is 'Fancy'.
+    slice : int, optional
+        Slice number to display in simple mode. If None, an error will be raised in simple mode.
+    Returns:
+    --------
+    None
+    Raises:
+    -------
+    ValueError: If an invalid mode or display option is provided, or if slice is not specified in simple mode.
+    Notes:
+    ------- 
+    - The function reads in a 3D volume and optionally a mask and background.
+    - It then displays the volume in 2D slices using Plotly.        
+    - In 'Fancy' mode, it creates an animated heatmap of the volume slices.
+    - In 'Simple' mode, it displays a single slice of the volume with a color map.
+    - The function supports both 2D and 3D volumes.
+    - If the volume is 2D, it reshapes it to a 3D volume with a single slice.
     """
 
     # If volume file is a string, read it in
@@ -220,7 +249,7 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
     # Check which display mode we are in
     if display.lower() == 'fancy':
             
-        # Define frames
+        # Define frames - keep the existing frame creation
         frames = [
             go.Frame(
                 data=[
@@ -231,12 +260,14 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
                         showscale=colorbar,
                         colorscale=cmap,
                     ),
-                    go.Heatmap(
-                        z=[[vmin, vmax]],  # Invisible heatmap to force colorbar to appear on empty slices
+                    go.Heatmap(  
+                        z=np.zeros(np.flipud(volume[nb_frames - 1 - k]).shape)+vmin-1,
+                        zmin=vmin, zmax=vmax,
                         opacity=0,
                         showscale=colorbar,
-                        colorscale=cmap
-                    )
+                        colorscale=cmap,
+                        hoverinfo='skip'
+                    ),
                 ],
                 name=str(k))  # you need to name the frame for the animation to behave properly
             for k in range(nb_frames)
@@ -252,17 +283,19 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
                     showscale=colorbar,
                     colorscale=cmap,
                 ),
-                go.Heatmap(
-                    z=[[vmin, vmax]],  # Invisible heatmap  to force colorbar to appear on empty slices
+                go.Heatmap(  
+                    z=np.zeros(np.flipud(volume[nb_frames - 1]).shape)+vmin-1,
+                    zmin=vmin, zmax=vmax,
                     opacity=0,
                     showscale=colorbar,
-                    colorscale=cmap
-                )
+                    colorscale=cmap,
+                    hoverinfo='skip'
+                ),
             ],
             frames=frames
         )
 
-        # Add slider
+        # Add slider 
         sliders = [
             {
                 "pad": {"b": 10, "t": 60},
@@ -271,11 +304,11 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
                 "y": 0,
                 "steps": [
                     {
-                        "args": [[f.name], frame_args(0)],
+                        "args": [[str(k)], frame_args(0)],  # Use str(k) to match frame names
                         "label": str(k),
                         "method": "animate",
                     }
-                    for k, f in enumerate(fig.frames)
+                    for k in range(nb_frames)  # Use range(nb_frames) directly
                 ],
             }
         ]
@@ -318,7 +351,11 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
             xaxis=dict(showticklabels=False, showgrid=False, zeroline=False),  # disable x-axis gridlines
             yaxis=dict(showticklabels=False, showgrid=False, zeroline=False),  # disable y-axis gridlines
             plot_bgcolor='rgb(0,0,0)',  # this sets the background color of the plot to black
+            transition={"duration": 0}, 
         )
+
+        # Force the first frame to be properly loaded
+        fig.data[0].z = np.flipud(volume[nb_frames - 1]) 
 
         # Display figure
         fig.show()
@@ -394,20 +431,20 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
             image[mask_slice, 1] = rgb_image[mask_slice, 1]  # green channel
             image[mask_slice, 2] = rgb_image[mask_slice, 2]  # blue channel
 
-            # display the image
-            plt.imshow(image)
-            plt.axis('off')  # hide the axis
+            # Show the image
+            fig, ax = plt.subplots()
+            ax.imshow(image)
+            ax.axis('off')
 
-            # Create a normalized color bar
+            # Create normalized colorbar
             norm = colors.Normalize(vmin=vmin, vmax=vmax)
-
-            # Create a ScalarMappable and initialize its data array
             sm = cm.ScalarMappable(norm=norm, cmap=cmap)
-            sm.set_array(volume)
+            sm.set_array([])  # not volume, just an empty array is enough
 
-            # Add colorbar
             if colorbar:
-                plt.colorbar(sm)
+                # Attach colorbar to correct axes
+                fig.colorbar(sm, ax=ax)
+
             
             # If its a 2D image, add a title
             if D == 2:
@@ -722,7 +759,11 @@ def display_crs(fc, Upper_CR, Lower_CR, mask = None, mode='Sagittal', display='F
                 sliders=sliders,
                 xaxis=dict(showticklabels=False),
                 yaxis=dict(showticklabels=False),
+                transition={"duration": 0}, 
         )
+
+        # Set the active slider to the first frame
+        fig.layout.sliders[0]['active'] = 0
 
         # Display figure
         fig.show()

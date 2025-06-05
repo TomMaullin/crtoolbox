@@ -137,7 +137,7 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
         sigma = sigmas[i,...]
 
         # Get mask
-        mask_current = sigma != 0
+        mask_current = (sigma != 0) & (~np.isnan(sigma))
 
         # Take the intersection of the current mask and the previous mask
         mask = np.logical_and(mask, mask_current)
@@ -254,7 +254,7 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
 
                 # Get non-zero sigma values
                 sigma = sigmas[i,...].reshape(resid.shape) # MARKER MOVE OUTSIDE LOOP
-                sig_mask = sigma != 0
+                sig_mask = (sigma != 0) & (~np.isnan(sigma))
 
                 # Standardize residuals
                 resid[sig_mask] = resid[sig_mask]/sigma[sig_mask]

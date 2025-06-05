@@ -93,23 +93,29 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # ------------------------------------------------------
                 # Get gi along dalpha FcHat
                 # ------------------------------------------------------
+
+                # Get the number of subjects that have non-nan values
+                # along the boundary of dalpha FcHat
+                n_sub_outer = np.sum(~np.isnan(boot_residsi_dalphaFcHat[...,0]), axis=0)
+                n_sub_inner = np.sum(~np.isnan(boot_residsi_dalphaFcHat[...,1]), axis=0)
+
                 # Sum across subjects to get the bootstrapped a values along
                 # the boundary of dalphaFcHat. (Note: For some reason this is 
                 # much faster if performed seperately for each of the last rows. 
                 # I am still looking into why this is)
-                mean_outer = np.sum(boot_residsi_dalphaFcHat[...,0], axis=0)/n_sub
-                mean_inner = np.sum(boot_residsi_dalphaFcHat[...,1], axis=0)/n_sub
+                mean_outer = np.nansum(boot_residsi_dalphaFcHat[...,0], axis=0)/n_sub_outer
+                mean_inner = np.nansum(boot_residsi_dalphaFcHat[...,1], axis=0)/n_sub_inner
 
                 # Get sum of squares
-                ssq_outer = np.sum((boot_residsi_dalphaFcHat[...,0]-mean_outer)**2, axis=0)/(n_sub-1)
-                ssq_inner = np.sum((boot_residsi_dalphaFcHat[...,1]-mean_inner)**2, axis=0)/(n_sub-1)
+                ssq_outer = np.nansum((boot_residsi_dalphaFcHat[...,0]-mean_outer)**2, axis=0)/(n_sub_outer-1)
+                ssq_inner = np.nansum((boot_residsi_dalphaFcHat[...,1]-mean_inner)**2, axis=0)/(n_sub_inner-1)
 
                 # Obtain bootstrap g
-                boot_gi_outer = np.sqrt(n_sub)*mean_outer/np.sqrt(ssq_outer)
-                boot_gi_inner = np.sqrt(n_sub)*mean_inner/np.sqrt(ssq_inner)
+                boot_gi_outer = np.sqrt(n_sub_outer)*mean_outer/np.sqrt(ssq_outer)
+                boot_gi_inner = np.sqrt(n_sub_inner)*mean_inner/np.sqrt(ssq_inner)
                 
                 # clean up
-                del mean_outer, mean_inner, ssq_outer, ssq_inner
+                del mean_outer, mean_inner, ssq_outer, ssq_inner, n_sub_outer, n_sub_inner
 
                 # ------------------------------------------------------
                 # Interpolate along dalpha FcHat
