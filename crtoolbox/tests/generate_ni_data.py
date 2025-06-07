@@ -244,7 +244,7 @@ def get_beta(p, dim):
         # if i == 0:
         #     center = np.array([50,50,70])
         # else:
-        center = np.array([np.random.uniform(low=0.2*dim[i],high=0.8*dim[i]) for i in np.arange(len(dim))])
+        center = np.array([np.random.uniform(low=0.4*dim[i],high=0.6*dim[i]) for i in np.arange(len(dim))])
 
         # Generate a random radius between 5 and 12
         # if i == 0:

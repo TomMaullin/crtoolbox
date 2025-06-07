@@ -8,7 +8,7 @@ from crtoolbox.lib.fileio import *
 import yaml
 import matplotlib.pyplot as plt
 
-def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
+def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub, paired=True):
     """
     Calculate bootstrap residuals along boundary segments and compute
     the quantile values based on the bootstrap distribution.
@@ -25,8 +25,12 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
         Number of bootstrap iterations.
     p : array_like
         Percentile values for calculating quantiles.
-    n_sub : int
-        Number of subjects.
+    n_sub : int or list of int
+        Number of subjects for each condition. If paired data, this should be a single integer.
+        If unpaired data, this should be a dictionary with keys as condition indices and values
+        as the number of subjects.
+    paired : bool, optional
+        If True, indicates that the data over study conditions are paired. Default is True.
         
     Returns:
     --------
@@ -39,9 +43,6 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
 
     # Get list of possible alphas to be considered
     alphas=list(powerset(np.arange(m)+1))
-
-    # Dimensions of bootstrap variables
-    boot_dim = np.array([n_sub, 1, 1]) 
 
     # -------------------------------------------------------------------
     # Bootstrap 
@@ -60,12 +61,69 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
     # Save empty bootstrap stores
     min_supg_dFcHat['max'] = np.zeros(n_boot)
 
+    # Check if n_sub is a dictionary or an integer
+    if isinstance(n_sub, dict):
+        
+        # If we have paired data, we need to ensure that the number of subjects
+        # is the same across all conditions.
+        if paired:
+
+            # Loop through the conditions and get the number of subjects
+            for i in range(m):
+
+                # Get the number of subjects for this condition
+                n_sub_i = n_sub[str(i)]
+
+                # If this is the first condition, initialize n_sub
+                if i == 0:
+                    n_sub_current = n_sub_i
+                else:
+                    # Check if the number of subjects is the same across conditions
+                    if n_sub_current != n_sub_i:
+                        raise ValueError("Number of subjects must be the same across conditions for paired data.")
+
+            # Get the number of subjects from the first condition
+            n_sub = n_sub[list(n_sub.keys())[0]]
+
+    else:
+
+        # If we do not have paired data, we need to make sure that n_sub is a dictionary
+        if not paired:
+
+            # Check if n_sub is an integer
+            if isinstance(n_sub, int):
+
+                # Create a dictionary with the number of subjects for each condition
+                n_sub = {str(i): n_sub for i in range(m)}
+
+
     # For each bootstrap record the max of the residuals along the
     # boundary
     for b in np.arange(n_boot):
 
-        # Obtain bootstrap variables
-        boot_vars = 2*np.random.randint(0,2,boot_dim,dtype="int8")-1
+        # If the data is paired, we need to use the same bootstrap
+        # variables for each subject across all conditions.
+        if paired:
+        
+            # Dimensions of bootstrap variables
+            boot_dim = np.array([n_sub, 1, 1]) 
+
+            # Generate bootstrap variables
+            boot_vars = 2*np.random.randint(0,2,boot_dim,dtype="int8")-1
+
+        else:
+
+            # We must generate independent bootstrap variables for each condition
+            for i in range(m):
+
+                # Create empty bootstrap variables list
+                boot_vars = []
+
+                # Dimensions of bootstrap variables
+                boot_dim_i = np.array([n_sub[str(i)], 1, 1]) 
+
+                # Generate bootstrap variables for each condition
+                boot_vars[str(i)] = 2*np.random.randint(0,2,boot_dim_i,dtype="int8")-1
         
         # Loop through boundary partitions
         for alpha in alphas:
@@ -87,8 +145,29 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub):
                 # Bootstrap residuals
                 # ------------------------------------------------------
 
-                # Multiply by rademacher variables
-                boot_residsi_dalphaFcHat = boot_vars*residsi_dalphaFcHat
+                if paired:
+
+                    print("residsi_dalphaFcHat shape: ", residsi_dalphaFcHat.shape) 
+                    print("boot_vars shape: ", boot_vars.shape)
+
+                    # Multiply by rademacher variables
+                    boot_residsi_dalphaFcHat = boot_vars*residsi_dalphaFcHat
+
+                    print("boot_residsi_dalphaFcHat shape: ", boot_residsi_dalphaFcHat.shape)
+
+                else:
+
+                    # Get the bootstrap variables for this condition
+                    boot_vars_i = boot_vars[str(i)]
+
+                    print("residsi_dalphaFcHat shape: ", residsi_dalphaFcHat.shape) 
+                    print("boot_vars shape: ", boot_vars_i.shape)
+
+                    # Multiply by rademacher variables
+                    boot_residsi_dalphaFcHat = boot_vars_i*residsi_dalphaFcHat
+
+                    print("boot_residsi_dalphaFcHat shape: ", boot_residsi_dalphaFcHat.shape)
+
 
                 # ------------------------------------------------------
                 # Get gi along dalpha FcHat

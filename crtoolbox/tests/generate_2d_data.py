@@ -480,7 +480,7 @@ class Noise:
         sigma = fwhm / np.sqrt(8 * np.log(2))
 
         # Calculate kernel radii
-        radii = np.array(2*np.round_(trunc*sigma) + 1, dtype=int)
+        radii = np.array(2*np.round(trunc*sigma) + 1, dtype=int)
 
         # Work out padded dimensions
         pdim = dim + 2*(radii+1)
@@ -582,7 +582,7 @@ def circle_points(r, n):
 
 
 # Generate 2D data
-def generate_data_2D(mu, noise, out_dir=None):
+def generate_data_2D(mu, noise, out_dir=None, postfix=''):
     """
     Generate 2D data.
 
@@ -590,6 +590,10 @@ def generate_data_2D(mu, noise, out_dir=None):
     -------
     - `mu`: class object specifying the mean field.
     - `noise`: class object specifying the noise field.
+    - `out_dir`: Directory to save the generated data. If None, 
+                 saves to current directory.
+    - `postfix`: Postfix to add to the filenames of the generated 
+                 data. Default is an empty string.
 
     Outputs:
     --------
@@ -600,6 +604,11 @@ def generate_data_2D(mu, noise, out_dir=None):
     # If out_dir is not given then set it to the current directory
     if out_dir is None:
         out_dir = os.getcwd()
+
+    # If the postfix does not start with an underscore and is not empty,
+    # then add an underscore to the beginning of the postfix
+    if not postfix.startswith('_') and postfix != '':
+        postfix = '_' + postfix
     
     # Check if out_dir exists
     if not os.path.exists(out_dir):
@@ -647,19 +656,102 @@ def generate_data_2D(mu, noise, out_dir=None):
     for i in np.arange(data.shape[0]):
 
         # Save the data
-        np.save(os.path.join(out_dir,'data'+str(i)+'.npy'),data[i,:,:])
+        np.save(os.path.join(out_dir,'data'+str(i)+str(postfix)+'.npy'),data[i,:,:])
 
         # Append the filename to the list
-        data_files.append(os.path.join(out_dir,'data'+str(i)+'.npy'))
+        data_files.append(os.path.join(out_dir,'data'+str(i)+str(postfix)+'.npy'))
 
     # Save the mu
-    np.save(os.path.join(out_dir,'mu.npy'),mu)
+    np.save(os.path.join(out_dir,'mu'+str(postfix)+'.npy'),mu)
 
     # Record the mu filename
-    mu_file = os.path.join(out_dir,'mu.npy')
+    mu_file = os.path.join(out_dir,'mu'+str(postfix)+'.npy')
 
     # Return the data and mu
     return(data_files,mu_file)
+
+
+
+def generate_data_2D_2field(muSpec1, muSpec2, noiseSpec1, noiseSpec2, dim, noiseCorr=None):
+    
+    """
+    Generate 2D data with two fields.
+
+    Inputs:
+    -------
+    - `muSpec1`: Dictionary specifying the first mean field.
+    - `muSpec2`: Dictionary specifying the second mean field.
+    - `noiseSpec1`: Dictionary specifying the first noise field.
+    - `noiseSpec2`: Dictionary specifying the second noise field.
+    - `dim`: Dimensions of data to be generated. Must be given as an np array.
+    - `noiseCorr`: Correlation between the two noise fields (optional).
+
+    Outputs:
+    --------
+    - `data1`: First generated data field.
+    - `data2`: Second generated data field.
+    - `mu1`: First mean field.
+    - `mu2`: Second mean field.
+    """
+
+    # Check if muSpec1 and muSpec2 are dictionaries
+    if not isinstance(muSpec1, dict) or not isinstance(muSpec2, dict):
+        raise ValueError("muSpec1 and muSpec2 must be dictionaries.")
+
+    # Check if noiseSpec1 and noiseSpec2 are dictionaries
+    if not isinstance(noiseSpec1, dict) or not isinstance(noiseSpec2, dict):
+        raise ValueError("noiseSpec1 and noiseSpec2 must be dictionaries.")
+
+    # Check if dim is a numpy array
+    if not isinstance(dim, np.ndarray):
+        raise ValueError("dim must be a numpy array.")
+
+    # Obtain the noise fields
+    noise1 = get_noise(noiseSpec1, dim)
+    noise2 = get_noise(noiseSpec2, dim)
+
+    # Correlate the data if needed
+    if noiseCorr is not None:
+        noise1, noise2 = correlateData(noise1,noise2,noiseCorr)
+
+    # Obtain mu
+    mu1 = get_mu(muSpec1, dim)
+    mu2 = get_mu(muSpec2, dim)
+    
+    # Create the data
+    data1 = mu1 + noise1
+    data2 = mu2 + noise2
+
+    # Empty list for data1 and data2 filenames
+    data1_files = []
+    data2_files = []
+
+    # Loop through first dimension and save to npy files
+    for i in np.arange(data1.shape[0]):
+
+        # Save the data1
+        np.save('data1_' + str(i) + '.npy', data1[i, :, :])
+
+        # Append the filename to the list
+        data1_files.append('data1_' + str(i) + '.npy')
+
+        # Save the data2
+        np.save('data2_' + str(i) + '.npy', data2[i, :, :])
+
+        # Append the filename to the list
+        data2_files.append('data2_' + str(i) + '.npy')
+
+    # Save the mu1 and mu2
+    np.save('mu1.npy', mu1)
+    np.save('mu2.npy', mu2)
+
+    # Record the mu filenames
+    mu1_file = 'mu1.npy'
+    mu2_file = 'mu2.npy'
+
+    # Return the data and mu
+    return(data1_files, data2_files, mu1_file, mu2_file)
+
 
 # ===========================================================================
 #
@@ -879,7 +971,7 @@ def get_noise(noiseSpec, dim):
     sigma = fwhm / np.sqrt(8 * np.log(2))
 
     # Calculate kernel radii
-    radii = np.array(2*np.round_(trunc*sigma) + 1,dtype=int)
+    radii = np.array(2*np.round(trunc*sigma) + 1,dtype=int)
 
     # Work out padded dimensions
     pdim = dim + 2*(radii+1)

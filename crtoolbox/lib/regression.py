@@ -133,6 +133,10 @@ X : array
     design matrix
 out_dir : str
     directory to save the regression results
+L: array
+    contrast vector for the regression (default has 1 
+    for the first row and 0 for the rest). Input is
+    assumed to be a row vector of shape (1, p).
 chunk_size : int
     number of images to read in at a time
 
@@ -142,7 +146,36 @@ files : list
     list of filenames for the regression results. The filenames
     are in the order of: beta, sigma, and epsilon.
 """
-def regression(yfiles, X, out_dir, chunk_size=20):
+def regression(yfiles, X, out_dir, L=None,chunk_size=20):
+
+    # Check if output directory exists
+    if not os.path.exists(out_dir):
+        # Create output directory
+        os.makedirs(out_dir)
+
+    # Check if yfiles is a list
+    if not isinstance(yfiles, list):
+        # Raise error
+        raise ValueError("yfiles must be a list of filenames")
+    
+    # Check if X is a numpy array
+    if not isinstance(X, np.ndarray):
+        # Raise error
+        raise ValueError("X must be a numpy array")
+    
+    # Check if X is 2D
+    if len(X.shape) != 2:
+        # Raise error
+        raise ValueError("X must be a 2D numpy array")
+    
+    # Check if L is None
+    if L is None:
+        # Create L as a vector with 1 for the first column 
+        # and 0 for the rest
+        L = np.array([[1] + [0]*(X.shape[-1]-1)])
+    else:
+        # Transpose L to ensure it is a row vector
+        L = np.array(L).T
 
     # Get number of images
     n_imgs = len(yfiles)
@@ -257,6 +290,15 @@ def regression(yfiles, X, out_dir, chunk_size=20):
     resid_files = []
     sigma_file = []
 
+    # Pad contrast vector dimensions
+    if len(L.shape) < len(beta.shape):
+
+        # Make sure L has extra dimensions for broadcasting
+        L = L.reshape((1,) * (len(beta.shape) - len(L.shape)) + L.shape)
+
+    # Compute beta contrast
+    contrast = L @ beta
+    
     # If the image is 3D then output nifti image
     if D == 3:
 
@@ -271,9 +313,19 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         addBlockToNifti(os.path.join(out_dir,"mask.nii"), np.abs(sigma) > 1e-8,
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
         
+        # Save mask filename
+        mask_file = os.path.join(out_dir,"mask.nii")
+        
         # Write na_sum to file
-        addBlockToNifti(os.path.join(out_dir,"na_sum.nii"), na_sum,
+        # addBlockToNifti(os.path.join(out_dir,"na_sum.nii"), na_sum,
+        #                 np.arange(np.prod(img_size)), volInd=0,dim=img_size)
+        
+        # Write contrast to file
+        addBlockToNifti(os.path.join(out_dir,"contrast.nii"), contrast[..., 0],
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
+        
+        # Save contrast filename
+        contrast_file = os.path.join(out_dir,"contrast.nii")
 
     # Otherwise output as a numpy array
     else:
@@ -286,6 +338,18 @@ def regression(yfiles, X, out_dir, chunk_size=20):
 
         # Write sigma to file
         np.save(os.path.join(out_dir,"mask.npy"), sigma != 0)
+
+        # Save mask filename
+        mask_file = os.path.join(out_dir,"mask.npy")
+
+        # Write na_sum to file
+        # np.save(os.path.join(out_dir,"na_sum.npy"), na_sum)
+
+        # Write contrast to file
+        np.save(os.path.join(out_dir,"contrast.npy"), contrast[..., 0])
+
+        # Save contrast filename
+        contrast_file = os.path.join(out_dir,"contrast.npy")
 
     # Loop through beta coefficients
     for i in range(0, p):
@@ -349,5 +413,6 @@ def regression(yfiles, X, out_dir, chunk_size=20):
         beta_files = beta_files[0]
         
     # Return filenames
-    return beta_files, sigma_file, resid_files  
+    return contrast_file, beta_files, sigma_file, resid_files, mask_file
+
         

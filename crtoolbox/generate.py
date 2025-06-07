@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import numpy as np
+import warnings
 from crtoolbox.lib.boundary import *
 from crtoolbox.lib.fileio import *
 from crtoolbox.bootstrap import *
@@ -55,20 +56,40 @@ Outputs:
     FcHat_files: A string representing the path to the estimated conjunction region.
     a_estBdry: A numpy array of shape (n_boot,) representing the bootstrap quantiles.
 """ 
-def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=None, 
-                 p=0.95, m=1, mask=None, n_boot=5000, tau=None, X=None, L=None,
+def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
+                 p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
                  output=True, mode='sss', method=2):
 
     # Check if the mode is valid
     if mode not in ['sss', 'cohens']:
         raise ValueError('Invalid mode. Must be one of sss or cohens.')
+    
+    # Check if mean_fname is a list
+    if isinstance(mean_fname, list):
+        # Set m equal to the length of mean_fname
+        m = len(mean_fname)
+    else:   
+        # Set m equal to 1
+        m = 1
 
     # If p is not an array, make it one
     if not isinstance(p, np.ndarray):    
         p = np.array([p])
 
+    # res_fnames must be a list of lists of filenames
+    if not isinstance(res_fnames, list):
+        raise TypeError('residuals must be a list of filenames or a list of lists of filenames.')
+    elif isinstance(res_fnames[0], str):
+        res_fnames = [res_fnames for _ in range(m)]
+
+
+    # Create empty subject number dict
+    n_sub = {}
+
     # Get number of subjects
-    n_sub = len(res_fnames)
+    for i in np.arange(m):
+        # Get number of subjects for this condition
+        n_sub[str(i)] = len(res_fnames[i])
 
     # Read in mean and sigma
     muHats = cycle_axes(read_images(mean_fname))
@@ -147,14 +168,42 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
 
         # If X is none, make it a vector of ones
         if X is None:
-            X = np.ones((n_sub,1))
+
+            # Make X a list of m (n_sub x 1) matrices with a single entry of 1
+            X = [np.ones((n_sub[str(i)],1)) for i in range(m)]
 
         # If L is none, make it a vector of ones
         if L is None:
-            L = np.ones((1,1))
 
-        # Work out tau
-        tau = np.sqrt(L.T @ np.linalg.pinv(X.T @ X) @ L)[0,0]
+            # Make L a list of m (1 x 1) matrices with a single entry of 1
+            L = [np.ones((1,1)) for _ in range(m)]
+
+            # Warn the user that L is being set to a vector of ones
+            warnings.warn("The contrast vector L was not provided. " \
+                          "The analysis will assume we are working with group averages.")
+        
+        # Check if X and L are lists of numpy arrays
+        if not (isinstance(X, list) and isinstance(L, list)):
+
+            # Check if X and L are numpy arrays
+            if isinstance(X, np.ndarray) and isinstance(L, np.ndarray):
+
+                # If they are numpy arrays, convert them to lists
+                X = [X]
+                L = [L]
+
+            # Else raise an error
+            else:
+                raise TypeError("X and L must be either lists of numpy arrays"\
+                                "or numpy arrays themselves.")
+
+        # Make tau a numpy array of zeros with shape (m,1,1)
+        tau = np.zeros((m,1,1))
+
+        # Work out tau by looping through m
+        for i in np.arange(m):
+            tau_i = np.sqrt(L[i].T @ np.linalg.pinv(X[i].T @ X[i]) @ L[i])[0,0]
+            tau[i,...] = tau_i
 
     # else tau must either be a scalar or numpy array
     else:
@@ -244,10 +293,10 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
     for i in np.arange(m):
 
         # Loop through subjects
-        for j in np.arange(n_sub):
+        for j in np.arange(n_sub[str(i)]):
         
             # Obtain residuals
-            resid = cycle_axes(read_images(res_fnames[j]))
+            resid = cycle_axes(read_images(res_fnames[i][j]))
 
             # If the mode is sss, we need to standardize the residuals
             if mode == 'sss':
@@ -425,7 +474,7 @@ def generate_CRs(mean_fname, sig_fname=None, res_fnames=None, out_dir=None, c=No
         if D == 3:
 
             # Read in zeroth resid
-            zeroth_resid = nib.load(res_fnames[0])
+            zeroth_resid = nib.load(res_fnames[0][0])
 
             # Get affine
             affine = zeroth_resid.affine
