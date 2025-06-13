@@ -671,136 +671,135 @@ def generate_data_2D(mu, noise, out_dir=None, postfix=''):
     return(data_files,mu_file)
 
 
-
-def generate_data_2D_2field(muSpec1, muSpec2, noiseSpec1, noiseSpec2, dim, noiseCorr=None):
-    
+def generate_data_2D_Mfields(muSpecs, noiseSpecs, out_dir, noiseCorr=None):
     """
-    Generate 2D data with two fields.
+    Generate 2D data with multiple mean fields.
 
     Inputs:
     -------
-    - `muSpec1`: Dictionary specifying the first mean field.
-    - `muSpec2`: Dictionary specifying the second mean field.
-    - `noiseSpec1`: Dictionary specifying the first noise field.
-    - `noiseSpec2`: Dictionary specifying the second noise field.
+    - `muSpecs`: List of dictionaries specifying the mean fields.
+    - `noiseSpecs`: List of dictionaries specifying the noise fields.
     - `dim`: Dimensions of data to be generated. Must be given as an np array.
-    - `noiseCorr`: Correlation between the two noise fields (optional).
+    - `noiseCorr`: M by M correlation matrix between the noise fields (optional).
 
     Outputs:
     --------
-    - `data1`: First generated data field.
-    - `data2`: Second generated data field.
-    - `mu1`: First mean field.
-    - `mu2`: Second mean field.
+    - `data_files`: List of filenames for the generated data.
+    - `mu_files`: List of filenames for the generated mean fields.
     """
 
-    # Check if muSpec1 and muSpec2 are dictionaries
-    if not isinstance(muSpec1, dict) or not isinstance(muSpec2, dict):
-        raise ValueError("muSpec1 and muSpec2 must be dictionaries.")
+    # Check if muSpecs and noiseSpecs are lists
+    if not isinstance(muSpecs, list) or not isinstance(noiseSpecs, list):
+        raise ValueError("muSpecs and noiseSpecs must be lists.")
 
-    # Check if noiseSpec1 and noiseSpec2 are dictionaries
-    if not isinstance(noiseSpec1, dict) or not isinstance(noiseSpec2, dict):
-        raise ValueError("noiseSpec1 and noiseSpec2 must be dictionaries.")
+    # Initialize dict for data and list for mu
+    data_files = {}
+    mu_files = []
 
-    # Check if dim is a numpy array
-    if not isinstance(dim, np.ndarray):
-        raise ValueError("dim must be a numpy array.")
-
-    # Obtain the noise fields
-    noise1 = get_noise(noiseSpec1, dim)
-    noise2 = get_noise(noiseSpec2, dim)
-
-    # Correlate the data if needed
-    if noiseCorr is not None:
-        noise1, noise2 = correlateData(noise1,noise2,noiseCorr)
-
-    # Obtain mu
-    mu1 = get_mu(muSpec1, dim)
-    mu2 = get_mu(muSpec2, dim)
+    # Work out the number of fields
+    M = len(muSpecs)
+    if len(noiseSpecs) != M:
+        raise ValueError("muSpecs and noiseSpecs must have the same length.")
     
-    # Create the data
-    data1 = mu1 + noise1
-    data2 = mu2 + noise2
+    # Number of observations
+    N = 100
 
-    # Empty list for data1 and data2 filenames
-    data1_files = []
-    data2_files = []
+    # Get dim from first mu
+    muSpecs[0].generate()
+    dim = muSpecs[0].mu.shape
+    
+    # Initialise empty noise array
+    noise = np.zeros((M, N, *dim))
 
-    # Loop through first dimension and save to npy files
-    for i in np.arange(data1.shape[0]):
+    # Loop through each mean field specification
+    for i in range(len(muSpecs)):
 
-        # Save the data1
-        np.save('data1_' + str(i) + '.npy', data1[i, :, :])
+        # Obtain the noise field
+        if noiseSpecs[i].noise is not None:
+
+            # Check the first dimension of noise
+            if noiseSpecs[i].noise.shape[0] == 1:
+
+                # Generate the noise
+                noiseSpecs[i].generate()
+
+            # Get the noise
+            noise_i = noiseSpecs[i].noise
+
+        else:
+        
+            # Generate the noise
+            noise.generate()
+
+            # Get the noise
+            noise_i = noiseSpecs[i].noise
+
+        # Save the noise in the noise array
+        noise[i, ...] = noise_i
+
+    # Correlate the noise fields if noiseCorr is given
+    if noiseCorr is not None:
+
+        # Compute the cholesky decomposition of the correlation matrix
+        L = np.linalg.cholesky(noiseCorr)
+
+        # Reshape the noise array for correlation
+        noise = np.moveaxis(noise, 0, -1)
+        noise = noise.reshape((*noise.shape, 1))
+
+        # Add extra dimensions to L for broadcasting
+        L = L.reshape((*(1,)*(len(noise.shape)-len(L.shape)), *L.shape))
+
+        # Correlate the noise fields
+        noise = L @ noise
+
+        # Reshape noise to drop final dimension
+        noise = np.squeeze(noise)
+
+        # Reshape the noise array for correlation
+        noise = np.moveaxis(noise, -1, 0)
+
+    # Loop through each mean field specification
+    for i in range(len(muSpecs)):
+        
+        # Obtain mu
+        if muSpecs[i].mu is None:
+
+            # Generate mu
+            muSpecs[i].generate()
+
+        # Get mu
+        mu_i = muSpecs[i].mu
+
+        # Append an extra dimension on the front of mu
+        mu_i = mu_i.reshape((1,) + mu_i.shape)
+
+        # Save the mu
+        mu_file = os.path.join(out_dir, 'mu_field_' + str(i) + '.npy')
+        np.save(mu_file, mu_i)
 
         # Append the filename to the list
-        data1_files.append('data1_' + str(i) + '.npy')
+        mu_files.append(mu_file)
+        
+        # Create data list
+        if i not in data_files:
+            data_files[i] = []
 
-        # Save the data2
-        np.save('data2_' + str(i) + '.npy', data2[i, :, :])
+        # Create the data
+        data_i = mu_i + noise[i,...]
 
-        # Append the filename to the list
-        data2_files.append('data2_' + str(i) + '.npy')
+        # Loop through first dimension and save to npy files
+        for j in np.arange(data_i.shape[0]):
 
-    # Save the mu1 and mu2
-    np.save('mu1.npy', mu1)
-    np.save('mu2.npy', mu2)
+            # Save the data
+            data_file = os.path.join(out_dir, 'data_field_' + str(i) + '_obs_' + str(j) + '.npy')
+            np.save(data_file, data_i[j, :, :])
 
-    # Record the mu filenames
-    mu1_file = 'mu1.npy'
-    mu2_file = 'mu2.npy'
+            # Append the filename to the list
+            data_files[i].append(data_file)
 
-    # Return the data and mu
-    return(data1_files, data2_files, mu1_file, mu2_file)
-
-
-# ===========================================================================
-#
-# Inputs:
-#
-# ---------------------------------------------------------------------------
-#
-# - `muSpec`: Dictionary specifying mu to simulate. Always must include a 
-#             `type` parameter specifying `ramp2D` or `circle2D`.
-#             ----------------------------------------------------------------
-#             For a ramp the following must also be given:
-#                - a: lower value of ramp
-#                - b: upper value of ramp
-#                - orient: string representing `vertical` or `horizontal`
-#             ----------------------------------------------------------------
-#             For a circle the following must also be given:
-#                - center: center coordinates for circle (treating origin
-#                          as center of grid)
-#                - r: radius of circle
-#                - fwhm: fwhm used to smooth the circle 
-#                - mag: Magnitude of signal
-#             ----------------------------------------------------------------
-# - `fwhm`: Full Width Half Maximum for noise smoothness. Must be given as an
-#           np array. Can include 0 or None for dimensions not to be
-#           smoothed.
-# - `dim`: Dimensions of data to be generated. Must be given as an np array.
-#
-# ===========================================================================
-def get_data_2field(muSpec1,muSpec2,noiseSpec1,noiseSpec2,dim,noiseCorr=None):
-
-    # Obtain the noise fields
-    noise1 = get_noise(noiseSpec1, dim)
-    noise2 = get_noise(noiseSpec2, dim)
-
-    # Correlate the data if needed
-    if noiseCorr is not None:
-        noise1, noise2 = correlateData(noise1,noise2,noiseCorr)
-
-    # Obtain mu
-    mu1 = get_mu(muSpec1, dim)
-    mu2 = get_mu(muSpec2, dim)
-    
-    # Create the data
-    data1 = mu1 + noise1
-    data2 = mu2 + noise2
-
-    # Return the data and mu
-    return(data1, data2, mu1, mu2)
-
+    # Return the data and mu files
+    return(data_files, mu_files)
 
 """
 Function to get mean field mu from a specification dictionary.

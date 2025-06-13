@@ -147,26 +147,16 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub, paired=True
 
                 if paired:
 
-                    print("residsi_dalphaFcHat shape: ", residsi_dalphaFcHat.shape) 
-                    print("boot_vars shape: ", boot_vars.shape)
-
                     # Multiply by rademacher variables
                     boot_residsi_dalphaFcHat = boot_vars*residsi_dalphaFcHat
-
-                    print("boot_residsi_dalphaFcHat shape: ", boot_residsi_dalphaFcHat.shape)
 
                 else:
 
                     # Get the bootstrap variables for this condition
                     boot_vars_i = boot_vars[str(i)]
 
-                    print("residsi_dalphaFcHat shape: ", residsi_dalphaFcHat.shape) 
-                    print("boot_vars shape: ", boot_vars_i.shape)
-
                     # Multiply by rademacher variables
                     boot_residsi_dalphaFcHat = boot_vars_i*residsi_dalphaFcHat
-
-                    print("boot_residsi_dalphaFcHat shape: ", boot_residsi_dalphaFcHat.shape)
 
 
                 # ------------------------------------------------------
@@ -241,7 +231,8 @@ def bootstrap_resids(resid_vals, resid_weights, m, n_boot, p, n_sub, paired=True
                         boot_ming_dalphaFcHat = boot_g_dalphaFcHat[str(i)] 
 
                         # We are no longer looking at the first
-                        first = False
+                        if len(boot_ming_dalphaFcHat) > 0:
+                            first = False
 
                     else:
 

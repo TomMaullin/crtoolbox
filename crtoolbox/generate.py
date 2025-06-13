@@ -97,8 +97,12 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None,
     # If the mode is cohens, adjust c
     if mode == 'cohens':
 
+        # Check is m is greater than 1
+        if m > 1:
+            raise ValueError('Conjunctions for Cohens d are not currently supported.')
+
         # Adjust c
-        c = 1/(1-3/(4*n_sub - 5)) * c
+        c = 1/(1-3/(4*n_sub[str(0)] - 5)) * c
 
         # If the method is 1, set sigma to the correct value
         if method == 1:
@@ -198,7 +202,7 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None,
                                 "or numpy arrays themselves.")
 
         # Make tau a numpy array of zeros with shape (m,1,1)
-        tau = np.zeros((m,1,1))
+        tau = np.zeros((m,) + D*(1,))
 
         # Work out tau by looping through m
         for i in np.arange(m):
@@ -276,6 +280,14 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None,
 
     # Get coordinates for the boundary of FcHat
     FcHat_bdry_locs = get_bdry_locs(FcHat_bdry_map)
+
+    # If there are no boundary locations, raise an error
+    if np.sum(get_bdry_map_combined(cap_muHat, c, mask))==0:
+
+        raise ValueError('No boundary locations found. ' \
+                         'Check that the threshold c is ' \
+                         'not too high or that the data ' \
+                         'is not too noisy.')
 
     # Save boundary locations
     est_bdry_locs['FcHat'] = FcHat_bdry_locs

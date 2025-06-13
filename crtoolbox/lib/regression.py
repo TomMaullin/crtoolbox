@@ -139,6 +139,9 @@ L: array
     assumed to be a row vector of shape (1, p).
 chunk_size : int
     number of images to read in at a time
+post_fix : str
+    post fix to add to the output filenames (default is 
+    empty string)
 
 Returns:
 --------
@@ -146,7 +149,7 @@ files : list
     list of filenames for the regression results. The filenames
     are in the order of: beta, sigma, and epsilon.
 """
-def regression(yfiles, X, out_dir, L=None,chunk_size=20):
+def regression(yfiles, X, out_dir, L=None, chunk_size=20, post_fix=""):
 
     # Check if output directory exists
     if not os.path.exists(out_dir):
@@ -167,6 +170,11 @@ def regression(yfiles, X, out_dir, L=None,chunk_size=20):
     if len(X.shape) != 2:
         # Raise error
         raise ValueError("X must be a 2D numpy array")
+    
+    # If the post fix is not empty
+    if post_fix != "":
+        # Add an underscore to the post fix
+        post_fix = "_" + post_fix
     
     # Check if L is None
     if L is None:
@@ -298,58 +306,58 @@ def regression(yfiles, X, out_dir, L=None,chunk_size=20):
 
     # Compute beta contrast
     contrast = L @ beta
-    
+
     # If the image is 3D then output nifti image
     if D == 3:
 
         # Write sigma to file
-        addBlockToNifti(os.path.join(out_dir,"sigma.nii"), sigma,
+        addBlockToNifti(os.path.join(out_dir,"sigma" + post_fix + ".nii"), sigma,
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
         
         # Add filename to list
-        sigma_file = os.path.join(out_dir,"sigma.nii")
+        sigma_file = os.path.join(out_dir,"sigma" + post_fix + ".nii")
 
         # Write mask to file
-        addBlockToNifti(os.path.join(out_dir,"mask.nii"), np.abs(sigma) > 1e-8,
+        addBlockToNifti(os.path.join(out_dir,"mask" + post_fix + ".nii"), np.abs(sigma) > 1e-8,
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
         
         # Save mask filename
-        mask_file = os.path.join(out_dir,"mask.nii")
+        mask_file = os.path.join(out_dir,"mask" + post_fix + ".nii")
         
         # Write na_sum to file
-        # addBlockToNifti(os.path.join(out_dir,"na_sum.nii"), na_sum,
+        # addBlockToNifti(os.path.join(out_dir,"na_sum" + post_fix + ".nii"), na_sum,
         #                 np.arange(np.prod(img_size)), volInd=0,dim=img_size)
         
         # Write contrast to file
-        addBlockToNifti(os.path.join(out_dir,"contrast.nii"), contrast[..., 0],
+        addBlockToNifti(os.path.join(out_dir,"contrast" + post_fix + ".nii"), contrast[..., 0],
                         np.arange(np.prod(img_size)), volInd=0,dim=img_size)
         
         # Save contrast filename
-        contrast_file = os.path.join(out_dir,"contrast.nii")
+        contrast_file = os.path.join(out_dir,"contrast" + post_fix + ".nii")
 
     # Otherwise output as a numpy array
     else:
 
         # Write sigma to file
-        np.save(os.path.join(out_dir,"sigma.npy"), sigma)
+        np.save(os.path.join(out_dir,"sigma" + post_fix + ".npy"), sigma)
 
         # Add filename to list
-        sigma_file = os.path.join(out_dir,"sigma.npy")
+        sigma_file = os.path.join(out_dir,"sigma" + post_fix + ".npy")
 
         # Write sigma to file
-        np.save(os.path.join(out_dir,"mask.npy"), sigma != 0)
+        np.save(os.path.join(out_dir,"mask" + post_fix + ".npy"), sigma != 0)
 
         # Save mask filename
-        mask_file = os.path.join(out_dir,"mask.npy")
+        mask_file = os.path.join(out_dir,"mask" + post_fix + ".npy")
 
         # Write na_sum to file
-        # np.save(os.path.join(out_dir,"na_sum.npy"), na_sum)
+        # np.save(os.path.join(out_dir,"na_sum" + post_fix + ".npy"), na_sum)
 
         # Write contrast to file
-        np.save(os.path.join(out_dir,"contrast.npy"), contrast[..., 0])
+        np.save(os.path.join(out_dir,"contrast" + post_fix + ".npy"), contrast[..., 0])
 
         # Save contrast filename
-        contrast_file = os.path.join(out_dir,"contrast.npy")
+        contrast_file = os.path.join(out_dir,"contrast" + post_fix + ".npy")
 
     # Loop through beta coefficients
     for i in range(0, p):
@@ -358,21 +366,21 @@ def regression(yfiles, X, out_dir, L=None,chunk_size=20):
         if D == 3:
 
             # Write beta coefficient to file
-            addBlockToNifti(os.path.join(out_dir,"betahat"+str(i)+".nii"), 
+            addBlockToNifti(os.path.join(out_dir,"betahat"+str(i)+ post_fix + ".nii"), 
                             beta[..., i, 0], np.arange(np.prod(img_size)), 
                             volInd=0,dim=img_size)
             
             # Add filenames to list
-            beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".nii"))
+            beta_files.append(os.path.join(out_dir,"betahat"+str(i) + post_fix + ".nii"))
             
         # Otherwise output as a numpy array
         else:
 
             # Write beta coefficient to file
-            np.save(os.path.join(out_dir,"betahat"+str(i)+".npy"), beta[..., i, 0])
+            np.save(os.path.join(out_dir,"betahat"+str(i) + post_fix + ".npy"), beta[..., i, 0])
 
             # Add filenames to list
-            beta_files.append(os.path.join(out_dir,"betahat"+str(i)+".npy"))
+            beta_files.append(os.path.join(out_dir,"betahat"+str(i) + post_fix + ".npy"))
 
     # Loop through images creating residuals
     for i in range(0, n_imgs):
@@ -390,21 +398,21 @@ def regression(yfiles, X, out_dir, L=None,chunk_size=20):
         if D == 3:
 
             # Write residuals to file
-            addBlockToNifti(os.path.join(out_dir,"res"+str(i)+".nii"), 
+            addBlockToNifti(os.path.join(out_dir,"res"+str(i) + post_fix + ".nii"), 
                             res, np.arange(np.prod(img_size)), 
                             volInd=0,dim=img_size)
             
             # Add filenames to list
-            resid_files.append(os.path.join(out_dir,"res"+str(i)+".nii"))
+            resid_files.append(os.path.join(out_dir,"res"+str(i) + post_fix + ".nii"))
 
         # Otherwise output as a numpy array
         else:
 
             # Write residuals to file
-            np.save(os.path.join(out_dir,"res"+str(i)+".npy"), res)
+            np.save(os.path.join(out_dir,"res"+str(i) + post_fix + ".npy"), res)
 
             # Add filenames to list
-            resid_files.append(os.path.join(out_dir,"res"+str(i)+".npy"))
+            resid_files.append(os.path.join(out_dir,"res"+str(i) + post_fix + ".npy"))
 
     # Check if there is only one beta file 
     if len(beta_files) == 1:
