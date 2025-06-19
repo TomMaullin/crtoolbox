@@ -181,7 +181,12 @@ def regression(yfiles, X, out_dir, L=None, chunk_size=20, post_fix=""):
         # Create L as a vector with 1 for the first column 
         # and 0 for the rest
         L = np.array([[1] + [0]*(X.shape[-1]-1)])
-    else:
+    # If L is 1D make it a row vector
+    elif L.ndim == 1:
+        # Convert L to a row vector
+        L = np.array(L).reshape(1, -1)
+    # If L is 2D but a column vector
+    elif L.shape[1] == 1:
         # Transpose L to ensure it is a row vector
         L = np.array(L).T
 

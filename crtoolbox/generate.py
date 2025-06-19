@@ -608,3 +608,71 @@ def cycle_axes(arr):
 
     # Return array with axes cycled
     return arr.transpose(np.roll(np.arange(ndims), 1))
+
+
+
+
+# Function to generate symmetric difference confidence regions
+def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
+                          p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
+                          output=True, mode='sss', method=2):
+    
+    # Check if mean_fname is a list
+    if isinstance(mean_fname, list):
+
+        # Set m equal to the length of mean_fname
+        m = len(mean_fname)
+
+        # If m is not equal to 2, raise an error
+        if m != 2:
+            raise ValueError('Symmetric difference confidence regions can only be generated for two fields.')
+
+    # If not error
+    else:
+        raise TypeError('mean_fname must be a list of filenames.')
+    
+    # Read in second mean volume
+    muHat2 = read_image(mean_fname[1])
+
+    # Get D
+    D = len(muHat2.shape)
+
+    # Compute c minus muHat2
+    muHat2 = 2*c - muHat2
+
+    # Save muHat2
+    if D == 3:
+
+        # Create modified filename
+        new_mean_fname = os.path.join(mean_fname[1].replace('.nii', '_symdiff.nii'))
+        
+        # Must save as nifti file
+        addBlockToNifti(new_mean_fname, muHat2, 
+                        np.arange(np.prod(muHat2.shape)), volInd=0, dim=muHat2.shape)
+        
+        # Set mean_fname to new filename
+        mean_fname[1] = new_mean_fname
+        
+    # Otherwise save as numpy array
+    else:
+
+        # Create modified filename
+        new_mean_fname = os.path.join(mean_fname[1].replace('.npy', '_symdiff.npy'))
+
+        # Save as numpy array
+        np.save(new_mean_fname, muHat2)
+
+        # Set mean_fname to new filename
+        mean_fname[1] = new_mean_fname
+
+    # Call generate_CRs with modified mean_fname
+    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = generate_CRs(
+        mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
+        n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method
+    )
+
+    # Return results
+    return FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry
+
+
+    
