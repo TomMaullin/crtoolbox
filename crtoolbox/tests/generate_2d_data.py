@@ -688,6 +688,10 @@ def generate_data_2D_Mfields(muSpecs, noiseSpecs, out_dir, noiseCorr=None):
     - `mu_files`: List of filenames for the generated mean fields.
     """
 
+    # Check if out_dir exists, if not create it
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     # Check if muSpecs and noiseSpecs are lists
     if not isinstance(muSpecs, list) or not isinstance(noiseSpecs, list):
         raise ValueError("muSpecs and noiseSpecs must be lists.")
