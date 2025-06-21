@@ -1,4 +1,5 @@
 import os
+import warnings
 import numpy as np
 import nibabel as nib
 from crtoolbox.lib.fileio import read_image, remove_files
@@ -38,11 +39,20 @@ Returns:
 """
 def cohens(data_fnames, X, out_dir, method=2):
 
-    # Get mean and standard deviation images
-    _, mean_fname, std_fname, resid_files, _ = regression(data_fnames, X, out_dir)  # MARKER - Currently not accounting for choice of contrast
+    # Suppress warning about contrast not being specified
+    with warnings.catch_warnings():
+
+        # Suppress the warning about contrast not being specified
+        warnings.filterwarnings("ignore", message="The contrast vector L was not provided. The analysis will assume we are working with group averages.") 
+
+        # Get mean and standard deviation images
+        contrast_file, mean_fname, std_fname, resid_files, mask_fname = regression(data_fnames, X, out_dir)  # MARKER - Currently not accounting for choice of contrast
 
     # Remove the residual files
     remove_files(resid_files)  
+    
+    # Remove the contrast file
+    remove_files(contrast_file)
 
     # Check if output directory exists
     if not os.path.exists(out_dir):
@@ -292,7 +302,7 @@ def cohens(data_fnames, X, out_dir, method=2):
     remove_files(std_fname) 
 
     # Return list of cohen's d residual filenames
-    return d_fname, cohen_fnames, cohen_sigma_fname
+    return d_fname, cohen_fnames, cohen_sigma_fname, mask_fname
 
 
 

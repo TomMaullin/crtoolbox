@@ -47,6 +47,8 @@ Inputs:
             Method 2 is used by default following the recommendations of the above
             reference. This argument is not needed for 'sss' mode.
             Note: Method 3 is not currently implemented.
+    post_fix: A string representing the post-fix to add to the output files. 
+              Defaults to None, which means no post-fix is added.
 
 Outputs:
     FcHat_plus_files: A list of strings representing the paths to the upper confidence
@@ -58,11 +60,19 @@ Outputs:
 """ 
 def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
                  p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
-                 output=True, mode='sss', method=2):
+                 output=True, mode='sss', method=2, post_fix=None):
 
     # Check if the mode is valid
     if mode not in ['sss', 'cohens']:
         raise ValueError('Invalid mode. Must be one of sss or cohens.')
+    
+    # Check if the post_fix starts with an underscore
+    if post_fix is not None and not post_fix.startswith('_'):
+        # If not, add an underscore to the start of the post_fix
+        post_fix = '_' + post_fix
+    elif post_fix is None:
+        # If post_fix is None, set it to an empty string
+        post_fix = ''
     
     # Check if mean_fname is a list
     if isinstance(mean_fname, list):
@@ -501,70 +511,100 @@ def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None,
             if D == 3:
 
                 # Check if previous file exists and if so delete it
-                if os.path.exists(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii")):
-                    os.remove(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"))
+                if os.path.exists(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".nii")):
+                    os.remove(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".nii"))
+                    warnings.warn(
+                        "File Upper_CR_" + str(p[i]) + post_fix + ".nii already exists and will be overwritten."
+                    )
 
                 # Save upper confidence region
-                addBlockToNifti(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"),
+                addBlockToNifti(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".nii"),
                                 FcHat_pm_estBdry[i,1,...], np.arange(np.prod(image_dim)),
                                 volInd=0,dim=image_dim,aff=affine)
 
                 # Check if previous file exists and if so delete it
-                if os.path.exists(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii")):
-                    os.remove(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"))
+                if os.path.exists(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".nii")):
+                    os.remove(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".nii"))
+                    warnings.warn(
+                        "File Lower_CR_" + str(p[i]) + post_fix + ".nii already exists and will be overwritten."
+                    )
                 
                 # Save filename
-                FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".nii"))
+                FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".nii"))
                 
                 # Save lower confidence region
-                addBlockToNifti(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"),
+                addBlockToNifti(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".nii"),
                                 FcHat_pm_estBdry[i,0,...], np.arange(np.prod(image_dim)),
                                 volInd=0,dim=image_dim,aff=affine)
                 
                 # Save filename
-                FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".nii"))
+                FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".nii"))
 
             # Otherwise output as a numpy array
             else:
 
+                # Check if previous file exists and if so delete it
+                if os.path.exists(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".npy")):
+                    os.remove(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".npy"))
+                    warnings.warn(
+                        "File Upper_CR_" + str(p[i]) + post_fix + ".npy already exists and will be overwritten."
+                    )
+
                 # Save upper confidence region
-                np.save(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".npy"),
+                np.save(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".npy"),
                         FcHat_pm_estBdry[i,1,...])
                 
                 # Save filename
-                FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+".npy"))
+                FcHat_plus_files.append(os.path.join(out_dir,"Upper_CR_"+str(p[i])+post_fix+".npy"))
+
+                # Check if previous file exists and if so delete it
+                if os.path.exists(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".npy")):
+                    os.remove(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".npy"))
+                    warnings.warn(
+                        "File Lower_CR_" + str(p[i]) + post_fix + ".npy already exists and will be overwritten."
+                    )
 
                 # Save lower confidence region
-                np.save(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".npy"),
+                np.save(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".npy"),
                         FcHat_pm_estBdry[i,0,...])
                 
                 # Save filename
-                FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+".npy"))
+                FcHat_minus_files.append(os.path.join(out_dir,"Lower_CR_"+str(p[i])+post_fix+".npy"))
             
         # If D is 3, output nifti image
         if D == 3:
                
             # Check if previous file exists and if so delete it
-            if os.path.exists(os.path.join(out_dir,"Estimated_Ac.nii")):
-                os.remove(os.path.join(out_dir,"Estimated_Ac.nii"))
+            if os.path.exists(os.path.join(out_dir,"Estimated_Ac"+post_fix+".nii")):
+                os.remove(os.path.join(out_dir,"Estimated_Ac"+post_fix+".nii"))
+                warnings.warn(
+                    "File Estimated_Ac" + post_fix + ".nii already exists and will be overwritten."
+                )
  
             # Save estimated conjunction region
-            addBlockToNifti(os.path.join(out_dir,"Estimated_Ac.nii"),
+            addBlockToNifti(os.path.join(out_dir,"Estimated_Ac"+post_fix+".nii"),
                             FcHat, np.arange(np.prod(image_dim)),
                             volInd=0,dim=image_dim,aff=affine)
             
             # Save filename
-            FcHat_files.append(os.path.join(out_dir,"Estimated_Ac.nii"))
+            FcHat_files.append(os.path.join(out_dir,"Estimated_Ac"+post_fix+".nii"))
         
         # Otherwise output as a numpy array
         else:
 
+            # Check if previous file exists and if so delete it
+            if os.path.exists(os.path.join(out_dir,"Estimated_Ac"+post_fix+".npy")):
+                os.remove(os.path.join(out_dir,"Estimated_Ac"+post_fix+".npy"))
+                warnings.warn(
+                    "File Estimated_Ac" + post_fix + ".npy already exists and will be overwritten."
+                )
+
             # Save estimated conjunction region
-            np.save(os.path.join(out_dir,"Estimated_Ac.npy"),
+            np.save(os.path.join(out_dir,"Estimated_Ac"+post_fix+".npy"),
                     FcHat)
             
             # Save filename
-            FcHat_files.append(os.path.join(out_dir,"Estimated_Ac.npy"))
+            FcHat_files.append(os.path.join(out_dir,"Estimated_Ac"+post_fix+".npy"))
 
         # Check if filenames are of length 1
         if len(FcHat_plus_files) == 1:
@@ -610,12 +650,147 @@ def cycle_axes(arr):
     return arr.transpose(np.roll(np.arange(ndims), 1))
 
 
+# Function to generate comparative confidence regions
+def generate_conjunction_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
+                             p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
+                             output=True, mode='sss', method=2, post_fix=None):
+    """
+    Generate conjunction confidence regions for a set of fields.
+    Parameters
+    ----------
+    mean_fname : str or list of str
+        Filename(s) of the mean image(s) for the fields.
+    sig_fname : str or list of str
+        Filename(s) of the standard deviation image(s) for the fields.
+    res_fnames : list of str
+        List of filenames for the residuals of the fields.
+    out_dir : str, optional
+        Output directory for the confidence regions. If None, defaults to the current
+        working directory.
+    c : float
+        Threshold for the conjunction inference. If None, defaults to 0.
+    p : float or array_like, optional
+        Desired coverage of the confidence regions. If a single float, it is used for
+        all fields. If an array, it should have the same length as the number of fields.
+        Defaults to 0.95.
+    mask : array_like, optional 
+        Mask for the data. If None, defaults to a mask of ones with the same shape as
+        the mean image.
+    n_boot : int, optional
+        Number of bootstrap samples to use for estimating the confidence regions.
+        Defaults to 5000.
+    tau : float or array_like, optional
+        Image or scalar of tau_n values. If None, defaults to sqrt(n).
+    X : array_like, optional
+        Design matrix in a regression context. If None, a vector of ones is used,
+        and a simple mean model is assumed.
+    L : array_like, optional
+        Contrast matrix in a regression model. If None, a (1,1) matrix with a single
+        entry of 1 is used, and a simple mean model is assumed.
+    output : bool, optional
+        Whether to output the confidence regions as nifti files. If False, the
+        confidence regions are returned as numpy arrays. Defaults to True.
+    mode : str, optional
+        Type of confidence regions to generate. Can be 'sss' for the method of Sommerfeld,
+        Sain and Schwartzman (2018), or 'cohens' for the cohens d method of Bowring et al.
+        (2019). Defaults to 'sss'.
+    method : int, optional
+        Method to use for the cohens d method. Can be 1, 2 or 3. The three algorithms
+        are those listed in the following manuscript:
+            https://doi.org/10.1016/j.neuroimage.2020.117477
+        (c.f. Section 2.6). Method 2 is used by default following the recommendations of
+        the above reference. This argument is not needed for 'sss' mode.
+    post_fix : str, optional
+        Post-fix to add to the output files. If None, no post-fix is added.
+        Defaults to None.
+    Returns
+    -------
+    FcHat_plus_files : list of str
+        List of filenames for the upper confidence regions.
+    FcHat_minus_files : list of str
+        List of filenames for the lower confidence regions.
+    FcHat_files : list of str
+        List of filenames for the estimated conjunction region.
+    a_estBdry : array_like
+        Estimated boundary values for the conjunction region.
+    """
+    
+    # Call to generate_CRs to generate conjunction confidence regions
+    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = generate_CRs(
+        mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
+        n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method,
+        post_fix=post_fix
+    )
+
+    # Return results
+    return FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry
 
 
-# Function to generate symmetric difference confidence regions
-def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
+# Function to generate comparative confidence regions
+def generate_set_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
                           p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
-                          output=True, mode='sss', method=2):
+                          output=True, mode='sss', method=2, post_fix=None):
+    
+    """
+    Generate comparative confidence regions for a set of fields.
+    Parameters
+    ----------
+    mean_fname : list of str
+        List of filenames for the mean images of the two fields.
+    sig_fname : str or list of str
+        Filename(s) of the standard deviation image(s) for the fields.
+    res_fnames : list of str
+        List of filenames for the residuals of the fields.
+    out_dir : str, optional
+        Output directory for the confidence regions. If None, defaults to the current
+        working directory.
+    c : float
+        Threshold for the comparative inference. If None, defaults to 0.
+    p : float or array_like, optional
+        Desired coverage of the confidence regions. If a single float, it is used for
+        both fields. Defaults to 0.95.
+    mask : array_like, optional
+        Mask for the data. If None, defaults to a mask of ones with the same shape as
+        the mean image.
+    n_boot : int, optional
+        Number of bootstrap samples to use for estimating the confidence regions.
+        Defaults to 5000.
+    tau : float or array_like, optional
+        Image or scalar of tau_n values. If None, defaults to sqrt(n).
+    X : array_like, optional
+        Design matrix in a regression context. If None, a vector of ones is used,
+        and a simple mean model is assumed.
+    L : array_like, optional
+        Contrast matrix in a regression model. If None, a matrix with a first entry
+        entry of 1 is used, and a simple mean model is assumed.
+    output : bool, optional
+        Whether to output the confidence regions as nifti files. If False, the
+        confidence regions are returned as numpy arrays. Defaults to True.
+    mode : str, optional
+        Type of confidence regions to generate. Can be 'sss' for the method of Sommerfeld,
+        Sain and Schwartzman (2018), or 'cohens' for the cohens d method of Bowring et al.
+        (2019). Defaults to 'sss'.
+    method : int, optional
+        Method to use for the cohens d method. Can be 1, 2 or 3. The three algorithms
+        are those listed in the following manuscript:
+            https://doi.org/10.1016/j.neuroimage.2020.117477
+        (c.f. Section 2.6). Method 2 is used by default following the recommendations of
+        the above reference. This argument is not needed for 'sss' mode.
+    post_fix : str, optional
+        Post-fix to add to the output files. If None, no post-fix is added.
+        Defaults to None.
+    Returns
+    -------
+    FcHat_plus_files : list of str
+        List of filenames for the upper confidence regions.
+    FcHat_minus_files : list of str
+        List of filenames for the lower confidence regions.
+    FcHat_files : list of str   
+        List of filenames for the estimated comparative region.
+    a_estBdry : array_like  
+        Estimated boundary values for the comparative region.
+    """
+
     
     # Check if mean_fname is a list
     if isinstance(mean_fname, list):
@@ -625,7 +800,7 @@ def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=Non
 
         # If m is not equal to 2, raise an error
         if m != 2:
-            raise ValueError('Symmetric difference confidence regions can only be generated for two fields.')
+            raise ValueError('Comparative confidence regions can only be generated for two fields.')
 
     # If not error
     else:
@@ -644,7 +819,7 @@ def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=Non
     if D == 3:
 
         # Create modified filename
-        new_mean_fname = os.path.join(mean_fname[1].replace('.nii', '_symdiff.nii'))
+        new_mean_fname = os.path.join(mean_fname[1].replace('.nii', '_set_diff.nii'))
         
         # Must save as nifti file
         addBlockToNifti(new_mean_fname, muHat2, 
@@ -657,7 +832,7 @@ def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=Non
     else:
 
         # Create modified filename
-        new_mean_fname = os.path.join(mean_fname[1].replace('.npy', '_symdiff.npy'))
+        new_mean_fname = os.path.join(mean_fname[1].replace('.npy', '_set_diff.npy'))
 
         # Save as numpy array
         np.save(new_mean_fname, muHat2)
@@ -668,8 +843,13 @@ def generate_sym_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=Non
     # Call generate_CRs with modified mean_fname
     FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = generate_CRs(
         mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
-        n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method
+        n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method,
+        post_fix=post_fix
     )
+
+    # Remove new mean file
+    if os.path.exists(new_mean_fname):
+        os.remove(new_mean_fname)
 
     # Return results
     return FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry

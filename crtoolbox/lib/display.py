@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib import colors
 
-def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display='Fancy', slice=None):
+def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display='Fancy', slice=None, mask_zeros=True):
     """
     Display a 3D volume in 2D slices using Plotly.
     Parameters:
@@ -24,6 +24,10 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
         Display mode. Options are 'Fancy' or 'Simple'. Default is 'Fancy'.
     slice : int, optional
         Slice number to display in simple mode. If None, an error will be raised in simple mode.
+    mask_zeros: boolean, optional
+        Boolean controlling whether we treat zero values as background and plot them as black or if we treat them as part
+        of the image and plot them. Default is true (treat as background), unless the array has less than 4 unique values (such
+        as in boolean masks, allowing for the possibility of NaN values).
     Returns:
     --------
     None
@@ -50,10 +54,15 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
         # Make sure it is a numeric numpy array
         volume = np.array(volume, dtype=np.float64)
     
+    # Transpose
     volume = volume.T
     
     # Remove any dimensions of size 1
     volume = np.squeeze(volume)
+
+    # If the volume contains less than 4 unique values, don't mask_zeros
+    if len(np.unique(volume)) < 4 and len(volume.shape) <= 2:
+        mask_zeros = False
 
     # If we have a mask, load it in
     if mask is not None:
@@ -72,13 +81,24 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
         vol = np.squeeze(vol)
         mask = vol.T
 
-        # Mask out regions where we don't have data in the volume
-        mask = mask * (np.abs(volume) > 1e-6)
+        # Mask out zeros
+        if mask_zeros:
+
+            # Mask out regions where we don't have data in the volume
+            mask = mask * (np.abs(volume) > 1e-6)
     
     else:
 
-        # Create mask
-        mask = (np.abs(volume) > 1e-6)
+        # Mask out zeros
+        if mask_zeros:
+
+            # Create mask
+            mask = (np.abs(volume) > 1e-6)
+
+        else:
+
+            # Create empty mask
+            mask = np.ones(volume.shape)
 
     # If we have a background, load it in
     if bg is not None:
@@ -178,7 +198,7 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
         cmap = 'Reds'
 
         # Colour for zero
-        cmap_zero = cm.get_cmap('Reds')(0)
+        cmap_zero = plt.get_cmap('Reds')(0)
 
         # Multiply by 255 using a list comprehension
         cmap_zero = list((255*x for x in cmap_zero))
@@ -193,7 +213,7 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
         cmap = 'Blues'
 
         # Color for zero
-        cmap_zero = cm.get_cmap('Blues')(1)
+        cmap_zero = plt.get_cmap('Blues')(1)
 
         # Multiply by 255 using a list comprehension
         cmap_zero = list((255*x for x in cmap_zero))
@@ -419,7 +439,7 @@ def display_volume(volume_file, mask = None, bg = None, mode='Sagittal', display
             else:
 
                 # Apply colormap
-                rgb_image = cm.get_cmap(cmap)(img_slice)
+                rgb_image = plt.get_cmap(cmap)(img_slice)
 
             # The returned array from colormap is a 3D array. The last dimension has 4 elements
             # (RGBA). We only want the first 3 (RGB)

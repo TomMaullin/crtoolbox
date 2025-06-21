@@ -729,7 +729,7 @@ def generate_data_2D_Mfields(muSpecs, noiseSpecs, out_dir, noiseCorr=None):
         else:
         
             # Generate the noise
-            noise.generate()
+            noiseSpecs[i].generate()
 
             # Get the noise
             noise_i = noiseSpecs[i].noise

@@ -418,4 +418,4 @@ def check_violations(FcHat_plus, FcHat_minus, muhats, sigmas, mus, n, c, a, m=1,
     success = interp_success & binary_success
 
     # Return result
-    return(success, {'Interp: ': interp_success, 'Binary: ': binary_success})
+    return(success, {'Interp': interp_success, 'Binary': binary_success})
