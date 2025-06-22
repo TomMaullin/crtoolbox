@@ -1,10 +1,6 @@
 from setuptools import setup, find_packages
 
-# Read in the requirements.txt file
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
-
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
@@ -25,6 +21,15 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=requirements, 
+    install_requires=[
+        "matplotlib",
+        "numpy",
+        "pandas",
+        "nibabel",
+        "nilearn",
+        "pyyaml",
+        "plotly",
+        "nbformat>=4.2.0",
+    ],
     python_requires='>=3.6',
 )
