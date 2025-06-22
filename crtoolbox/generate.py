@@ -7,7 +7,6 @@ from crtoolbox.lib.boundary import *
 from crtoolbox.lib.fileio import *
 from crtoolbox.bootstrap import *
 from crtoolbox.lib.set_theory import powerset
-import yaml
 import matplotlib.pyplot as plt
 
 
@@ -58,7 +57,7 @@ Outputs:
     FcHat_files: A string representing the path to the estimated conjunction region.
     a_estBdry: A numpy array of shape (n_boot,) representing the bootstrap quantiles.
 """ 
-def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
+def compute_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
                  p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
                  output=True, mode='sss', method=2, post_fix=None):
 
@@ -650,6 +649,103 @@ def cycle_axes(arr):
     return arr.transpose(np.roll(np.arange(ndims), 1))
 
 
+# Function to generate SSS confidence regions for m=1
+def generate_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None,
+                p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
+                output=True, post_fix=None):
+    
+    # Set mode to sss
+    mode = 'sss'
+
+    # Check that m is equal to 1
+    if isinstance(mean_fname, list) and len(mean_fname) != 1:
+
+        raise ValueError('For SSS confidence regions, mean_fname be a string filename.')
+    
+    # Call to generate conjunction confidence regions
+    AcHat_plus_files, AcHat_minus_files, AcHat_files, a_estBdry = compute_CRs(
+        mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
+        n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=2,
+        post_fix=post_fix
+    )
+
+    # Return results
+    return AcHat_plus_files, AcHat_minus_files, AcHat_files, a_estBdry
+
+# Function to generate Cohens d confidence regions for m=1
+def generate_Cohens_d_CRs(d_fname, sig_fname, res_fnames, out_dir=None, c=None,
+                            p=0.95, mask=None, n_boot=5000, tau=None,
+                            output=True, method=2, post_fix=None):
+    
+    """
+    Generate Cohens d confidence regions for m=1.
+    Parameters
+    ----------
+    d_fname : str
+        Filename of the cohens dfor the field.
+    sig_fname : str
+        Filename of the standard deviation image for the field.
+    res_fnames : list of str
+        List of filenames for the residuals of the field.
+    out_dir : str, optional
+        Output directory for the confidence regions. If None, defaults to the current
+        working directory.
+    c : float
+        Threshold for the Cohens d inference. If None, defaults to 0.
+    p : float or array_like, optional
+        Desired coverage of the confidence regions. If a single float, it is used for
+        all fields. If an array, it should have the same length as the number of fields.
+        Defaults to 0.95.
+    mask : array_like, optional
+        Mask for the data. If None, defaults to a mask of ones with the same shape as
+        the mean image. 
+    n_boot : int, optional
+        Number of bootstrap samples to use for estimating the confidence regions.
+        Defaults to 5000.
+    tau : float or array_like, optional
+        Image or scalar of tau_n values. If None, defaults to sqrt(n).
+    output : bool, optional
+        Whether to output the confidence regions as nifti files. If False, the
+        confidence regions are returned as numpy arrays. Defaults to True.
+    method : int, optional
+        Method to use for the Cohens d method. Can be 1, 2 or 3. The three algorithms
+        are those listed in the following manuscript:
+            https://doi.org/10.1016/j.neuroimage.2020.117477
+        (c.f. Section 2.6). Method 2 is used by default following the recommendations of
+        the above reference.
+    post_fix : str, optional
+        Post-fix to add to the output files. If None, no post-fix is added.
+        Defaults to None.
+    Returns
+    -------
+    AcHat_plus_files : list of str
+        List of filenames for the upper confidence regions.
+    AcHat_minus_files : list of str
+        List of filenames for the lower confidence regions.
+    AcHat_files : list of str
+        List of filenames for the estimated Cohens d region.
+    a_estBdry : array_like
+        Estimated boundary values for the Cohens d region.
+    """
+
+    # Set mode to cohens
+    mode = 'cohens'
+
+    # Check that m is equal to 1
+    if isinstance(d_fname, list) and len(d_fname) != 1:
+
+        raise ValueError('For Cohens d confidence regions, d_fname must be a string filename.') 
+    
+    # Call to generate conjunction confidence regions
+    AcHat_plus_files, AcHat_minus_files, AcHat_files, a_estBdry = compute_CRs(
+        d_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
+        n_boot=n_boot, tau=tau, X=None, L=None, output=output, mode=mode,
+        method=method, post_fix=post_fix
+    )
+
+    # Return results
+    return AcHat_plus_files, AcHat_minus_files, AcHat_files, a_estBdry
+
 # Function to generate comparative confidence regions
 def generate_conjunction_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=None, 
                              p=0.95, mask=None, n_boot=5000, tau=None, X=None, L=None,
@@ -716,7 +812,7 @@ def generate_conjunction_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=
     """
     
     # Call to generate_CRs to generate conjunction confidence regions
-    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = generate_CRs(
+    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = compute_CRs(
         mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
         n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method,
         post_fix=post_fix
@@ -841,7 +937,7 @@ def generate_set_diff_CRs(mean_fname, sig_fname, res_fnames, out_dir=None, c=Non
         mean_fname[1] = new_mean_fname
 
     # Call generate_CRs with modified mean_fname
-    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = generate_CRs(
+    FcHat_plus_files, FcHat_minus_files, FcHat_files, a_estBdry = compute_CRs(
         mean_fname, sig_fname, res_fnames, out_dir=out_dir, c=c, p=p, mask=mask,
         n_boot=n_boot, tau=tau, X=X, L=L, output=output, mode=mode, method=method,
         post_fix=post_fix
